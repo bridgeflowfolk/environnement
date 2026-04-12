@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Partenaires — Bridge & Flow Folk</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
+<style>
+
+/* ═══ NAV BFF COMMUN ═══════════════════════════════ */
+nav {
+  position:sticky;top:0;z-index:300;
+  background:rgba(247,251,244,0.97);
+  backdrop-filter:blur(16px);
+  border-bottom:2px solid rgba(45,103,65,0.12);
+  padding:.6rem 1.5rem;
+  display:flex;align-items:center;gap:.8rem;
+  box-shadow:0 2px 16px rgba(45,103,65,0.09);
+}
+.nav-brand { flex-shrink:0; text-decoration:none; }
+.nav-logo { height:48px;width:auto;display:block; }
+.nav-toggle {
+  display:none;margin-left:auto;
+  background:none;border:none;font-size:1.5rem;
+  cursor:pointer;color:var(--vert);padding:.2rem .5rem;
+}
+.nav-links {
+  display:flex;align-items:center;gap:.2rem;flex-wrap:wrap;
+  margin-left:auto;
+}
+.nav-links a {
+  color:var(--vert);text-decoration:none;
+  font-size:.8rem;font-weight:700;
+  padding:.32rem .75rem;border-radius:50px;
+  transition:all .2s;white-space:nowrap;
+}
+.nav-links a:hover, .nav-links a.active { background:var(--vert-pale);color:var(--sombre); }
+.nav-links .nav-cta { background:var(--vert);color:white !important;border-radius:50px; }
+.nav-links .nav-cta:hover { background:var(--sombre); }
+@media(max-width:700px){
+  .nav-toggle{ display:block; }
+  .nav-links{
+    display:none;position:absolute;top:100%;left:0;right:0;
+    background:white;flex-direction:column;align-items:stretch;
+    padding:.8rem 1.2rem;gap:.3rem;
+    box-shadow:0 8px 24px rgba(45,103,65,0.15);
+    border-bottom:2px solid var(--vert-pale);z-index:200;
+  }
+  .nav-links.open{ display:flex; }
+  .nav-links a{ border-radius:10px;padding:.55rem .9rem; }
+}
+
+/* ═══ FOOTER BFF COMMUN ═════════════════════════════ */
+footer { background:var(--sombre); padding:3rem 1.5rem 1.5rem; color:rgba(255,255,255,.7); }
+.footer-inner { max-width:1000px;margin:0 auto; }
+.footer-logo { height:72px;width:auto;display:block;margin:0 auto 2rem;filter:drop-shadow(0 2px 8px rgba(0,0,0,.4)); }
+.footer-cols { display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:2rem;margin-bottom:2rem; }
+.footer-col { display:flex;flex-direction:column;gap:.5rem; }
+.footer-col h4 { color:rgba(255,255,255,.95);font-weight:800;font-size:.88rem;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.3rem; }
+.footer-col p { font-size:.82rem;line-height:1.6; }
+.footer-col a { color:rgba(255,255,255,.65);text-decoration:none;font-size:.83rem;font-weight:600;transition:color .2s; }
+.footer-col a:hover { color:#7cc896; }
+.fb-link { display:inline-flex !important;align-items:center;gap:.5rem;background:rgba(24,119,242,0.25);border:1px solid rgba(24,119,242,0.4);border-radius:8px;padding:.5rem .9rem;color:rgba(255,255,255,.9) !important;margin-top:.4rem;transition:all .2s !important; }
+.fb-link:hover { background:rgba(24,119,242,0.45) !important; }
+.footer-copy { text-align:center;font-size:.72rem;color:rgba(255,255,255,.3);border-top:1px solid rgba(255,255,255,.08);padding-top:1.2rem; }
+
+:root{
+  --vert:#2d6741;--vert2:#3a8a55;--vert3:#7cc896;--vert-pale:#e8f7ed;
+  --soleil:#f5a623;--soleil2:#ffd166;--sombre:#1a3d28;--texte:#2c3e30;
+  --gris:#7a8c80;--fond:#f7fbf4;--fond2:#edf6f0;--r:18px;
+  --ombre:0 4px 24px rgba(45,103,65,0.12);
+  --ombre2:0 8px 40px rgba(45,103,65,0.20);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Nunito',sans-serif;background:var(--fond);color:var(--texte);}
+.page-hero{background:linear-gradient(135deg,var(--sombre) 0%,var(--vert) 100%);padding:4rem 1.5rem 3rem;text-align:center;color:white;}
+.page-hero h1{font-family:'Baloo 2',cursive;font-size:clamp(2rem,5vw,3rem);font-weight:800;margin-bottom:.5rem;}
+.page-hero p{color:rgba(255,255,255,.75);font-size:1rem;max-width:520px;margin:0 auto;line-height:1.6;}
+.section{padding:4rem 1.5rem;}
+.section-inner{max-width:960px;margin:0 auto;}
+.section-header{text-align:center;margin-bottom:2.8rem;}
+.section-tag{display:inline-block;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:var(--vert2);background:var(--vert-pale);border-radius:50px;padding:.3rem .9rem;margin-bottom:.8rem;}
+.section-title{font-family:'Baloo 2',cursive;font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;color:var(--sombre);}
+.section-sub{color:var(--gris);font-size:.95rem;max-width:500px;margin:.4rem auto 0;line-height:1.6;}
+.btn{display:inline-flex;align-items:center;gap:.5rem;padding:.8rem 1.8rem;border-radius:50px;font-family:'Nunito',sans-serif;font-weight:800;font-size:.9rem;text-decoration:none;transition:all .22s;}
+.btn-primary{background:var(--soleil);color:var(--sombre);box-shadow:0 4px 16px rgba(245,166,35,.3);}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(245,166,35,.45);}
+.cta-band{background:linear-gradient(135deg,var(--sombre),var(--vert));border-radius:24px;padding:2.5rem;text-align:center;color:white;margin-top:2rem;}
+.cta-band h3{font-family:'Baloo 2',cursive;font-size:1.5rem;font-weight:800;margin-bottom:.5rem;}
+.cta-band p{color:rgba(255,255,255,.75);font-size:.92rem;margin-bottom:1.4rem;line-height:1.6;}
+.reveal{opacity:0;transform:translateY(20px);transition:opacity .5s,transform .5s;}
+.reveal.visible{opacity:1;transform:none;}
+
+.partners-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.4rem;}
+.partner-card{background:white;border-radius:var(--r);box-shadow:var(--ombre);overflow:hidden;transition:transform .22s,box-shadow .22s;display:flex;flex-direction:column;}
+.partner-card:hover{transform:translateY(-4px);box-shadow:var(--ombre2);}
+.partner-logo-zone{background:var(--fond2);height:130px;display:flex;align-items:center;justify-content:center;font-size:3.5rem;border-bottom:1px solid rgba(45,103,65,0.08);}
+.partner-body{padding:1.4rem 1.4rem 1.6rem;flex:1;display:flex;flex-direction:column;gap:.5rem;}
+.partner-type{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.09em;color:var(--vert2);}
+.partner-name{font-family:'Baloo 2',cursive;font-size:1.15rem;font-weight:800;color:var(--sombre);line-height:1.2;}
+.partner-desc{font-size:.84rem;color:var(--gris);line-height:1.6;flex:1;}
+.partner-link{display:inline-flex;align-items:center;gap:.4rem;margin-top:.8rem;font-size:.8rem;font-weight:800;color:var(--vert);text-decoration:none;background:var(--vert-pale);border-radius:50px;padding:.3rem .8rem;align-self:flex-start;transition:all .2s;}
+.partner-link:hover{background:var(--vert);color:white;}
+.add-partner{background:white;border-radius:var(--r);box-shadow:var(--ombre);border:3px dashed var(--vert3);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2.5rem 1.5rem;text-align:center;min-height:260px;gap:.6rem;color:var(--gris);}
+.add-partner .add-icon{font-size:2.5rem;opacity:.5;}
+.add-partner p{font-size:.83rem;line-height:1.5;}
+.add-partner code{display:block;font-size:.72rem;background:var(--fond2);border-radius:8px;padding:.6rem .9rem;margin-top:.4rem;color:var(--vert);text-align:left;white-space:pre-wrap;}
+</style>
+</head>
+<body>
+<nav>
+  <a href="bff-atelier.html" class="nav-brand">
+    <img src="logo-bff.png" alt="Bridge & Flow Folk" class="nav-logo">
+  </a>
+  <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">☰</button>
+  <div class="nav-links">
+    <a href="bff-atelier.html">🏠 Accueil</a>
+    <a href="quiz-environnement.html">🌍 Quiz</a>
+    <a href="apprendre-environnement.html">📚 Éco-Apprendre</a>
+    <a href="partenaires.html" class="active">🤝 Partenaires</a>
+    <a href="presse.html">📰 Presse</a>
+    <a href="bff-atelier.html#inscription" class="nav-cta">S'inscrire</a>
+  </div>
+</nav>
+<div class="page-hero">
+  <h1>🤝 Nos partenaires</h1>
+  <p>L'atelier "C'est Notre Nature" est rendu possible grâce au soutien de nos partenaires locaux.</p>
+</div>
+<section class="section">
+  <div class="section-inner">
+    <div class="section-header reveal">
+      <div class="section-tag">🌍 Ils nous soutiennent</div>
+      <h2 class="section-title">Partenaires de l'événement</h2>
+      <p class="section-sub">Institutions, associations et acteurs locaux engagés pour l'environnement et la vie de quartier.</p>
+    </div>
+    <div class="partners-grid">
+      <div class="partner-card reveal">
+        <div class="partner-logo-zone">🏛️</div>
+        <div class="partner-body">
+          <div class="partner-type">Collectivité locale</div>
+          <div class="partner-name">Mairie de Nogent-le-Roi</div>
+          <p class="partner-desc">La commune de Nogent-le-Roi soutient les initiatives citoyennes et associatives sur son territoire. Elle accompagne l'association BFF dans l'organisation de cette journée de sensibilisation environnementale dans le quartier des Hauts.</p>
+          <a href="https://nogentleroi.fr/environnement/" target="_blank" rel="noopener" class="partner-link">🌐 nogentleroi.fr →</a>
+        </div>
+      </div>
+      <div class="partner-card reveal">
+        <div class="partner-logo-zone">🏫</div>
+        <div class="partner-body">
+          <div class="partner-type">Association de parents d'élèves</div>
+          <div class="partner-name">GPE — Parents d'élèves</div>
+          <p class="partner-desc">Le Groupement de Parents d'Élèves de Nogent-le-Roi mobilise les familles du quartier autour de projets éducatifs et citoyens. Leur réseau permet de toucher les enfants et leurs parents dans le cadre de cet atelier familial.</p>
+          <a href="#" class="partner-link">🌐 Site à renseigner →</a>
+        </div>
+      </div>
+      <div class="add-partner reveal">
+        <div class="add-icon">➕</div>
+        <strong style="color:var(--vert);font-size:.95rem;">Ajouter un partenaire</strong>
+        <p>Dupliquer le bloc HTML ci-dessous et compléter les champs :</p>
+        <code>&lt;div class="partner-card"&gt;
+  &lt;div class="partner-logo-zone"&gt;🏢&lt;/div&gt;
+  &lt;div class="partner-body"&gt;
+    &lt;div class="partner-type"&gt;Type&lt;/div&gt;
+    &lt;div class="partner-name"&gt;Nom&lt;/div&gt;
+    &lt;p class="partner-desc"&gt;Description&lt;/p&gt;
+    &lt;a href="URL" class="partner-link"&gt;Site →&lt;/a&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code>
+      </div>
+    </div>
+    <div class="cta-band reveal">
+      <h3>Vous souhaitez nous soutenir ?</h3>
+      <p>Que vous soyez une collectivité, une association ou une entreprise locale engagée, contactez-nous pour rejoindre nos partenaires.</p>
+      <a href="mailto:bridgeflow.f@gmail.com?subject=Partenariat%20%E2%80%94%20Atelier%20C%27est%20Notre%20Nature" class="btn btn-primary">✉️ Nous contacter pour un partenariat</a>
+    </div>
+  </div>
+</section>
+<footer>
+  <div class="footer-inner">
+    <img src="logo-bff.png" alt="Bridge & Flow Folk" class="footer-logo">
+    <div class="footer-cols">
+      <div class="footer-col">
+        <h4>Bridge &amp; Flow Folk</h4>
+        <p>Association organisatrice de l'atelier "C'est Notre Nature" — Nogent-le-Roi (28)</p>
+        <a href="https://www.facebook.com/share/14YBdZ5HDyj/" target="_blank" rel="noopener" class="fb-link">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.235 2.686.235v2.97h-1.514c-1.491 0-1.956.93-1.956 1.874v2.25h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/></svg>
+          Suivez-nous sur Facebook
+        </a>
+      </div>
+      <div class="footer-col">
+        <h4>Pages</h4>
+        <a href="bff-atelier.html">🏠 Accueil — Atelier</a>
+        <a href="quiz-environnement.html">🌍 Quiz Planète</a>
+        <a href="apprendre-environnement.html">📚 Éco-Apprendre</a>
+        <a href="partenaires.html">🤝 Partenaires</a>
+        <a href="presse.html">📰 Ils parlent de nous</a>
+      </div>
+      <div class="footer-col">
+        <h4>Contact &amp; inscription</h4>
+        <a href="mailto:bridgeflow.f@gmail.com?subject=Inscription%20journ%C3%A9e%20C%27est%20Notre%20Nature%20%E2%80%94%20Nogent-le-Roi">✉️ bridgeflow.f@gmail.com</a>
+        <a href="bff-atelier.html#inscription">📋 S'inscrire à l'atelier</a>
+      </div>
+    </div>
+    <p class="footer-copy">© 2025 Association Bridge &amp; Flow Folk — Événement associatif gratuit</p>
+  </div>
+</footer>
+<script>
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach((e,i)=>{
+    if(e.isIntersecting){setTimeout(()=>e.target.classList.add('visible'),i*60);obs.unobserve(e.target);}
+  });
+},{threshold:0.1});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>

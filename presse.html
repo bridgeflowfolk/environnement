@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ils parlent de nous — Bridge & Flow Folk</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
+<style>
+
+/* ═══ NAV BFF COMMUN ═══════════════════════════════ */
+nav {
+  position:sticky;top:0;z-index:300;
+  background:rgba(247,251,244,0.97);
+  backdrop-filter:blur(16px);
+  border-bottom:2px solid rgba(45,103,65,0.12);
+  padding:.6rem 1.5rem;
+  display:flex;align-items:center;gap:.8rem;
+  box-shadow:0 2px 16px rgba(45,103,65,0.09);
+}
+.nav-brand { flex-shrink:0; text-decoration:none; }
+.nav-logo { height:48px;width:auto;display:block; }
+.nav-toggle {
+  display:none;margin-left:auto;
+  background:none;border:none;font-size:1.5rem;
+  cursor:pointer;color:var(--vert);padding:.2rem .5rem;
+}
+.nav-links {
+  display:flex;align-items:center;gap:.2rem;flex-wrap:wrap;
+  margin-left:auto;
+}
+.nav-links a {
+  color:var(--vert);text-decoration:none;
+  font-size:.8rem;font-weight:700;
+  padding:.32rem .75rem;border-radius:50px;
+  transition:all .2s;white-space:nowrap;
+}
+.nav-links a:hover, .nav-links a.active { background:var(--vert-pale);color:var(--sombre); }
+.nav-links .nav-cta { background:var(--vert);color:white !important;border-radius:50px; }
+.nav-links .nav-cta:hover { background:var(--sombre); }
+@media(max-width:700px){
+  .nav-toggle{ display:block; }
+  .nav-links{
+    display:none;position:absolute;top:100%;left:0;right:0;
+    background:white;flex-direction:column;align-items:stretch;
+    padding:.8rem 1.2rem;gap:.3rem;
+    box-shadow:0 8px 24px rgba(45,103,65,0.15);
+    border-bottom:2px solid var(--vert-pale);z-index:200;
+  }
+  .nav-links.open{ display:flex; }
+  .nav-links a{ border-radius:10px;padding:.55rem .9rem; }
+}
+
+/* ═══ FOOTER BFF COMMUN ═════════════════════════════ */
+footer { background:var(--sombre); padding:3rem 1.5rem 1.5rem; color:rgba(255,255,255,.7); }
+.footer-inner { max-width:1000px;margin:0 auto; }
+.footer-logo { height:72px;width:auto;display:block;margin:0 auto 2rem;filter:drop-shadow(0 2px 8px rgba(0,0,0,.4)); }
+.footer-cols { display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:2rem;margin-bottom:2rem; }
+.footer-col { display:flex;flex-direction:column;gap:.5rem; }
+.footer-col h4 { color:rgba(255,255,255,.95);font-weight:800;font-size:.88rem;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.3rem; }
+.footer-col p { font-size:.82rem;line-height:1.6; }
+.footer-col a { color:rgba(255,255,255,.65);text-decoration:none;font-size:.83rem;font-weight:600;transition:color .2s; }
+.footer-col a:hover { color:#7cc896; }
+.fb-link { display:inline-flex !important;align-items:center;gap:.5rem;background:rgba(24,119,242,0.25);border:1px solid rgba(24,119,242,0.4);border-radius:8px;padding:.5rem .9rem;color:rgba(255,255,255,.9) !important;margin-top:.4rem;transition:all .2s !important; }
+.fb-link:hover { background:rgba(24,119,242,0.45) !important; }
+.footer-copy { text-align:center;font-size:.72rem;color:rgba(255,255,255,.3);border-top:1px solid rgba(255,255,255,.08);padding-top:1.2rem; }
+
+
+:root{
+  --vert:#2d6741;--vert2:#3a8a55;--vert3:#7cc896;--vert-pale:#e8f7ed;
+  --soleil:#f5a623;--soleil2:#ffd166;--sombre:#1a3d28;--texte:#2c3e30;
+  --gris:#7a8c80;--fond:#f7fbf4;--fond2:#edf6f0;--r:18px;
+  --ombre:0 4px 24px rgba(45,103,65,0.12);
+  --ombre2:0 8px 40px rgba(45,103,65,0.20);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Nunito',sans-serif;background:var(--fond);color:var(--texte);}
+.page-hero{background:linear-gradient(135deg,#1a2a3d 0%,#2d4a6a 100%);padding:4rem 1.5rem 3rem;text-align:center;color:white;}
+.page-hero h1{font-family:'Baloo 2',cursive;font-size:clamp(2rem,5vw,3rem);font-weight:800;margin-bottom:.5rem;}
+.page-hero p{color:rgba(255,255,255,.75);font-size:1rem;max-width:520px;margin:0 auto;line-height:1.6;}
+.section{padding:4rem 1.5rem;}
+.section-inner{max-width:960px;margin:0 auto;}
+.section-header{text-align:center;margin-bottom:2.8rem;}
+.section-tag{display:inline-block;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:var(--vert2);background:var(--vert-pale);border-radius:50px;padding:.3rem .9rem;margin-bottom:.8rem;}
+.section-title{font-family:'Baloo 2',cursive;font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;color:var(--sombre);}
+.section-sub{color:var(--gris);font-size:.95rem;max-width:500px;margin:.4rem auto 0;line-height:1.6;}
+.btn{display:inline-flex;align-items:center;gap:.5rem;padding:.8rem 1.8rem;border-radius:50px;font-family:'Nunito',sans-serif;font-weight:800;font-size:.9rem;text-decoration:none;transition:all .22s;}
+.btn-primary{background:var(--soleil);color:var(--sombre);box-shadow:0 4px 16px rgba(245,166,35,.3);}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(245,166,35,.45);}
+.cta-band{background:linear-gradient(135deg,var(--sombre),var(--vert));border-radius:24px;padding:2.5rem;text-align:center;color:white;margin-top:2rem;}
+.cta-band h3{font-family:'Baloo 2',cursive;font-size:1.5rem;font-weight:800;margin-bottom:.5rem;}
+.cta-band p{color:rgba(255,255,255,.75);font-size:.92rem;margin-bottom:1.4rem;line-height:1.6;}
+.reveal{opacity:0;transform:translateY(20px);transition:opacity .5s,transform .5s;}
+.reveal.visible{opacity:1;transform:none;}
+
+.press-list{display:flex;flex-direction:column;gap:1.2rem;}
+.press-card{background:white;border-radius:var(--r);box-shadow:var(--ombre);display:flex;gap:1.2rem;align-items:flex-start;padding:1.4rem 1.5rem;text-decoration:none;color:inherit;border-left:4px solid var(--vert3);transition:all .22s;}
+.press-card:hover{transform:translateX(6px);box-shadow:var(--ombre2);border-left-color:var(--soleil);}
+.press-icon{font-size:2rem;min-width:2.8rem;height:2.8rem;background:var(--fond2);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.press-content{flex:1;}
+.press-source{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.09em;color:var(--gris);margin-bottom:.3rem;}
+.press-title{font-family:'Baloo 2',cursive;font-size:1.1rem;font-weight:800;color:var(--sombre);line-height:1.3;margin-bottom:.3rem;}
+.press-desc{font-size:.83rem;color:var(--gris);line-height:1.5;}
+.press-date{font-size:.75rem;font-weight:700;color:var(--vert2);background:var(--vert-pale);border-radius:50px;padding:.2rem .65rem;margin-top:.5rem;display:inline-block;}
+.press-arrow{color:var(--gris);font-size:1.2rem;flex-shrink:0;align-self:center;transition:transform .2s;}
+.press-card:hover .press-arrow{transform:translateX(4px);color:var(--vert);}
+.add-article{background:white;border-radius:var(--r);box-shadow:var(--ombre);border:3px dashed var(--vert3);padding:2.2rem;text-align:center;display:flex;flex-direction:column;align-items:center;gap:.7rem;}
+.add-article .add-icon{font-size:2.5rem;opacity:.5;}
+.add-article p{font-size:.83rem;color:var(--gris);line-height:1.6;max-width:480px;}
+.add-article code{display:block;font-size:.72rem;background:var(--fond2);border-radius:8px;padding:.7rem 1rem;color:var(--vert);text-align:left;width:100%;white-space:pre-wrap;}
+</style>
+</head>
+<body>
+<nav>
+  <a href="bff-atelier.html" class="nav-brand">
+    <img src="logo-bff.png" alt="Bridge & Flow Folk" class="nav-logo">
+  </a>
+  <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">☰</button>
+  <div class="nav-links">
+    <a href="bff-atelier.html">🏠 Accueil</a>
+    <a href="quiz-environnement.html">🌍 Quiz</a>
+    <a href="apprendre-environnement.html">📚 Éco-Apprendre</a>
+    <a href="partenaires.html">🤝 Partenaires</a>
+    <a href="presse.html" class="active">📰 Presse</a>
+    <a href="bff-atelier.html#inscription" class="nav-cta">S'inscrire</a>
+  </div>
+</nav>
+<div class="page-hero" style="background:linear-gradient(135deg,#1a2a3d 0%,#2d4a6a 100%);">
+  <h1>📰 Ils parlent de nous</h1>
+  <p>Retrouvez les articles de presse et mentions en ligne qui parlent des actions de Bridge &amp; Flow Folk.</p>
+</div>
+<section class="section">
+  <div class="section-inner">
+    <div class="section-header reveal">
+      <div class="section-tag">📰 Revue de presse</div>
+      <h2 class="section-title">Dans les médias</h2>
+      <p class="section-sub">Cette page recense les articles et reportages sur nos événements. Cliquez pour accéder à l'article complet.</p>
+    </div>
+    <div class="press-list">
+      <a href="#" class="press-card reveal" target="_blank" rel="noopener">
+        <div class="press-icon">📰</div>
+        <div class="press-content">
+          <div class="press-source">L'Écho Républicain — Exemple à remplacer</div>
+          <div class="press-title">Bridge &amp; Flow Folk organise une journée de nettoyage citoyenne à Nogent-le-Roi</div>
+          <p class="press-desc">L'association locale mobilise les familles du quartier des Hauts autour d'un atelier environnemental mêlant action terrain et quiz pédagogique…</p>
+          <span class="press-date">📅 Date à renseigner</span>
+        </div>
+        <div class="press-arrow">→</div>
+      </a>
+      <div class="add-article reveal">
+        <div class="add-icon">➕</div>
+        <strong style="color:var(--vert);font-size:.95rem;">Ajouter un article de presse</strong>
+        <p>Dupliquer le bloc ci-dessous dans <strong>presse.html</strong> et compléter URL, titre, source et date :</p>
+        <code>&lt;a href="URL_ARTICLE" class="press-card" target="_blank"&gt;
+  &lt;div class="press-icon"&gt;📰&lt;/div&gt;
+  &lt;div class="press-content"&gt;
+    &lt;div class="press-source"&gt;Nom du journal&lt;/div&gt;
+    &lt;div class="press-title"&gt;Titre de l'article&lt;/div&gt;
+    &lt;p class="press-desc"&gt;Court résumé…&lt;/p&gt;
+    &lt;span class="press-date"&gt;📅 JJ/MM/AAAA&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div class="press-arrow"&gt;→&lt;/div&gt;
+&lt;/a&gt;</code>
+      </div>
+    </div>
+    <div class="cta-band reveal" style="background:linear-gradient(135deg,#1a2a3d,#2d4a6a);">
+      <h3>Vous êtes journaliste ?</h3>
+      <p>Pour toute demande d'interview, de visuels ou d'informations sur l'association BFF et nos événements, contactez-nous directement.</p>
+      <a href="mailto:bridgeflow.f@gmail.com?subject=Demande%20presse%20%E2%80%94%20Bridge%20%26%20Flow%20Folk" class="btn btn-primary">✉️ Contact presse</a>
+    </div>
+  </div>
+</section>
+<footer>
+  <div class="footer-inner">
+    <img src="logo-bff.png" alt="Bridge & Flow Folk" class="footer-logo">
+    <div class="footer-cols">
+      <div class="footer-col">
+        <h4>Bridge &amp; Flow Folk</h4>
+        <p>Association organisatrice de l'atelier "C'est Notre Nature" — Nogent-le-Roi (28)</p>
+        <a href="https://www.facebook.com/share/14YBdZ5HDyj/" target="_blank" rel="noopener" class="fb-link">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.235 2.686.235v2.97h-1.514c-1.491 0-1.956.93-1.956 1.874v2.25h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/></svg>
+          Suivez-nous sur Facebook
+        </a>
+      </div>
+      <div class="footer-col">
+        <h4>Pages</h4>
+        <a href="bff-atelier.html">🏠 Accueil — Atelier</a>
+        <a href="quiz-environnement.html">🌍 Quiz Planète</a>
+        <a href="apprendre-environnement.html">📚 Éco-Apprendre</a>
+        <a href="partenaires.html">🤝 Partenaires</a>
+        <a href="presse.html">📰 Ils parlent de nous</a>
+      </div>
+      <div class="footer-col">
+        <h4>Contact &amp; inscription</h4>
+        <a href="mailto:bridgeflow.f@gmail.com?subject=Inscription%20journ%C3%A9e%20C%27est%20Notre%20Nature%20%E2%80%94%20Nogent-le-Roi">✉️ bridgeflow.f@gmail.com</a>
+        <a href="bff-atelier.html#inscription">📋 S'inscrire à l'atelier</a>
+      </div>
+    </div>
+    <p class="footer-copy">© 2025 Association Bridge &amp; Flow Folk — Événement associatif gratuit</p>
+  </div>
+</footer>
+<script>
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach((e,i)=>{
+    if(e.isIntersecting){setTimeout(()=>e.target.classList.add('visible'),i*60);obs.unobserve(e.target);}
+  });
+},{threshold:0.1});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>

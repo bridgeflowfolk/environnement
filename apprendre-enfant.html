@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Éco-Apprendre 📚 — BFF Enfants</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root { 
+  --jaune:    #FFD93D;
+  --orange:   #FF6B35;
+  --rouge:    #FF4757;
+  --rose:     #FF6B9D;
+  --violet:   #A855F7;
+  --bleu:     #3B82F6;
+  --bleu2:    #06B6D4;
+  --vert:     #22C55E;
+  --vert2:    #16A34A;
+  --blanc:    #FFFEF7;
+  --fond:     #FFFEF7;
+  --sombre:   #1E293B;
+  --r-big:    32px;
+  --r-med:    20px;
+  --r-sm:     12px;
+ }
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--fond);
+  color: var(--sombre);
+  overflow-x: hidden;
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Ctext y='24' font-size='24'%3E🌿%3C/text%3E%3C/svg%3E") 8 8, auto;
+}
+
+/* ══ CONFETTIS FOND ══ */
+.confetti-bg {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
+}
+.confetti-bg span {
+  position: absolute;
+  border-radius: 50%;
+  animation: floatConfetti linear infinite;
+  opacity: 0.15;
+}
+@keyframes floatConfetti {
+  0%   { transform: translateY(110vh) rotate(0deg) scale(0.5); opacity: 0; }
+  10%  { opacity: 0.2; }
+  90%  { opacity: 0.15; }
+  100% { transform: translateY(-10vh) rotate(720deg) scale(1); opacity: 0; }
+}
+
+/* ══ NAV ENFANTS ══ */
+nav {
+  position: sticky; top: 0; z-index: 300;
+  background: var(--bleu);
+  padding: .7rem 1.2rem;
+  display: flex; align-items: center; gap: .8rem;
+  box-shadow: 0 6px 0 rgba(0,0,0,0.15);
+}
+.nav-brand { flex-shrink: 0; text-decoration: none; }
+.nav-logo   { height: 52px; width: auto; display: block; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.3)); }
+.nav-title  {
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.2rem; color: white;
+  text-shadow: 2px 2px 0 rgba(0,0,0,0.2);
+  line-height: 1.1;
+}
+.nav-title small { display: block; font-size: .72rem; font-family: 'Nunito', sans-serif; font-weight: 700; opacity: .8; }
+.nav-toggle {
+  display: none; margin-left: auto;
+  background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.4);
+  border-radius: 12px; color: white; font-size: 1.4rem;
+  cursor: pointer; padding: .3rem .6rem;
+}
+.nav-links {
+  display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; margin-left: auto;
+}
+.nav-links a {
+  color: white; text-decoration: none;
+  font-size: .82rem; font-weight: 800;
+  padding: .4rem .85rem; border-radius: 50px;
+  background: rgba(255,255,255,0.18);
+  border: 2px solid rgba(255,255,255,0.3);
+  transition: all .2s; white-space: nowrap;
+}
+.nav-links a:hover, .nav-links a.active {
+  background: var(--jaune); color: var(--sombre);
+  border-color: var(--jaune);
+  transform: translateY(-2px);
+}
+.nav-links .nav-cta {
+  background: var(--vert); border-color: var(--vert2);
+  box-shadow: 0 4px 0 var(--vert2);
+}
+.nav-links .nav-cta:hover {
+  background: var(--jaune); color: var(--sombre);
+  border-color: #c8a800; box-shadow: 0 4px 0 #c8a800;
+}
+@media(max-width:700px){
+  .nav-toggle { display: block; }
+  .nav-links {
+    display: none; position: absolute; top: 100%; left: 0; right: 0;
+    background: var(--bleu); flex-direction: column; align-items: stretch;
+    padding: .8rem 1rem; gap: .4rem;
+    box-shadow: 0 8px 0 rgba(0,0,0,0.15); z-index: 200;
+  }
+  .nav-links.open { display: flex; }
+  .nav-links a { text-align: center; border-radius: var(--r-sm); }
+}
+
+/* ══ FOOTER ENFANTS ══ */
+footer {
+  background: var(--sombre);
+  padding: 3rem 1.5rem 2rem;
+  position: relative; overflow: hidden;
+}
+footer::before {
+  content: '🌍🌿♻️💧🌱🐝🌍🌿♻️💧🌱🐝';
+  display: block; text-align: center;
+  font-size: 1.6rem; letter-spacing: .5rem;
+  opacity: .15; margin-bottom: 1.5rem;
+}
+.footer-inner { max-width: 960px; margin: 0 auto; }
+.footer-logo  { height: 80px; width: auto; display: block; margin: 0 auto 1.5rem; }
+.footer-cols  {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 1.5rem; margin-bottom: 1.5rem;
+}
+.footer-col { display: flex; flex-direction: column; gap: .5rem; }
+.footer-col h4 {
+  color: var(--jaune); font-family: 'Fredoka One', cursive;
+  font-size: 1rem; margin-bottom: .3rem;
+}
+.footer-col p  { font-size: .82rem; color: rgba(255,255,255,.6); line-height: 1.6; }
+.footer-col a  {
+  color: rgba(255,255,255,.65); text-decoration: none;
+  font-size: .83rem; font-weight: 700; transition: color .2s;
+}
+.footer-col a:hover { color: var(--jaune); }
+.fb-link {
+  display: inline-flex !important; align-items: center; gap: .5rem;
+  background: #1877F2; border-radius: 10px;
+  padding: .5rem .9rem; color: white !important;
+  margin-top: .4rem; font-weight: 800 !important;
+  box-shadow: 0 4px 0 #0d5dbf;
+  transition: all .2s !important;
+}
+.fb-link:hover { transform: translateY(-2px) !important; box-shadow: 0 6px 0 #0d5dbf !important; }
+.footer-copy {
+  text-align: center; font-size: .72rem;
+  color: rgba(255,255,255,.25);
+  border-top: 1px solid rgba(255,255,255,.08);
+  padding-top: 1.2rem; margin-top: .5rem;
+}
+
+/* ══ UTILITAIRES ══ */
+.reveal { opacity:0; transform:translateY(24px); transition: opacity .5s, transform .5s; }
+.reveal.visible { opacity:1; transform:none; }
+
+/* bouton générique */
+.btn {
+  display: inline-flex; align-items: center; gap: .5rem;
+  padding: .85rem 2rem; border-radius: 50px;
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.05rem; text-decoration: none;
+  cursor: pointer; border: none;
+  transition: all .2s; letter-spacing: .02em;
+}
+.btn-jaune {
+  background: var(--jaune); color: var(--sombre);
+  box-shadow: 0 6px 0 #c8a800;
+}
+.btn-jaune:hover { transform: translateY(-3px); box-shadow: 0 9px 0 #c8a800; }
+.btn-vert {
+  background: var(--vert); color: white;
+  box-shadow: 0 6px 0 var(--vert2);
+}
+.btn-vert:hover { transform: translateY(-3px); box-shadow: 0 9px 0 var(--vert2); }
+.btn-blanc {
+  background: white; color: var(--sombre);
+  box-shadow: 0 6px 0 rgba(0,0,0,0.2);
+}
+.btn-blanc:hover { transform: translateY(-3px); }
+
+/* sections */
+.section { padding: 4rem 1.5rem; position: relative; }
+.section-inner { max-width: 960px; margin: 0 auto; }
+.section-header { text-align: center; margin-bottom: 3rem; }
+.section-tag {
+  display: inline-block;
+  font-family: 'Fredoka One', cursive;
+  font-size: .9rem; letter-spacing: .05em;
+  color: white; background: var(--orange);
+  border-radius: 50px; padding: .3rem 1rem;
+  margin-bottom: .8rem;
+  box-shadow: 0 4px 0 #c8430d;
+}
+.section-title {
+  font-family: 'Fredoka One', cursive;
+  font-size: clamp(2rem,5vw,3rem);
+  color: var(--sombre); line-height: 1.1;
+  margin-bottom: .5rem;
+}
+.section-sub {
+  color: #64748b; font-size: 1rem;
+  max-width: 520px; margin: 0 auto; line-height: 1.6;
+}
+
+/* ondes déco entre sections */
+.wave-sep {
+  width: 100%; overflow: hidden; line-height: 0;
+  margin-bottom: -2px;
+}
+.wave-sep svg { display: block; width: 100%; }
+
+
+.page-hero {
+  background: linear-gradient(135deg, #22C55E 0%, #06B6D4 70%, #3B82F6 100%);
+  padding: 4rem 1.5rem 3.5rem; text-align: center;
+  position: relative; overflow: hidden;
+}
+.page-hero-logo { height:80px;width:auto;margin-bottom:1rem;filter:drop-shadow(0 4px 12px rgba(0,0,0,.25));animation:bounce 2.5s ease-in-out infinite; }
+@keyframes bounce { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-10px);} }
+.page-hero h1 { font-family:'Fredoka One',cursive;font-size:clamp(2.2rem,6vw,4rem);color:white;text-shadow:3px 3px 0 rgba(0,0,0,.2);margin-bottom:.5rem; }
+.page-hero p { font-size:1.1rem;color:rgba(255,255,255,.9);font-weight:700; }
+.hero-wave { overflow:hidden;line-height:0;margin-bottom:-2px; }
+.hero-wave svg { display:block;width:100%; }
+
+.section { padding:3.5rem 1.5rem; }
+.section-inner { max-width:960px;margin:0 auto; }
+.section-header { text-align:center;margin-bottom:2.5rem; }
+.section-tag { display:inline-block;font-family:'Fredoka One',cursive;font-size:.9rem;color:white;background:var(--orange);border-radius:50px;padding:.3rem 1rem;margin-bottom:.7rem;box-shadow:0 4px 0 #c8430d; }
+.section-title { font-family:'Fredoka One',cursive;font-size:clamp(1.8rem,4vw,2.6rem);color:var(--sombre);margin-bottom:.4rem; }
+.section-sub { color:#64748b;font-size:.95rem;max-width:520px;margin:0 auto;line-height:1.6; }
+
+/* ══ THÈMES EN CARTES COLORÉES ══ */
+.themes-grid { display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.4rem; }
+.theme-card {
+  border-radius:var(--r-big); overflow:hidden;
+  box-shadow:0 8px 0 rgba(0,0,0,.1);
+  transition:transform .22s;
+}
+.theme-card:hover { transform:translateY(-5px) rotate(.5deg); }
+.tc-header {
+  padding:1.6rem 1.6rem 1rem;
+  display:flex;align-items:center;gap:.9rem;
+}
+.tc-header:nth-child(1) { background:var(--bleu2); }
+.tc-icon {
+  font-size:2.4rem; min-width:3rem; height:3rem;
+  background:rgba(255,255,255,.25);
+  border-radius:var(--r-sm);
+  display:flex;align-items:center;justify-content:center;
+}
+.tc-header-text h3 { font-family:'Fredoka One',cursive;font-size:1.2rem;color:white;text-shadow:1px 2px 0 rgba(0,0,0,.2); }
+.tc-header-text span { font-size:.72rem;font-weight:800;color:rgba(255,255,255,.8);text-transform:uppercase;letter-spacing:.06em; }
+.tc-body { background:white;padding:1rem 1.4rem 1.4rem; }
+
+.fact-item {
+  display:flex;align-items:flex-start;gap:.7rem;
+  padding:.7rem 0;
+  border-bottom:2px dashed #f1f5f9;
+}
+.fact-item:last-child { border-bottom:none; }
+.fact-q {
+  cursor:pointer; width:100%;
+  font-family:'Fredoka One',cursive;
+  font-size:.95rem;color:var(--sombre);
+  background:none;border:none;text-align:left;
+  display:flex;align-items:center;justify-content:space-between;gap:.5rem;
+  padding:.3rem 0;
+}
+.fact-q .arr { font-size:.8rem;color:#94a3b8;transition:transform .2s;flex-shrink:0; }
+.fact-q.open .arr { transform:rotate(90deg); }
+.fact-answer {
+  display:none;font-size:.85rem;color:#475569;
+  line-height:1.6;padding:.5rem 0 .3rem;font-weight:600;
+}
+.fact-answer.open { display:block;animation:fadeIn .2s ease; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(-4px)} to{opacity:1;transform:none} }
+.fact-wow {
+  display:inline-block;margin-top:.5rem;
+  background:var(--jaune);color:var(--sombre);
+  border-radius:50px;padding:.2rem .7rem;
+  font-size:.78rem;font-weight:900;
+  box-shadow:0 3px 0 #c8a800;
+}
+
+/* ══ RESSOURCES ══ */
+.res-grid { display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.1rem; }
+.res-card {
+  background:white;border-radius:var(--r-big);
+  box-shadow:0 6px 0 rgba(0,0,0,.08);
+  padding:1.4rem;display:flex;gap:.9rem;align-items:flex-start;
+  text-decoration:none;color:inherit;
+  border:3px solid transparent;
+  transition:all .2s;
+}
+.res-card:hover { border-color:var(--bleu);transform:translateY(-3px); }
+.res-icon {
+  font-size:2rem;min-width:2.8rem;height:2.8rem;
+  background:#f1f5f9;border-radius:var(--r-sm);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.res-card h4 { font-family:'Fredoka One',cursive;font-size:1rem;color:var(--sombre);margin-bottom:.2rem;line-height:1.2; }
+.res-card p { font-size:.8rem;color:#64748b;line-height:1.5;font-weight:600; }
+.res-tag {
+  display:inline-block;margin-top:.4rem;
+  font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;
+  border-radius:50px;padding:.18rem .55rem;
+}
+.tag-ademe { background:#dcfce7;color:#166534; }
+.tag-local { background:#fef3c7;color:#92400e; }
+.tag-nat   { background:#dbeafe;color:#1e40af; }
+
+.s-bleu  { background:#EFF6FF; }
+.s-vert  { background:#F0FDF4; }
+.s-jaune { background:#FFFBEB; }
+</style>
+</head>
+<body>
+<div class="confetti-bg"></div>
+<nav>
+  <a href="bff-atelier-enfant.html" class="nav-brand">
+    <img src="logo-bff.png" alt="BFF" class="nav-logo">
+  </a>
+  <div class="nav-title">Bridge &amp; Flow Folk<small>C'est Notre Nature 🌿</small></div>
+  <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">☰</button>
+  <div class="nav-links">
+    <a href="bff-atelier-enfant.html">🏠 Accueil</a>
+<a href="quiz-enfant.html">🌍 Quiz</a>
+<a href="apprendre-enfant.html" class="active">📚 Apprendre</a>
+<a href="partenaires-enfant.html">🤝 Amis</a>
+<a href="presse-enfant.html">📰 Presse</a>
+
+    <a href="bff-atelier-enfant.html#inscription" class="nav-cta">✍️ S'inscrire !</a>
+  </div>
+</nav>
+
+<div class="page-hero">
+  <img src="logo-bff.png" alt="BFF" class="page-hero-logo">
+  <h1>📚 Éco-Apprendre !</h1>
+  <p>Tout ce qu'il faut savoir pour devenir un super éco-héros 🦸</p>
+  <div class="hero-wave">
+    <svg viewBox="0 0 1440 60" fill="none"><path d="M0,30 C360,60 1080,0 1440,30 L1440,60 L0,60 Z" fill="#EFF6FF"/></svg>
+  </div>
+</div>
+
+<!-- THÈMES -->
+<section class="section s-bleu">
+  <div class="section-inner">
+    <div class="section-header reveal">
+      <div class="section-tag">🌍 Les grands sujets</div>
+      <h2 class="section-title">C'est quoi tout ça ?</h2>
+      <p class="section-sub">Clique sur les questions pour découvrir les réponses !</p>
+    </div>
+    <div class="themes-grid">
+
+      <!-- Déchets -->
+      <div class="theme-card reveal">
+        <div class="tc-header" style="background:linear-gradient(135deg,var(--orange),var(--rouge));">
+          <div class="tc-icon">♻️</div>
+          <div class="tc-header-text"><h3>Les déchets</h3><span>Tri & Recyclage</span></div>
+        </div>
+        <div class="tc-body">
+          <div class="fact-item">
+            <div style="flex:1">
+              <button class="fact-q" onclick="tog(this)">Pourquoi trier ses déchets ? <span class="arr">▶</span></button>
+              <div class="fact-answer">Trier permet de recycler les matières et de fabriquer de nouveaux objets sans détruire la nature ! Chaque bouteille plastique triée évite 450 ans de pollution. <div class="fact-wow">💡 450 ans pour une bouteille !</div></div>
+            </div>
+          </div>
+          <div class="fact-item">
+            <div style="flex:1">
+              <button class="fact-q" onclick="tog(this)">Un mégot, c'est vraiment dangereux ? <span class="arr">▶</span></button>
+              <div class="fact-answer">Oui ! Un mégot met 10 à 15 ans à se dégrader et peut polluer 500 litres d'eau ! C'est pour ça qu'on ne doit JAMAIS jeter un mégot par terre. <div class="fact-wow">🚫 500 litres d'eau polluée !</div></div>
+            </div>
+          </div>
+          <div class="fact-item">
+            <div style="flex:1">
+              <button class="fact-q" onclick="tog(this)">Le verre se recycle combien de fois ? <span class="arr">▶</span></button>
+              <div class="fact-answer">À L'INFINI ! Le verre peut être fondu et transformé en nouvelle bouteille encore et encore. Et si on le jette, il met 4 000 à 5 000 ans à disparaître ! <div class="fact-wow">♾️ À l'infini !</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Compostage -->
+      <div class="theme-card reveal">
+        <div class="tc-header" style="background:linear-gradient(135deg,var(--vert),#0f766e);">
+          <div class="tc-icon">🌱</div>
+          <div class="tc-header-text"><h3>Le compostage</h3><span>Transformer les déchets</span></div>
+        </div>
+        <div class="tc-body">
+          <div class="fact-item">
+            <div style="flex:1">
+              <button class="fact-q" onclick="tog(this)">C'est quoi un composteur ? <span class="arr">▶</span></button>
+              <div class="fact-answer">C'est une boîte magique où on met les épluchures, le marc de café, les feuilles mortes… Des petites bêtes et des champignons les transforment en engrais naturel pour le jardin ! <div class="fact-wow">🪄 Des épluchures en engrais !</div></div>
+            </div>
+          </div>
+          <div class="fact-item">
+            <div style="flex:1">
+              <button class="fact-q" onclick="tog(this)">Qu'est-ce qu'on peut composter ? <span class="arr">▶</span></button>
+              <div class="fact-answer">✅ Épluchures de légumes et fruits, marc de café, feuilles mortes, petites branches, carton non imprimé.<br>❌ Jamais de viande, de poisson ou de fromage ! <div class="fact-wow">30% de nos déchets sont compostables !</div></div>
+            </div>
+          </div>
+          <div class="fact-item">
+            <div style="flex:1">
+              <button class="fact-q" onclick="tog(this)">On peut composter en appartement ? <span class="arr">▶</span></button>
+              <div class="fact-answer">Oui ! Avec un lombricomposteur — une boîte avec des vers de terre qui mangent tes épluchures et font du super engrais. Ça ne sent rien et ça prend peu de place ! <div class="fact-wow">🪱 Des vers qui travaillent !</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Eau -->
+      <div class="theme-card reveal">
+        <div class="tc-header" style="background:linear-gradient(135deg,var(--bleu2),var(--bleu));">
+          <div class="tc-icon">💧</div>
+          <div class="tc-header-text"><h3>L'eau</h3><span>Notre trésor rare</span></div>
+        </div>
+        <div class="tc-body">
+          <div class="fact-item">
+            <div style="flex:1">
+              <button class="fact-q" onclick="tog(this)">Pourquoi économiser l'eau ? <span class="arr">▶</span></button>
+              <div class="fact-answer">Seulement 3% de l'eau sur Terre est douce et accessible ! En été, des sécheresses touchent même notre région. Chaque goutte compte vraiment. <div class="fact-wow">💦 Seulement 3% d'eau douce !</div></div>
+            </div>
+          </div>
+          <div class="fact-item">
+            <div style="flex:1">
+              <button class="fact-q" onclick="tog(this)">Combien d'eau prend une douche vs un bain ? <span class="arr">▶</span></button>
+              <div class="fact-answer">Un bain = 150-200 litres ! Une douche de 5 minutes = 50 litres. Tu économises 100 à 150 litres à chaque fois que tu choisis la douche 🚿 <div class="fact-wow">🛁 3 fois plus d'eau en bain !</div></div>
+            </div>
+          </div>
+          <div class="fact-item">
+            <div style="flex:1">
+              <button class="fact-q" onclick="tog(this)">Un robinet qui goutte, c'est grave ? <span class="arr">▶</span></button>
+              <div class="fact-answer">Très ! Un robinet qui goutte perd jusqu'à 120 litres par jour — c'est une baignoire entière gaspillée. Si tu en vois un, préviens un adulte ! <div class="fact-wow">🔧 120 L par jour gaspillés !</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Biodiversité -->
+      <div class="theme-card reveal">
+        <div class="tc-header" style="background:linear-gradient(135deg,var(--violet),#7c3aed);">
+          <div class="tc-icon">🐝</div>
+          <div class="tc-header-text"><h3>La biodiversité</h3><span>Les animaux et les plantes</span></div>
+        </div>
+        <div class="tc-body">
+          <div class="fact-item">
+            <div style="flex:1">
+              <button class="fact-q" onclick="tog(this)">Pourquoi les abeilles sont-elles si importantes ? <span class="arr">▶</span></button>
+              <div class="fact-answer">Les abeilles pollinisent 80% des fruits et légumes qu'on mange ! Sans elles, on n'aurait plus de pommes, de fraises, de courgettes… Elles sont indispensables ! <div class="fact-wow">🍎 80% de nos aliments !</div></div>
+            </div>
+          </div>
+          <div class="fact-item">
+            <div style="flex:1">
+              <button class="fact-q" onclick="tog(this)">Combien d'espèces disparaissent chaque jour ? <span class="arr">▶</span></button>
+              <div class="fact-answer">On estime que 50 à 150 espèces disparaissent CHAQUE JOUR ! C'est 1 000 fois plus vite qu'avant les humains. C'est pour ça qu'on doit protéger la nature. <div class="fact-wow">⚠️ 50 à 150 espèces par jour !</div></div>
+            </div>
+          </div>
+          <div class="fact-item">
+            <div style="flex:1">
+              <button class="fact-q" onclick="tog(this)">Comment aider la biodiversité chez soi ? <span class="arr">▶</span></button>
+              <div class="fact-answer">Plante des fleurs pour les abeilles, installe un hôtel à insectes, laisse un coin de jardin sauvage, arrête les pesticides. De petits gestes qui aident BEAUCOUP ! <div class="fact-wow">🌸 Un jardin = un refuge !</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- RESSOURCES -->
+<section class="section s-vert">
+  <div class="section-inner">
+    <div class="section-header reveal">
+      <div class="section-tag">📄 Les fiches et guides</div>
+      <h2 class="section-title">Pour aller plus loin !</h2>
+      <p class="section-sub">Des liens vers des vraies ressources pour les curieux et les parents !</p>
+    </div>
+    <div class="res-grid">
+      <a class="res-card reveal" href="https://librairie.ademe.fr/economie-circulaire-et-dechets/7447-comment-reussir-son-compost--9791029723223.html" target="_blank" rel="noopener">
+        <div class="res-icon">🌱</div>
+        <div><h4>Guide compost ADEME</h4><p>Comment réussir son composteur à la maison !</p><span class="res-tag tag-ademe">ADEME — Gratuit</span></div>
+      </a>
+      <a class="res-card reveal" href="https://agirpourlatransition.ademe.fr/acteurs-education" target="_blank" rel="noopener">
+        <div class="res-icon">🎓</div>
+        <div><h4>Ressources pédagogiques ADEME</h4><p>Fiches pour les écoles et les familles sur 7 thèmes !</p><span class="res-tag tag-ademe">ADEME — Enseignants</span></div>
+      </a>
+      <a class="res-card reveal" href="https://www.nosgestesclimat.fr/" target="_blank" rel="noopener">
+        <div class="res-icon">👣</div>
+        <div><h4>Nos Gestes Climat</h4><p>Calcule l'empreinte carbone de ta famille !</p><span class="res-tag tag-ademe">ADEME — Simulateur</span></div>
+      </a>
+      <a class="res-card reveal" href="https://nogentleroi.fr/environnement/" target="_blank" rel="noopener">
+        <div class="res-icon">🏡</div>
+        <div><h4>Mairie de Nogent-le-Roi</h4><p>Tri, collecte et environnement dans notre commune !</p><span class="res-tag tag-local">Local — Nogent-le-Roi</span></div>
+      </a>
+      <a class="res-card reveal" href="https://www.sitreva.fr/decheteries/les-decheteries/horaires-et-coordonnees" target="_blank" rel="noopener">
+        <div class="res-icon">🏭</div>
+        <div><h4>Déchetterie SITREVA</h4><p>Horaires de la déchetterie de Nogent-le-Roi !</p><span class="res-tag tag-local">Local — SITREVA</span></div>
+      </a>
+      <a class="res-card reveal" href="https://www.eln28.org/" target="_blank" rel="noopener">
+        <div class="res-icon">🦋</div>
+        <div><h4>Eure-et-Loir Nature</h4><p>L'association qui protège la nature dans notre département !</p><span class="res-tag tag-local">Local — ELN28</span></div>
+      </a>
+      <a class="res-card reveal" href="https://impactco2.fr/" target="_blank" rel="noopener">
+        <div class="res-icon">📊</div>
+        <div><h4>Impact CO₂</h4><p>Visualise l'empreinte carbone de nos gestes quotidiens !</p><span class="res-tag tag-ademe">ADEME — Outil</span></div>
+      </a>
+      <a class="res-card reveal" href="https://www.ofb.gouv.fr/" target="_blank" rel="noopener">
+        <div class="res-icon">🦅</div>
+        <div><h4>Office Français de la Biodiversité</h4><p>Tout sur les animaux et plantes protégés en France !</p><span class="res-tag tag-nat">National — OFB</span></div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <img src="logo-bff.png" alt="Bridge & Flow Folk" class="footer-logo">
+    <div class="footer-cols">
+      <div class="footer-col">
+        <h4>Bridge &amp; Flow Folk 🌿</h4>
+        <p>L'association qui organise "C'est Notre Nature" à Nogent-le-Roi (28) !</p>
+        <a href="https://www.facebook.com/share/14YBdZ5HDyj/" target="_blank" rel="noopener" class="fb-link">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.235 2.686.235v2.97h-1.514c-1.491 0-1.956.93-1.956 1.874v2.25h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/></svg>
+          Suivez-nous sur Facebook !
+        </a>
+      </div>
+      <div class="footer-col">
+        <h4>Les pages 📄</h4>
+        <a href="bff-atelier-enfant.html">🏠 Accueil — Atelier</a>
+        <a href="quiz-enfant.html">🌍 Quiz Planète</a>
+        <a href="apprendre-enfant.html">📚 Éco-Apprendre</a>
+        <a href="partenaires-enfant.html">🤝 Nos amis partenaires</a>
+        <a href="presse-enfant.html">📰 Ils parlent de nous</a>
+      </div>
+      <div class="footer-col">
+        <h4>S'inscrire ✍️</h4>
+        <a href="mailto:bridgeflow.f@gmail.com?subject=Inscription%20journ%C3%A9e%20C%27est%20Notre%20Nature%20%E2%80%94%20Nogent-le-Roi">✉️ bridgeflow.f@gmail.com</a>
+        <a href="bff-atelier-enfant.html#inscription">📋 S'inscrire à l'atelier !</a>
+        <br>
+        <a href="bff-atelier.html" style="color:rgba(255,255,255,0.4);font-size:.75rem;">→ Version adulte</a>
+      </div>
+    </div>
+    <p class="footer-copy">© 2025 Association Bridge &amp; Flow Folk — Événement familial gratuit 🎉</p>
+  </div>
+</footer>
+<script>
+function spawnConfetti(){
+  const c=document.querySelector('.confetti-bg');
+  if(!c)return;
+  const cols=['#FFD93D','#FF6B35','#FF4757','#FF6B9D','#22C55E','#3B82F6','#A855F7','#06B6D4'];
+  const emojis=['🌿','♻️','🌍','💧','🌱','🐝','🌸','🍀'];
+  for(let i=0;i<24;i++){
+    const s=document.createElement('span');
+    if(Math.random()>.5){
+      s.textContent=emojis[Math.floor(Math.random()*emojis.length)];
+      s.style.fontSize=(.8+Math.random()*.8)+'rem';
+      s.style.background='transparent';
+    } else {
+      const sz=(6+Math.random()*14)+'px';
+      s.style.width=sz;s.style.height=sz;
+      s.style.background=cols[Math.floor(Math.random()*cols.length)];
+      s.style.borderRadius=Math.random()>.5?'50%':'4px';
+    }
+    s.style.left=Math.random()*100+'vw';
+    s.style.animationDuration=(14+Math.random()*20)+'s';
+    s.style.animationDelay=(Math.random()*22)+'s';
+    c.appendChild(s);
+  }
+}
+spawnConfetti();
+</script>
+<script>
+document.querySelectorAll('.nav-toggle').forEach(t=>t.addEventListener('click',()=>
+  document.querySelector('.nav-links').classList.toggle('open')
+));
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach((e,i)=>{
+    if(e.isIntersecting){setTimeout(()=>e.target.classList.add('visible'),i*70);obs.unobserve(e.target);}
+  });
+},{threshold:0.08});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+</script>
+<script>
+function tog(btn){
+  const a=btn.nextElementSibling;
+  const open=a.classList.contains('open');
+  btn.closest('.tc-body').querySelectorAll('.fact-answer.open').forEach(x=>x.classList.remove('open'));
+  btn.closest('.tc-body').querySelectorAll('.fact-q.open').forEach(x=>x.classList.remove('open'));
+  if(!open){a.classList.add('open');btn.classList.add('open');}
+}
+</script>
+</body>
+</html>

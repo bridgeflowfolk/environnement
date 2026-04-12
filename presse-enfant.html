@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root { 
+  --jaune:    #FFD93D;
+  --orange:   #FF6B35;
+  --rouge:    #FF4757;
+  --rose:     #FF6B9D;
+  --violet:   #A855F7;
+  --bleu:     #3B82F6;
+  --bleu2:    #06B6D4;
+  --vert:     #22C55E;
+  --vert2:    #16A34A;
+  --blanc:    #FFFEF7;
+  --fond:     #FFFEF7;
+  --sombre:   #1E293B;
+  --r-big:    32px;
+  --r-med:    20px;
+  --r-sm:     12px;
+ }
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--fond);
+  color: var(--sombre);
+  overflow-x: hidden;
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Ctext y='24' font-size='24'%3E🌿%3C/text%3E%3C/svg%3E") 8 8, auto;
+}
+
+/* ══ CONFETTIS FOND ══ */
+.confetti-bg {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
+}
+.confetti-bg span {
+  position: absolute;
+  border-radius: 50%;
+  animation: floatConfetti linear infinite;
+  opacity: 0.15;
+}
+@keyframes floatConfetti {
+  0%   { transform: translateY(110vh) rotate(0deg) scale(0.5); opacity: 0; }
+  10%  { opacity: 0.2; }
+  90%  { opacity: 0.15; }
+  100% { transform: translateY(-10vh) rotate(720deg) scale(1); opacity: 0; }
+}
+
+/* ══ NAV ENFANTS ══ */
+nav {
+  position: sticky; top: 0; z-index: 300;
+  background: var(--bleu);
+  padding: .7rem 1.2rem;
+  display: flex; align-items: center; gap: .8rem;
+  box-shadow: 0 6px 0 rgba(0,0,0,0.15);
+}
+.nav-brand { flex-shrink: 0; text-decoration: none; }
+.nav-logo   { height: 52px; width: auto; display: block; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.3)); }
+.nav-title  {
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.2rem; color: white;
+  text-shadow: 2px 2px 0 rgba(0,0,0,0.2);
+  line-height: 1.1;
+}
+.nav-title small { display: block; font-size: .72rem; font-family: 'Nunito', sans-serif; font-weight: 700; opacity: .8; }
+.nav-toggle {
+  display: none; margin-left: auto;
+  background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.4);
+  border-radius: 12px; color: white; font-size: 1.4rem;
+  cursor: pointer; padding: .3rem .6rem;
+}
+.nav-links {
+  display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; margin-left: auto;
+}
+.nav-links a {
+  color: white; text-decoration: none;
+  font-size: .82rem; font-weight: 800;
+  padding: .4rem .85rem; border-radius: 50px;
+  background: rgba(255,255,255,0.18);
+  border: 2px solid rgba(255,255,255,0.3);
+  transition: all .2s; white-space: nowrap;
+}
+.nav-links a:hover, .nav-links a.active {
+  background: var(--jaune); color: var(--sombre);
+  border-color: var(--jaune);
+  transform: translateY(-2px);
+}
+.nav-links .nav-cta {
+  background: var(--vert); border-color: var(--vert2);
+  box-shadow: 0 4px 0 var(--vert2);
+}
+.nav-links .nav-cta:hover {
+  background: var(--jaune); color: var(--sombre);
+  border-color: #c8a800; box-shadow: 0 4px 0 #c8a800;
+}
+@media(max-width:700px){
+  .nav-toggle { display: block; }
+  .nav-links {
+    display: none; position: absolute; top: 100%; left: 0; right: 0;
+    background: var(--bleu); flex-direction: column; align-items: stretch;
+    padding: .8rem 1rem; gap: .4rem;
+    box-shadow: 0 8px 0 rgba(0,0,0,0.15); z-index: 200;
+  }
+  .nav-links.open { display: flex; }
+  .nav-links a { text-align: center; border-radius: var(--r-sm); }
+}
+
+/* ══ FOOTER ENFANTS ══ */
+footer {
+  background: var(--sombre);
+  padding: 3rem 1.5rem 2rem;
+  position: relative; overflow: hidden;
+}
+footer::before {
+  content: '🌍🌿♻️💧🌱🐝🌍🌿♻️💧🌱🐝';
+  display: block; text-align: center;
+  font-size: 1.6rem; letter-spacing: .5rem;
+  opacity: .15; margin-bottom: 1.5rem;
+}
+.footer-inner { max-width: 960px; margin: 0 auto; }
+.footer-logo  { height: 80px; width: auto; display: block; margin: 0 auto 1.5rem; }
+.footer-cols  {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 1.5rem; margin-bottom: 1.5rem;
+}
+.footer-col { display: flex; flex-direction: column; gap: .5rem; }
+.footer-col h4 {
+  color: var(--jaune); font-family: 'Fredoka One', cursive;
+  font-size: 1rem; margin-bottom: .3rem;
+}
+.footer-col p  { font-size: .82rem; color: rgba(255,255,255,.6); line-height: 1.6; }
+.footer-col a  {
+  color: rgba(255,255,255,.65); text-decoration: none;
+  font-size: .83rem; font-weight: 700; transition: color .2s;
+}
+.footer-col a:hover { color: var(--jaune); }
+.fb-link {
+  display: inline-flex !important; align-items: center; gap: .5rem;
+  background: #1877F2; border-radius: 10px;
+  padding: .5rem .9rem; color: white !important;
+  margin-top: .4rem; font-weight: 800 !important;
+  box-shadow: 0 4px 0 #0d5dbf;
+  transition: all .2s !important;
+}
+.fb-link:hover { transform: translateY(-2px) !important; box-shadow: 0 6px 0 #0d5dbf !important; }
+.footer-copy {
+  text-align: center; font-size: .72rem;
+  color: rgba(255,255,255,.25);
+  border-top: 1px solid rgba(255,255,255,.08);
+  padding-top: 1.2rem; margin-top: .5rem;
+}
+
+/* ══ UTILITAIRES ══ */
+.reveal { opacity:0; transform:translateY(24px); transition: opacity .5s, transform .5s; }
+.reveal.visible { opacity:1; transform:none; }
+
+/* bouton générique */
+.btn {
+  display: inline-flex; align-items: center; gap: .5rem;
+  padding: .85rem 2rem; border-radius: 50px;
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.05rem; text-decoration: none;
+  cursor: pointer; border: none;
+  transition: all .2s; letter-spacing: .02em;
+}
+.btn-jaune {
+  background: var(--jaune); color: var(--sombre);
+  box-shadow: 0 6px 0 #c8a800;
+}
+.btn-jaune:hover { transform: translateY(-3px); box-shadow: 0 9px 0 #c8a800; }
+.btn-vert {
+  background: var(--vert); color: white;
+  box-shadow: 0 6px 0 var(--vert2);
+}
+.btn-vert:hover { transform: translateY(-3px); box-shadow: 0 9px 0 var(--vert2); }
+.btn-blanc {
+  background: white; color: var(--sombre);
+  box-shadow: 0 6px 0 rgba(0,0,0,0.2);
+}
+.btn-blanc:hover { transform: translateY(-3px); }
+
+/* sections */
+.section { padding: 4rem 1.5rem; position: relative; }
+.section-inner { max-width: 960px; margin: 0 auto; }
+.section-header { text-align: center; margin-bottom: 3rem; }
+.section-tag {
+  display: inline-block;
+  font-family: 'Fredoka One', cursive;
+  font-size: .9rem; letter-spacing: .05em;
+  color: white; background: var(--orange);
+  border-radius: 50px; padding: .3rem 1rem;
+  margin-bottom: .8rem;
+  box-shadow: 0 4px 0 #c8430d;
+}
+.section-title {
+  font-family: 'Fredoka One', cursive;
+  font-size: clamp(2rem,5vw,3rem);
+  color: var(--sombre); line-height: 1.1;
+  margin-bottom: .5rem;
+}
+.section-sub {
+  color: #64748b; font-size: 1rem;
+  max-width: 520px; margin: 0 auto; line-height: 1.6;
+}
+
+/* ondes déco entre sections */
+.wave-sep {
+  width: 100%; overflow: hidden; line-height: 0;
+  margin-bottom: -2px;
+}
+.wave-sep svg { display: block; width: 100%; }
+
+.page-hero { padding:4rem 1.5rem 3rem;text-align:center;position:relative;overflow:hidden; }
+.page-hero-logo { height:80px;width:auto;margin-bottom:1rem;filter:drop-shadow(0 4px 12px rgba(0,0,0,.25));animation:bounce 2.5s ease-in-out infinite; }
+@keyframes bounce { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-10px);} }
+.page-hero h1 { font-family:'Fredoka One',cursive;font-size:clamp(2.2rem,6vw,4rem);color:white;text-shadow:3px 3px 0 rgba(0,0,0,.2);margin-bottom:.5rem; }
+.page-hero p { font-size:1.1rem;color:rgba(255,255,255,.9);font-weight:700; }
+.section { padding:3.5rem 1.5rem; }
+.section-inner { max-width:960px;margin:0 auto; }
+.section-header { text-align:center;margin-bottom:2.5rem; }
+.section-tag { display:inline-block;font-family:'Fredoka One',cursive;font-size:.9rem;color:white;background:var(--orange);border-radius:50px;padding:.3rem 1rem;margin-bottom:.7rem;box-shadow:0 4px 0 #c8430d; }
+.section-title { font-family:'Fredoka One',cursive;font-size:clamp(1.8rem,4vw,2.6rem);color:var(--sombre);margin-bottom:.4rem; }
+.section-sub { color:#64748b;font-size:.95rem;max-width:520px;margin:0 auto;line-height:1.6;font-weight:600; }
+.reveal { opacity:0;transform:translateY(20px);transition:opacity .5s,transform .5s; }
+.reveal.visible { opacity:1;transform:none; }
+
+.press-list { display:flex;flex-direction:column;gap:1.1rem; }
+.press-card {
+  background:white;border-radius:var(--r-big);
+  box-shadow:0 6px 0 rgba(0,0,0,.08);
+  display:flex;gap:1.1rem;align-items:flex-start;
+  padding:1.4rem 1.5rem;
+  text-decoration:none;color:inherit;
+  border-left:6px solid var(--bleu);
+  transition:all .22s;
+}
+.press-card:hover { transform:translateX(8px);box-shadow:0 8px 0 rgba(0,0,0,.12);border-left-color:var(--orange); }
+.press-icon {
+  font-size:2.2rem;min-width:3rem;height:3rem;
+  background:#f1f5f9;border-radius:var(--r-sm);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  border:3px solid #e2e8f0;
+}
+.press-content { flex:1; }
+.press-source { font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#94a3b8;margin-bottom:.3rem; }
+.press-title { font-family:'Fredoka One',cursive;font-size:1.1rem;color:var(--sombre);line-height:1.3;margin-bottom:.3rem; }
+.press-desc { font-size:.85rem;color:#64748b;line-height:1.5;font-weight:600; }
+.press-date { display:inline-block;margin-top:.5rem;font-size:.75rem;font-weight:800;color:white;background:var(--bleu);border-radius:50px;padding:.2rem .7rem;box-shadow:0 3px 0 #1d4ed8; }
+.press-arrow { color:#cbd5e1;font-size:1.4rem;flex-shrink:0;align-self:center;transition:all .2s; }
+.press-card:hover .press-arrow { transform:translateX(4px);color:var(--orange); }
+.add-press {
+  border-radius:var(--r-big);border:4px dashed var(--bleu2);
+  padding:2.2rem;text-align:center;
+  background:white;display:flex;flex-direction:column;align-items:center;gap:.8rem;
+  box-shadow:0 4px 0 rgba(0,0,0,.05);
+}
+.add-press .add-icon { font-size:3rem;opacity:.35; }
+.add-press h4 { font-family:'Fredoka One',cursive;font-size:1.2rem;color:var(--bleu); }
+.add-press p { font-size:.83rem;color:#64748b;line-height:1.5;font-weight:600;max-width:480px; }
+.add-press code {
+  display:block;font-size:.72rem;background:#f8fafc;
+  border-radius:var(--r-sm);padding:.8rem 1rem;
+  color:var(--bleu2);text-align:left;width:100%;
+  white-space:pre-wrap;border:2px solid #e2e8f0;
+}
+.press-cta {
+  border-radius:var(--r-big);padding:3rem 2rem;text-align:center;
+  background:linear-gradient(135deg,#1a2a3d,#2d4a6a);
+  box-shadow:0 10px 0 rgba(0,0,0,.2);margin-top:2rem;
+}
+.press-cta h3 { font-family:'Fredoka One',cursive;font-size:2rem;color:white;margin-bottom:.6rem; }
+.press-cta p { color:rgba(255,255,255,.8);font-size:1rem;font-weight:700;margin-bottom:1.5rem;line-height:1.6; }
+</style>
+</head>
+<body>
+<div class="confetti-bg"></div>
+<nav>
+  <a href="bff-atelier-enfant.html" class="nav-brand">
+    <img src="logo-bff.png" alt="BFF" class="nav-logo">
+  </a>
+  <div class="nav-title">Bridge &amp; Flow Folk<small>C'est Notre Nature 🌿</small></div>
+  <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">☰</button>
+  <div class="nav-links">
+    <a href="bff-atelier-enfant.html">🏠 Accueil</a>
+<a href="quiz-enfant.html">🌍 Quiz</a>
+<a href="apprendre-enfant.html">📚 Apprendre</a>
+<a href="partenaires-enfant.html">🤝 Amis</a>
+<a href="presse-enfant.html" class="active">📰 Presse</a>
+
+    <a href="bff-atelier-enfant.html#inscription" class="nav-cta">✍️ S'inscrire !</a>
+  </div>
+</nav>
+
+<div class="page-hero" style="background:linear-gradient(135deg,#1a2a3d 0%,var(--bleu) 60%,var(--bleu2) 100%);">
+  <img src="logo-bff.png" alt="BFF" class="page-hero-logo">
+  <h1>📰 Dans les journaux !</h1>
+  <p>Les articles qui parlent de Bridge & Flow Folk et de nos actions !</p>
+</div>
+
+<section class="section" style="background:#EFF6FF;">
+  <div class="section-inner">
+    <div class="section-header reveal">
+      <div class="section-tag">📰 On parle de nous !</div>
+      <h2 class="section-title">Ce que disent les journaux !</h2>
+      <p class="section-sub">Clique sur un article pour le lire en entier !</p>
+    </div>
+    <div class="press-list">
+
+      <a href="#" class="press-card reveal" target="_blank" rel="noopener">
+        <div class="press-icon">📰</div>
+        <div class="press-content">
+          <div class="press-source">L'Écho Républicain — Exemple à remplacer</div>
+          <div class="press-title">Bridge & Flow Folk organise une grande journée de nettoyage à Nogent-le-Roi !</div>
+          <p class="press-desc">L'association mobilise les familles du quartier des Hauts pour ramasser les déchets et tester leurs connaissances sur l'environnement…</p>
+          <span class="press-date">📅 Date à renseigner</span>
+        </div>
+        <div class="press-arrow">→</div>
+      </a>
+
+      <div class="add-press reveal">
+        <div class="add-icon">➕</div>
+        <h4>Ajouter un article !</h4>
+        <p>Pour ajouter un lien vers un article de journal, copier-coller ce bloc dans <strong>presse-enfant.html</strong> et remplir les informations :</p>
+        <code>&lt;a href="URL_DU_JOURNAL" class="press-card" target="_blank"&gt;
+  &lt;div class="press-icon"&gt;📰&lt;/div&gt;
+  &lt;div class="press-content"&gt;
+    &lt;div class="press-source"&gt;Nom du journal&lt;/div&gt;
+    &lt;div class="press-title"&gt;Titre de l'article&lt;/div&gt;
+    &lt;p class="press-desc"&gt;Résumé en 1-2 phrases…&lt;/p&gt;
+    &lt;span class="press-date"&gt;📅 JJ/MM/AAAA&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div class="press-arrow"&gt;→&lt;/div&gt;
+&lt;/a&gt;</code>
+      </div>
+
+    </div>
+    <div class="press-cta reveal">
+      <h3>Tu es journaliste ? 🎙️</h3>
+      <p>Tu veux écrire un article sur notre association ou notre événement ?<br>On répond à toutes les questions !</p>
+      <a href="mailto:bridgeflow.f@gmail.com?subject=Demande%20presse%20%E2%80%94%20Bridge%20%26%20Flow%20Folk" class="btn btn-jaune" style="font-size:1.05rem;">
+        ✉️ Nous écrire !
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <img src="logo-bff.png" alt="Bridge & Flow Folk" class="footer-logo">
+    <div class="footer-cols">
+      <div class="footer-col">
+        <h4>Bridge &amp; Flow Folk 🌿</h4>
+        <p>L'association qui organise "C'est Notre Nature" à Nogent-le-Roi (28) !</p>
+        <a href="https://www.facebook.com/share/14YBdZ5HDyj/" target="_blank" rel="noopener" class="fb-link">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.235 2.686.235v2.97h-1.514c-1.491 0-1.956.93-1.956 1.874v2.25h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/></svg>
+          Suivez-nous sur Facebook !
+        </a>
+      </div>
+      <div class="footer-col">
+        <h4>Les pages 📄</h4>
+        <a href="bff-atelier-enfant.html">🏠 Accueil — Atelier</a>
+        <a href="quiz-enfant.html">🌍 Quiz Planète</a>
+        <a href="apprendre-enfant.html">📚 Éco-Apprendre</a>
+        <a href="partenaires-enfant.html">🤝 Nos amis partenaires</a>
+        <a href="presse-enfant.html">📰 Ils parlent de nous</a>
+      </div>
+      <div class="footer-col">
+        <h4>S'inscrire ✍️</h4>
+        <a href="mailto:bridgeflow.f@gmail.com?subject=Inscription%20journ%C3%A9e%20C%27est%20Notre%20Nature%20%E2%80%94%20Nogent-le-Roi">✉️ bridgeflow.f@gmail.com</a>
+        <a href="bff-atelier-enfant.html#inscription">📋 S'inscrire à l'atelier !</a>
+        <br>
+        <a href="bff-atelier.html" style="color:rgba(255,255,255,0.4);font-size:.75rem;">→ Version adulte</a>
+      </div>
+    </div>
+    <p class="footer-copy">© 2025 Association Bridge &amp; Flow Folk — Événement familial gratuit 🎉</p>
+  </div>
+</footer>
+<script>
+function spawnConfetti(){
+  const c=document.querySelector('.confetti-bg');
+  if(!c)return;
+  const cols=['#FFD93D','#FF6B35','#FF4757','#FF6B9D','#22C55E','#3B82F6','#A855F7','#06B6D4'];
+  const emojis=['🌿','♻️','🌍','💧','🌱','🐝','🌸','🍀'];
+  for(let i=0;i<24;i++){
+    const s=document.createElement('span');
+    if(Math.random()>.5){
+      s.textContent=emojis[Math.floor(Math.random()*emojis.length)];
+      s.style.fontSize=(.8+Math.random()*.8)+'rem';
+      s.style.background='transparent';
+    } else {
+      const sz=(6+Math.random()*14)+'px';
+      s.style.width=sz;s.style.height=sz;
+      s.style.background=cols[Math.floor(Math.random()*cols.length)];
+      s.style.borderRadius=Math.random()>.5?'50%':'4px';
+    }
+    s.style.left=Math.random()*100+'vw';
+    s.style.animationDuration=(14+Math.random()*20)+'s';
+    s.style.animationDelay=(Math.random()*22)+'s';
+    c.appendChild(s);
+  }
+}
+spawnConfetti();
+</script>
+<script>
+document.querySelectorAll('.nav-toggle').forEach(t=>t.addEventListener('click',()=>
+  document.querySelector('.nav-links').classList.toggle('open')
+));
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach((e,i)=>{
+    if(e.isIntersecting){setTimeout(()=>e.target.classList.add('visible'),i*70);obs.unobserve(e.target);}
+  });
+},{threshold:0.08});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>

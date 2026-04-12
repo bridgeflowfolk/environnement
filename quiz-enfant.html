@@ -616,7 +616,7 @@ function showScore(){
   let emoji,msg;
   if(pct>=.9){emoji='🏆';msg='Tu es un éco-CHAMPION ! 🎉';}
   else if(pct>=.7){emoji='🌟';msg='Super ! Tu connais bien ta planète !';}
-  else if(pct>=.5){emoji='🌱';msg='Pas mal ! Continue d'apprendre !';}
+  else if(pct>=.5){emoji='🌱';msg="Pas mal ! Continue d'apprendre !";}
   else{emoji='📚';msg='Lis les corrections et retente !';}
   document.getElementById('s-emoji').textContent=emoji;
   document.getElementById('s-msg').textContent=msg;

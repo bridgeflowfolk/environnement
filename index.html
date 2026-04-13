@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bientôt disponible 🌿 — BFF</title>
+<meta name="description" content="Un nouvel événement BFF arrive bientôt ! Revenez vite pour découvrir la surprise.">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --jaune:  #FFD93D;
+  --orange: #FF6B35;
+  --rouge:  #FF4757;
+  --rose:   #FF6B9D;
+  --violet: #A855F7;
+  --bleu:   #3B82F6;
+  --bleu2:  #06B6D4;
+  --vert:   #22C55E;
+  --vert2:  #16A34A;
+  --blanc:  #FFFEF7;
+  --fond:   #FFFEF7;
+  --sombre: #1E293B;
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { height: 100%; }
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--fond);
+  color: var(--sombre);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow-x: hidden;
+  position: relative;
+  padding: 2rem 1rem;
+}
+
+/* ══ FOND ANIMÉ ══ */
+.bg-layer {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 10%, rgba(34,197,94,0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 80% at 80% 90%, rgba(59,130,246,0.10) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 50% 50%, rgba(255,217,61,0.07) 0%, transparent 70%);
+}
+
+/* ══ PARTICULES ══ */
+.particles { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.particles span {
+  position: absolute;
+  animation: drift linear infinite;
+  opacity: 0;
+}
+@keyframes drift {
+  0%   { transform: translateY(110vh) rotate(0deg) scale(0.6); opacity: 0; }
+  8%   { opacity: 0.22; }
+  92%  { opacity: 0.18; }
+  100% { transform: translateY(-12vh) rotate(540deg) scale(1.1); opacity: 0; }
+}
+
+/* ══ CARTE CENTRALE ══ */
+.card {
+  position: relative; z-index: 10;
+  background: white;
+  border-radius: 32px;
+  box-shadow:
+    0 0 0 4px var(--vert),
+    0 20px 0 rgba(22,163,74,0.25),
+    0 32px 60px rgba(0,0,0,0.10);
+  padding: 3rem 2.5rem 2.5rem;
+  max-width: 560px;
+  width: calc(100% - 2rem);
+  text-align: center;
+  animation: cardIn .7s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(30px) scale(0.95); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* badge */
+.badge {
+  display: inline-flex; align-items: center; gap: .4rem;
+  background: var(--jaune); color: var(--sombre);
+  font-family: 'Fredoka One', cursive;
+  font-size: .85rem; letter-spacing: .04em;
+  padding: .35rem 1rem; border-radius: 50px;
+  box-shadow: 0 4px 0 #c8a800;
+  margin-bottom: 1.5rem;
+  animation: cardIn .7s .1s cubic-bezier(.34,1.56,.64,1) both;
+}
+
+/* logo emoji géant */
+.hero-emoji {
+  font-size: 5rem; line-height: 1;
+  display: block;
+  margin-bottom: 1rem;
+  animation: bounce 2.4s ease-in-out infinite;
+}
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-12px); }
+}
+
+/* titre */
+.card h1 {
+  font-family: 'Fredoka One', cursive;
+  font-size: clamp(1.8rem, 5vw, 2.6rem);
+  line-height: 1.15;
+  color: var(--sombre);
+  margin-bottom: .75rem;
+}
+.card h1 .accent { color: var(--vert2); }
+
+/* sous-titre */
+.card .sub {
+  font-size: 1rem; font-weight: 700; color: #64748b;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+/* barre de progression fictive */
+.progress-wrap {
+  background: #f1f5f9; border-radius: 50px;
+  height: 14px; overflow: hidden;
+  margin-bottom: .6rem;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
+}
+.progress-bar {
+  height: 100%;
+  width: 0%;
+  border-radius: 50px;
+  background: linear-gradient(90deg, var(--vert), var(--bleu2));
+  animation: fillBar 2.2s 1s cubic-bezier(.4,0,.2,1) forwards;
+  position: relative;
+}
+.progress-bar::after {
+  content: '';
+  position: absolute; right: 0; top: 0; bottom: 0; width: 30px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4));
+  animation: shimmer 1.5s 3.2s ease-in-out infinite;
+}
+@keyframes shimmer {
+  0%, 100% { opacity: 0; }
+  50%       { opacity: 1; }
+}
+@keyframes fillBar {
+  to { width: 72%; }
+}
+.progress-label {
+  font-size: .78rem; font-weight: 800; color: #94a3b8;
+  text-align: right; margin-bottom: 2rem;
+}
+.progress-label span { color: var(--vert2); }
+
+/* pills info */
+.pills {
+  display: flex; flex-wrap: wrap; gap: .5rem;
+  justify-content: center; margin-bottom: 2rem;
+}
+.pill {
+  display: inline-flex; align-items: center; gap: .35rem;
+  background: #f0fdf4; color: var(--vert2);
+  font-size: .82rem; font-weight: 800;
+  padding: .38rem .9rem; border-radius: 50px;
+  border: 2px solid #bbf7d0;
+}
+
+/* CTA Facebook */
+.cta-fb {
+  display: inline-flex; align-items: center; gap: .6rem;
+  background: #1877F2; color: white;
+  text-decoration: none;
+  font-family: 'Fredoka One', cursive;
+  font-size: 1rem; padding: .9rem 1.8rem;
+  border-radius: 50px;
+  box-shadow: 0 6px 0 #0d5dbf;
+  transition: transform .15s, box-shadow .15s;
+  margin-bottom: .8rem;
+}
+.cta-fb:hover { transform: translateY(-3px); box-shadow: 0 9px 0 #0d5dbf; }
+
+/* lien retour site */
+.back-link {
+  display: block;
+  font-size: .82rem; font-weight: 700; color: #94a3b8;
+  text-decoration: none; transition: color .2s;
+}
+.back-link:hover { color: var(--vert2); }
+
+/* ══ LOGO BFF EN HAUT ══ */
+.top-logo {
+  position: relative; z-index: 10;
+  margin-bottom: 1.5rem;
+  animation: cardIn .5s cubic-bezier(.34,1.56,.64,1) both;
+}
+.top-logo img {
+  height: 64px; width: auto;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
+}
+/* fallback si image absente */
+.top-logo .logo-fallback {
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.4rem; color: var(--vert2);
+  background: white; border-radius: 16px;
+  padding: .4rem 1.2rem;
+  box-shadow: 0 4px 0 rgba(22,163,74,0.3);
+}
+
+/* ══ RESPONSIVE ══ */
+@media (max-width: 480px) {
+  .card { padding: 2rem 1.5rem 2rem; border-radius: 24px; }
+  .hero-emoji { font-size: 3.5rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="bg-layer"></div>
+<div class="particles" id="particles"></div>
+
+<!-- Logo BFF -->
+<div class="top-logo">
+  <img src="logo-bff.png" alt="Bridge & Flow Folk"
+       onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+  <span class="logo-fallback" style="display:none">🌿 BFF</span>
+</div>
+
+<!-- Carte principale -->
+<div class="card">
+
+  <div class="badge">🚧 En préparation</div>
+
+  <span class="hero-emoji">🌱</span>
+
+  <h1>Un nouvel événement<br><span class="accent">arrive bientôt !</span></h1>
+
+  <p class="sub">
+    On prépare quelque chose de super pour vous.<br>
+    Revenez vite, ça va valoir le détour ! 🎉
+  </p>
+
+  <!-- Barre de progression -->
+  <div class="progress-wrap">
+    <div class="progress-bar"></div>
+  </div>
+  <p class="progress-label">Préparation en cours… <span>bientôt prêt !</span></p>
+
+  <!-- Pills -->
+  <div class="pills">
+    <span class="pill">✅ Gratuit</span>
+    <span class="pill">📍 Nogent-le-Roi</span>
+    <span class="pill">👨‍👩‍👧 Familles</span>
+    <span class="pill">🌿 Nature</span>
+  </div>
+
+  <!-- CTA -->
+  <a href="https://www.facebook.com/share/14YBdZ5HDyj/" target="_blank" rel="noopener" class="cta-fb">
+    <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.235 2.686.235v2.97h-1.514c-1.491 0-1.956.93-1.956 1.874v2.25h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/></svg>
+    Suivre l'actualité sur Facebook
+  </a>
+
+  <a href="https://bridgeflowfolk.github.io/" class="back-link">← Retour au site principal BFF</a>
+
+</div>
+
+<script>
+// Génère les particules flottantes
+(function() {
+  const container = document.getElementById('particles');
+  const emojis = ['🌿','♻️','🌍','💧','🌱','🐝','🌸','🍀','⭐','🎈'];
+  const colors = ['#FFD93D','#FF6B35','#22C55E','#3B82F6','#A855F7','#06B6D4','#FF6B9D'];
+
+  for (let i = 0; i < 28; i++) {
+    const s = document.createElement('span');
+    if (Math.random() > 0.45) {
+      s.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      s.style.fontSize = (0.7 + Math.random() * 0.9) + 'rem';
+    } else {
+      const sz = (5 + Math.random() * 13) + 'px';
+      s.style.width = sz; s.style.height = sz;
+      s.style.background = colors[Math.floor(Math.random() * colors.length)];
+      s.style.borderRadius = Math.random() > 0.5 ? '50%' : '4px';
+      s.style.display = 'block';
+    }
+    s.style.left = Math.random() * 100 + 'vw';
+    s.style.animationDuration = (13 + Math.random() * 18) + 's';
+    s.style.animationDelay = (Math.random() * 20) + 's';
+    container.appendChild(s);
+  }
+})();
+</script>
+
+</body>
+</html>

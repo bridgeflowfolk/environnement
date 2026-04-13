@@ -249,7 +249,7 @@ footer::before { content:'🌍🌿♻️💧🌱🐝🌍🌿♻️💧🌱🐝';
     <img src="logo-bff.png" alt="BFF" class="nav-logo">
   </a>
   <div class="nav-title">Bridge &amp; Flow Folk<small>C'est Notre Nature 🌿</small></div>
-  <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">☰</button>
+  <button class="nav-toggle" aria-label="Menu">☰</button>
   <div class="nav-links">
     <a href="bff-atelier-enfant.html">🏠 Accueil</a>
     <a href="quiz-enfant.html" class="active">🌍 Quiz</a>
@@ -572,7 +572,13 @@ function pick(idx) {
 /* ── QUESTION SUIVANTE ── */
 function nextQ() {
   cur++;
-  if (cur < NB_Q) render(); else showScore();
+  if (cur < NB_Q) {
+    render();
+    // On ajoute la ligne ici pour remonter au début du quiz
+    document.querySelector('.quiz-container').scrollIntoView({ behavior: 'smooth' }); 
+  } else {
+    showScore();
+  }
 }
 
 /* ── ÉCRAN DE FIN ── */

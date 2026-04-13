@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz Éco-Héros 🌍</title>
+
+<style>
+body{
+  font-family: Arial;
+  text-align:center;
+  background:#f0fdf4;
+  padding:20px;
+}
+
+#game{
+  max-width:600px;
+  margin:auto;
+  background:white;
+  padding:20px;
+  border-radius:20px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.1);
+}
+
+button{
+  width:100%;
+  margin:5px 0;
+  padding:15px;
+  border:none;
+  border-radius:12px;
+  font-size:16px;
+  cursor:pointer;
+}
+
+button:hover{transform:scale(1.02);}
+
+.correct{background:#22c55e;color:white;}
+.wrong{background:#ef4444;color:white;}
+
+#top{
+  display:flex;
+  justify-content:space-between;
+  font-weight:bold;
+}
+
+#coach{
+  margin:10px 0;
+  font-weight:bold;
+}
+
+#progress{
+  height:10px;
+  background:#ddd;
+  border-radius:10px;
+  overflow:hidden;
+}
+
+#bar{
+  height:100%;
+  width:0%;
+  background:#22c55e;
+}
+
+.big{
+  font-size:40px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="game">
+
+<div id="start">
+<h1>🌍 Quiz Éco-Héros</h1>
+<p>Deviens le sauveur de la planète !</p>
+<button onclick="start()">🚀 Commencer</button>
+</div>
+
+<div id="quiz" style="display:none;">
+<div id="top">
+<span id="timer">⏱️ 10</span>
+<span id="combo">🔥 x0</span>
+<span id="score">⭐ 0</span>
+</div>
+
+<div id="progress"><div id="bar"></div></div>
+
+<div id="coach">🐝 Salut !</div>
+
+<h2 id="question"></h2>
+
+<div id="answers"></div>
+
+</div>
+
+<div id="end" style="display:none;">
+<h1 id="finalEmoji" class="big">🏆</h1>
+<h2 id="finalScore"></h2>
+<p id="finalMsg"></p>
+<button onclick="restart()">🔄 Rejouer</button>
+</div>
+
+</div>
+
+<audio id="good" src="good.mp3"></audio>
+<audio id="bad" src="bad.mp3"></audio>
+<audio id="win" src="win.mp3"></audio>
+
+<script>
+
+const Q=[
+{q:"Un mégot met combien de temps ?",o:["1 an","5 ans","10-15 ans"],c:2},
+{q:"Le verre est recyclable ?",o:["Oui","Non"],c:0},
+{q:"Qui produit l’oxygène ?",o:["Océan","Voiture","Maison"],c:0},
+{q:"Le plastique met ?",o:["10 ans","450 ans","5 ans"],c:1},
+];
+
+let i=0,score=0,combo=0,time=10,timer;
+
+function start(){
+document.getElementById("start").style.display="none";
+document.getElementById("quiz").style.display="block";
+next();
+}
+
+function next(){
+if(i>=Q.length)return end();
+
+let q=Q[i];
+
+document.getElementById("question").innerText=q.q;
+document.getElementById("answers").innerHTML="";
+
+q.o.forEach((a,index)=>{
+let b=document.createElement("button");
+b.innerText=a;
+b.onclick=()=>pick(index,b);
+document.getElementById("answers").appendChild(b);
+});
+
+startTimer();
+updateBar();
+}
+
+function startTimer(){
+time=10;
+document.getElementById("timer").innerText="⏱️ "+time;
+
+timer=setInterval(()=>{
+time--;
+document.getElementById("timer").innerText="⏱️ "+time;
+
+if(time<=0){
+clearInterval(timer);
+pick(-1);
+}
+
+},1000);
+}
+
+function pick(index,btn){
+clearInterval(timer);
+
+let q=Q[i];
+let ok=index===q.c;
+
+if(ok){
+score+=1+Math.floor(combo/2);
+combo++;
+document.getElementById("good").play();
+vibrate();
+coach("🐝 Bravo !");
+}else{
+combo=0;
+document.getElementById("bad").play();
+coach("🐝 Oups !");
+}
+
+document.getElementById("combo").innerText="🔥 x"+combo;
+document.getElementById("score").innerText="⭐ "+score;
+
+i++;
+setTimeout(next,1000);
+}
+
+function coach(t){
+document.getElementById("coach").innerText=t;
+}
+
+function updateBar(){
+document.getElementById("bar").style.width=(i/Q.length*100)+"%";
+}
+
+function end(){
+document.getElementById("quiz").style.display="none";
+document.getElementById("end").style.display="block";
+
+let pct=score/Q.length;
+
+let emoji="🌱",msg="Continue !";
+
+if(pct>0.8){emoji="🏆";msg="Champion !";}
+else if(pct>0.5){emoji="🌟";msg="Super !";}
+
+document.getElementById("finalEmoji").innerText=emoji;
+document.getElementById("finalScore").innerText="Score : "+score;
+document.getElementById("finalMsg").innerText=msg;
+
+document.getElementById("win").play();
+confetti();
+}
+
+function restart(){
+location.reload();
+}
+
+function vibrate(){
+if(navigator.vibrate)navigator.vibrate(100);
+}
+
+function confetti(){
+for(let i=0;i<50;i++){
+let d=document.createElement("div");
+d.style.position="fixed";
+d.style.left=Math.random()*100+"%";
+d.style.top="0";
+d.style.width="5px";
+d.style.height="5px";
+d.style.background="red";
+d.style.animation="fall 2s linear";
+document.body.appendChild(d);
+}
+}
+
+</script>
+
+<style>
+@keyframes fall{
+to{transform:translateY(100vh);}
+}
+</style>
+
+</body>
+</html>

@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mission Éco-Héros 🌍</title>
+
+<style>
+body{
+  margin:0;
+  font-family:'Segoe UI',sans-serif;
+  background:linear-gradient(135deg,#22c55e,#3b82f6);
+  color:#1e293b;
+}
+
+#app{
+  max-width:700px;
+  margin:auto;
+  padding:15px;
+}
+
+.card{
+  background:white;
+  border-radius:20px;
+  padding:20px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.2);
+}
+
+h1,h2{text-align:center;}
+
+button{
+  width:100%;
+  margin:6px 0;
+  padding:14px;
+  border:none;
+  border-radius:12px;
+  font-size:16px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+button:hover{transform:scale(1.02);}
+
+.correct{background:#22c55e;color:white;}
+.wrong{background:#ef4444;color:white;}
+
+.top{
+  display:flex;
+  justify-content:space-between;
+  font-weight:bold;
+  margin-bottom:10px;
+}
+
+#progress{
+  height:10px;
+  background:#e2e8f0;
+  border-radius:10px;
+  overflow:hidden;
+  margin-bottom:10px;
+}
+
+#bar{
+  height:100%;
+  width:0%;
+  background:#22c55e;
+  transition:0.4s;
+}
+
+#coach{
+  text-align:center;
+  font-weight:bold;
+  margin-bottom:10px;
+}
+
+.stage{
+  text-align:center;
+  font-size:14px;
+  margin-bottom:5px;
+  opacity:0.7;
+}
+
+.big{font-size:40px;}
+
+</style>
+</head>
+
+<body>
+
+<div id="app">
+
+<div id="start" class="card">
+<h1>🌍 Mission Éco-Héros</h1>
+<p>🐝 Aide-moi à sauver la planète !<br>Réponds correctement pour avancer.</p>
+<button onclick="start()">🚀 Commencer la mission</button>
+</div>
+
+<div id="quiz" class="card" style="display:none;">
+<div class="top">
+<span id="timer">⏱️ 10</span>
+<span id="combo">🔥 x0</span>
+<span id="score">⭐ 0</span>
+</div>
+
+<div id="progress"><div id="bar"></div></div>
+
+<div class="stage" id="stage"></div>
+<div id="coach">🐝 On commence !</div>
+
+<h2 id="question"></h2>
+
+<div id="answers"></div>
+
+</div>
+
+<div id="end" class="card" style="display:none;">
+<h1 id="emoji" class="big"></h1>
+<h2 id="title"></h2>
+<p id="msg"></p>
+<button onclick="restart()">🔄 Rejouer</button>
+</div>
+
+</div>
+
+<audio id="good" src="good.mp3"></audio>
+<audio id="bad" src="bad.mp3"></audio>
+<audio id="win" src="win.mp3"></audio>
+
+<script>
+
+// 🌍 QUESTIONS AVEC EXPLICATIONS
+const Q=[
+{stage:"🌳 Forêt",q:"Pourquoi les arbres sont importants ?",o:["Décoration","Oxygène","Rien"],c:1,x:"Les arbres produisent l’oxygène !"},
+{stage:"🌳 Forêt",q:"Les abeilles servent à ?",o:["Dormir","Polliniser","Manger"],c:1,x:"Elles pollinisent les plantes !"},
+{stage:"🌊 Océan",q:"Qui produit beaucoup d’oxygène ?",o:["Océan","Voiture","Maison"],c:0,x:"Le plancton produit 50% de l’oxygène !"},
+{stage:"🌊 Océan",q:"Le plastique met ?",o:["10 ans","450 ans","5 ans"],c:1,x:"Très long ! Il pollue les océans"},
+{stage:"🌆 Ville",q:"Transport le plus écologique ?",o:["Voiture","Vélo","Avion"],c:1,x:"Le vélo ne pollue pas"},
+{stage:"🌆 Ville",q:"Éteindre la lumière ?",o:["Utile","Inutile"],c:0,x:"Ça économise l’énergie"},
+{stage:"🌍 Planète",q:"Recycler sert à ?",o:["Rien","Réutiliser","Polluer"],c:1,x:"On transforme les déchets"},
+{stage:"🌍 Planète",q:"Fermer le robinet ?",o:["Important","Inutile"],c:0,x:"On économise l’eau"},
+];
+
+// mélange
+Q.sort(()=>Math.random()-0.5);
+
+let i=0,score=0,combo=0,time=10,timer;
+
+// START
+function start(){
+document.getElementById("start").style.display="none";
+document.getElementById("quiz").style.display="block";
+next();
+}
+
+// NEXT QUESTION
+function next(){
+if(i>=Q.length)return end();
+
+let q=Q[i];
+
+document.getElementById("stage").innerText=q.stage;
+document.getElementById("question").innerText=q.q;
+document.getElementById("answers").innerHTML="";
+
+q.o.forEach((a,index)=>{
+let b=document.createElement("button");
+b.innerText=a;
+b.onclick=()=>pick(index,b);
+document.getElementById("answers").appendChild(b);
+});
+
+updateBar();
+startTimer();
+}
+
+// TIMER
+function startTimer(){
+time=10;
+document.getElementById("timer").innerText="⏱️ "+time;
+
+timer=setInterval(()=>{
+time--;
+document.getElementById("timer").innerText="⏱️ "+time;
+
+if(time<=0){
+clearInterval(timer);
+pick(-1);
+}
+
+},1000);
+}
+
+// PICK
+function pick(index,btn){
+clearInterval(timer);
+
+let q=Q[i];
+let ok=index===q.c;
+
+if(ok){
+score+=1+Math.floor(combo/2);
+combo++;
+document.getElementById("good").play();
+coach("🐝 Bravo ! "+q.x);
+vibrate();
+}else{
+combo=0;
+document.getElementById("bad").play();
+coach("🐝 Oups ! "+q.x);
+}
+
+document.getElementById("combo").innerText="🔥 x"+combo;
+document.getElementById("score").innerText="⭐ "+score;
+
+i++;
+setTimeout(next,1500);
+}
+
+// COACH
+function coach(t){
+document.getElementById("coach").innerText=t;
+}
+
+// BAR
+function updateBar(){
+document.getElementById("bar").style.width=(i/Q.length*100)+"%";
+}
+
+// END
+function end(){
+document.getElementById("quiz").style.display="none";
+document.getElementById("end").style.display="block";
+
+let pct=score/Q.length;
+
+let emoji="",title="",msg="";
+
+if(pct>=0.9){
+emoji="🏆";
+title="Éco-Maître";
+msg="Tu sauves la planète !";
+}
+else if(pct>=0.7){
+emoji="🌟";
+title="Éco-Héros";
+msg="Très bon travail !";
+}
+else if(pct>=0.5){
+emoji="🌱";
+title="Apprenti";
+msg="Continue !";
+}
+else{
+emoji="🐣";
+title="Débutant";
+msg="Tu peux progresser !";
+}
+
+document.getElementById("emoji").innerText=emoji;
+document.getElementById("title").innerText=title+" — "+score+"/"+Q.length;
+document.getElementById("msg").innerText=msg;
+
+document.getElementById("win").play();
+confetti();
+}
+
+// RESTART
+function restart(){
+location.reload();
+}
+
+// VIBRATION
+function vibrate(){
+if(navigator.vibrate)navigator.vibrate(100);
+}
+
+// CONFETTI
+function confetti(){
+for(let i=0;i<60;i++){
+let d=document.createElement("div");
+d.style.position="fixed";
+d.style.left=Math.random()*100+"%";
+d.style.top="0";
+d.style.width="6px";
+d.style.height="6px";
+d.style.background=["red","yellow","green","blue"][Math.floor(Math.random()*4)];
+d.style.animation="fall 2s linear";
+document.body.appendChild(d);
+}
+}
+
+</script>
+
+<style>
+@keyframes fall{
+to{transform:translateY(100vh);}
+}
+</style>
+
+</body>
+</html>

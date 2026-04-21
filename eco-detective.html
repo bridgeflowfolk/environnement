@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Éco-Détective 🔍 — BFF Enfants</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════
+   DESIGN SYSTEM BFF (identique au quiz)
+═══════════════════════════════════════════ */
+:root {
+  --jaune:#FFD93D; --orange:#FF6B35; --rouge:#FF4757;
+  --rose:#FF6B9D; --violet:#A855F7; --bleu:#3B82F6;
+  --bleu2:#06B6D4; --vert:#22C55E; --vert2:#16A34A;
+  --fond:#FFFEF7; --sombre:#1E293B;
+  --r-big:32px; --r-med:20px; --r-sm:12px;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'Nunito',sans-serif;
+  background:var(--fond);color:var(--sombre);overflow-x:hidden;
+}
+
+/* ══ NAV BFF ══ */
+nav{
+  position:sticky;top:0;z-index:300;
+  background:var(--bleu);padding:.7rem 1.2rem;
+  display:flex;align-items:center;gap:.8rem;
+  box-shadow:0 6px 0 rgba(0,0,0,.15);
+}
+.nav-logo{height:52px;width:auto;filter:drop-shadow(0 3px 6px rgba(0,0,0,.3));}
+.nav-title{font-family:'Fredoka One',cursive;font-size:1.2rem;color:white;line-height:1.1;text-shadow:2px 2px 0 rgba(0,0,0,.2);}
+.nav-title small{display:block;font-size:.72rem;font-family:'Nunito',sans-serif;font-weight:700;opacity:.8;}
+.nav-toggle{display:none;margin-left:auto;background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.4);border-radius:12px;color:white;font-size:1.4rem;cursor:pointer;padding:.3rem .6rem;}
+.nav-links{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;margin-left:auto;}
+.nav-links a{color:white;text-decoration:none;font-size:.82rem;font-weight:800;padding:.4rem .85rem;border-radius:50px;background:rgba(255,255,255,.18);border:2px solid rgba(255,255,255,.3);transition:all .2s;white-space:nowrap;}
+.nav-links a:hover,.nav-links a.active{background:var(--jaune);color:var(--sombre);border-color:var(--jaune);transform:translateY(-2px);}
+.nav-links .nav-cta{background:var(--vert);border-color:var(--vert2);box-shadow:0 4px 0 var(--vert2);}
+.nav-links .nav-cta:hover{background:var(--jaune);color:var(--sombre);border-color:#c8a800;box-shadow:0 4px 0 #c8a800;}
+@media(max-width:700px){
+  .nav-toggle{display:block;}
+  .nav-links{display:none;position:absolute;top:100%;left:0;right:0;background:var(--bleu);flex-direction:column;align-items:stretch;padding:.8rem 1rem;gap:.4rem;box-shadow:0 8px 0 rgba(0,0,0,.15);z-index:200;}
+  .nav-links.open{display:flex;}
+  .nav-links a{text-align:center;border-radius:var(--r-sm);}
+}
+
+/* ══ HERO ══ */
+.page-hero{
+  background:linear-gradient(135deg,#16a34a 0%,#06b6d4 60%,#3b82f6 100%);
+  padding:3rem 1.5rem 2.5rem;text-align:center;color:white;position:relative;overflow:hidden;
+}
+.page-hero::after{content:'🔍🌍🌊🌿🐝';position:absolute;bottom:.5rem;left:50%;transform:translateX(-50%);font-size:2rem;opacity:.13;letter-spacing:1.2rem;white-space:nowrap;}
+.hero-badge{display:inline-block;background:rgba(255,255,255,.18);border:2px solid rgba(255,255,255,.4);border-radius:50px;padding:.3rem 1rem;font-size:.8rem;font-weight:800;margin-bottom:1rem;letter-spacing:.5px;}
+.page-hero h1{font-family:'Fredoka One',cursive;font-size:clamp(2.2rem,6vw,3.5rem);text-shadow:3px 3px 0 rgba(0,0,0,.2);margin-bottom:.4rem;}
+.page-hero p{font-size:1.05rem;font-weight:800;opacity:.9;}
+
+/* ══ GAME WRAPPER ══ */
+#game{max-width:800px;margin:0 auto;padding:2rem 1.2rem 5rem;position:relative;z-index:10;}
+
+/* ══ PLANÈTE CENTRALE ══ */
+.planet-scene{
+  position:relative;width:100%;aspect-ratio:1/0.7;
+  border-radius:var(--r-big);overflow:hidden;
+  margin-bottom:1.5rem;
+  box-shadow:0 16px 0 rgba(0,0,0,.12),0 0 0 5px var(--jaune);
+  transition:box-shadow .4s;
+}
+.planet-bg{
+  position:absolute;inset:0;
+  background:linear-gradient(180deg,#87CEEB 0%,#b8e4f9 45%,#4ade80 45%,#22c55e 100%);
+  transition:background 1.2s ease;
+}
+/* Calques déco */
+.layer{position:absolute;transition:all 1.2s ease;}
+
+/* Soleil */
+.sun{
+  top:10%;right:12%;width:clamp(50px,9vw,80px);height:clamp(50px,9vw,80px);
+  background:radial-gradient(circle,#FFD93D 60%,#FF6B35 100%);
+  border-radius:50%;box-shadow:0 0 0 8px rgba(255,217,61,.3),0 0 0 16px rgba(255,217,61,.12);
+  animation:sunPulse 3s ease-in-out infinite;
+}
+@keyframes sunPulse{0%,100%{box-shadow:0 0 0 8px rgba(255,217,61,.3),0 0 0 16px rgba(255,217,61,.12);}50%{box-shadow:0 0 0 12px rgba(255,217,61,.4),0 0 0 24px rgba(255,217,61,.15);}}
+
+/* Nuages */
+.cloud{
+  background:rgba(255,255,255,.85);border-radius:50px;
+  animation:drift linear infinite;
+}
+.cloud::before,.cloud::after{content:'';position:absolute;background:inherit;border-radius:50%;}
+.cloud-a{width:80px;height:28px;top:14%;left:-100px;animation-duration:22s;animation-delay:-4s;}
+.cloud-a::before{width:40px;height:40px;top:-16px;left:12px;}
+.cloud-a::after{width:30px;height:30px;top:-12px;left:36px;}
+.cloud-b{width:60px;height:22px;top:24%;left:-80px;animation-duration:30s;animation-delay:-14s;opacity:.7;}
+.cloud-b::before{width:30px;height:30px;top:-12px;left:8px;}
+.cloud-b::after{width:22px;height:22px;top:-8px;left:28px;}
+@keyframes drift{from{left:-120px;}to{left:110%;}}
+
+/* Arbres SVG inline */
+.trees-zone{position:absolute;bottom:0;left:0;right:0;height:45%;display:flex;align-items:flex-end;justify-content:space-around;padding:0 4% 2%;}
+.tree-svg{transition:all 1.2s ease;transform-origin:bottom center;}
+
+/* Eau */
+.water-zone{position:absolute;bottom:0;right:0;width:32%;height:42%;overflow:hidden;}
+.wave{position:absolute;bottom:-4px;left:-10px;right:-10px;height:28px;background:rgba(6,182,212,.45);border-radius:50% 50% 0 0;animation:waveAnim 3s ease-in-out infinite;}
+.wave2{background:rgba(59,130,246,.3);animation-delay:-1.5s;bottom:6px;}
+
+/* Animaux */
+.animal{position:absolute;font-size:clamp(1.4rem,3.5vw,2.2rem);transition:all 1.2s ease;animation:floatAnim 4s ease-in-out infinite;}
+.bird-a{top:35%;left:18%;animation-delay:0s;}
+.bird-b{top:28%;left:38%;animation-delay:-1.4s;}
+.butterfly{bottom:48%;right:25%;animation-delay:-.8s;}
+@keyframes floatAnim{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+@keyframes waveAnim{0%,100%{transform:scaleX(1.02) translateY(0);}50%{transform:scaleX(.98) translateY(-4px);}}
+
+/* Pollution overlay */
+.smog{
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse at center,rgba(100,80,50,.0) 0%,rgba(100,80,50,.0) 100%);
+  pointer-events:none;transition:background 1.2s ease;
+}
+/* État dégradé */
+body.bad .planet-bg{background:linear-gradient(180deg,#94a3b8 0%,#cbd5e1 45%,#a16207 45%,#78350f 100%)!important;}
+body.bad .smog{background:radial-gradient(ellipse at center,rgba(80,60,20,.35) 0%,rgba(80,60,20,.55) 100%)!important;}
+
+/* ══ JAUGE PLANÈTE ══ */
+.planet-gauge-wrap{margin-bottom:1.5rem;}
+.gauge-label{display:flex;justify-content:space-between;align-items:center;margin-bottom:.45rem;}
+.gauge-label span{font-weight:800;font-size:.9rem;}
+.gauge-label .gauge-icon{font-size:1.1rem;}
+.gauge-bar{background:#e2e8f0;border-radius:50px;height:16px;overflow:hidden;border:3px solid rgba(0,0,0,.06);}
+.gauge-fill{
+  height:100%;border-radius:50px;
+  background:linear-gradient(90deg,var(--rouge),var(--orange),var(--jaune),var(--vert));
+  background-size:400% 100%;
+  transition:background-position 1s ease,width 1s ease;
+  background-position:0% 0%;
+}
+
+/* ══ SCÈNE NARRATIVE ══ */
+.scene-card{
+  background:white;border-radius:var(--r-big);
+  box-shadow:0 10px 0 rgba(0,0,0,.1);border:4px solid var(--jaune);
+  overflow:hidden;margin-bottom:1.2rem;
+  animation:fadeSlide .4s ease;
+}
+@keyframes fadeSlide{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:none;}}
+.scene-header{
+  padding:1.1rem 1.5rem .9rem;
+  background:linear-gradient(135deg,var(--bleu) 0%,var(--bleu2) 100%);
+  display:flex;align-items:center;gap:.8rem;
+}
+.scene-icon{font-size:1.8rem;filter:drop-shadow(0 2px 4px rgba(0,0,0,.2));}
+.scene-meta{color:white;}
+.scene-meta .case-num{font-size:.72rem;font-weight:800;opacity:.75;text-transform:uppercase;letter-spacing:.6px;}
+.scene-meta .case-title{font-family:'Fredoka One',cursive;font-size:1.1rem;text-shadow:1px 1px 0 rgba(0,0,0,.2);}
+.scene-body{padding:1.4rem 1.5rem 1.2rem;}
+.scene-narrative{
+  font-size:1rem;font-weight:700;line-height:1.75;color:var(--sombre);
+  padding-left:1rem;border-left:4px solid var(--jaune);
+  margin-bottom:1.2rem;
+}
+.scene-clue{
+  background:#fef9c3;border-radius:var(--r-sm);padding:.75rem 1rem;
+  font-size:.88rem;font-weight:800;color:#713f12;
+  border:2px dashed var(--jaune);margin-bottom:1.2rem;
+  display:flex;align-items:flex-start;gap:.5rem;
+}
+.scene-clue-icon{font-size:1.1rem;flex-shrink:0;margin-top:.05rem;}
+.scene-question{font-family:'Fredoka One',cursive;font-size:1.15rem;color:var(--sombre);text-align:center;margin-bottom:1.1rem;}
+
+/* ══ CHOIX ══ */
+.choices{display:grid;gap:.75rem;}
+.choice-btn{
+  display:flex;align-items:flex-start;gap:1rem;
+  background:white;border:3px solid #e2e8f0;border-radius:var(--r-med);
+  padding:1rem 1.2rem;cursor:pointer;transition:all .2s;
+  font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:800;
+  width:100%;color:var(--sombre);text-align:left;position:relative;overflow:hidden;
+}
+.choice-btn::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(90deg,rgba(34,197,94,.1),transparent);
+  opacity:0;transition:opacity .2s;
+}
+.choice-btn:hover:not(:disabled)::before{opacity:1;}
+.choice-btn:hover:not(:disabled){border-color:var(--vert);transform:translateX(4px);box-shadow:0 4px 0 rgba(34,197,94,.25);}
+.choice-icon{font-size:1.5rem;flex-shrink:0;margin-top:.05rem;}
+.choice-text{line-height:1.4;}
+.choice-text small{display:block;font-size:.78rem;color:#64748b;font-weight:700;margin-top:.2rem;}
+.choice-btn.chosen-good{background:#dcfce7;border-color:var(--vert);animation:choiceGood .4s ease;}
+.choice-btn.chosen-bad{background:#fee2e2;border-color:var(--rouge);animation:choiceBad .4s ease;}
+.choice-btn:disabled{cursor:default;}
+@keyframes choiceGood{0%,100%{transform:none;}40%{transform:scale(1.02);}}
+@keyframes choiceBad{0%{transform:translateX(0);}20%{transform:translateX(-6px);}40%{transform:translateX(6px);}60%{transform:translateX(-3px);}80%{transform:translateX(3px);}100%{transform:none;}}
+
+/* ══ FEEDBACK ══ */
+.feedback-panel{
+  display:none;border-radius:var(--r-med);overflow:hidden;
+  margin-top:1rem;animation:fadeSlide .35s ease;
+}
+.feedback-panel.show{display:block;}
+.fp-header{padding:.75rem 1.2rem;font-family:'Fredoka One',cursive;font-size:1.05rem;display:flex;align-items:center;gap:.5rem;}
+.feedback-panel.good .fp-header{background:#dcfce7;color:#166534;}
+.feedback-panel.bad  .fp-header{background:#fee2e2;color:#991b1b;}
+.fp-body{padding:.9rem 1.2rem;font-size:.88rem;font-weight:700;line-height:1.7;}
+.feedback-panel.good .fp-body{background:#f0fdf4;color:#166534;border:3px solid var(--vert);border-top:none;border-radius:0 0 var(--r-med) var(--r-med);}
+.feedback-panel.bad  .fp-body{background:#fff1f2;color:#991b1b;border:3px solid var(--rouge);border-top:none;border-radius:0 0 var(--r-med) var(--r-med);}
+.fp-impact{display:flex;align-items:center;gap:.5rem;margin-top:.5rem;font-size:.82rem;padding:.4rem .6rem;border-radius:8px;background:rgba(0,0,0,.05);}
+
+/* ══ BOUTON SUIVANT ══ */
+.btn-next{
+  display:none;width:100%;padding:1rem;border-radius:50px;
+  font-family:'Fredoka One',cursive;font-size:1.1rem;
+  background:var(--bleu);color:white;border:none;cursor:pointer;
+  box-shadow:0 5px 0 #1d4ed8;transition:all .2s;margin-top:1rem;
+}
+.btn-next.show{display:block;animation:fadeSlide .3s ease;}
+.btn-next:hover{transform:translateY(-3px);box-shadow:0 8px 0 #1d4ed8;}
+
+/* ══ HUD (stats en direct) ══ */
+.hud{
+  display:flex;gap:.7rem;flex-wrap:wrap;justify-content:center;
+  margin-bottom:1.5rem;
+}
+.hud-pill{
+  background:white;border-radius:50px;border:3px solid;
+  padding:.4rem 1rem;font-size:.85rem;font-weight:800;
+  display:flex;align-items:center;gap:.4rem;box-shadow:0 3px 0 rgba(0,0,0,.08);
+}
+.hud-health{border-color:var(--vert);color:var(--vert2);}
+.hud-pts{border-color:var(--orange);color:var(--orange);}
+.hud-case{border-color:var(--bleu);color:var(--bleu);}
+
+/* ══ ÉCRAN DE FIN ══ */
+.end-card{
+  background:white;border-radius:var(--r-big);padding:2.2rem 1.8rem;
+  box-shadow:0 12px 0 rgba(0,0,0,.1);border:4px solid var(--jaune);
+  text-align:center;animation:fadeSlide .5s ease;
+}
+.end-trophy{font-size:5rem;display:block;margin-bottom:.8rem;animation:bounce 2s infinite;}
+@keyframes bounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-12px);}}
+.end-title{font-family:'Fredoka One',cursive;font-size:2rem;margin-bottom:.3rem;}
+.end-subtitle{font-size:.95rem;font-weight:700;color:#64748b;margin-bottom:1.4rem;}
+.end-score-big{font-family:'Fredoka One',cursive;font-size:4rem;color:var(--orange);line-height:1;margin-bottom:1rem;}
+.rank-badge{
+  display:inline-block;border-radius:50px;padding:.5rem 1.5rem;
+  font-family:'Fredoka One',cursive;font-size:1.1rem;
+  margin-bottom:1.5rem;border:3px solid;
+}
+.rank-badge.s{background:#fef9c3;border-color:var(--jaune);color:#713f12;}
+.rank-badge.a{background:#dcfce7;border-color:var(--vert);color:var(--vert2);}
+.rank-badge.b{background:#eff6ff;border-color:var(--bleu);color:#1d4ed8;}
+.rank-badge.c{background:#fee2e2;border-color:var(--rouge);color:#991b1b;}
+.end-planet-state{
+  border-radius:var(--r-med);padding:1rem 1.4rem;margin-bottom:1.5rem;
+  font-size:.9rem;font-weight:700;line-height:1.7;text-align:left;
+  border-left:6px solid;
+}
+.end-planet-state.healthy{background:#dcfce7;border-color:var(--vert);color:#166534;}
+.end-planet-state.damaged{background:#fee2e2;border-color:var(--rouge);color:#991b1b;}
+.btn-restart{
+  width:100%;padding:1.1rem;border-radius:50px;
+  font-family:'Fredoka One',cursive;font-size:1.15rem;
+  background:var(--orange);color:white;border:none;cursor:pointer;
+  box-shadow:0 5px 0 #c8430d;transition:all .2s;margin-bottom:.8rem;
+}
+.btn-restart:hover{transform:translateY(-3px);box-shadow:0 8px 0 #c8430d;}
+.btn-scroll-top{
+  width:100%;padding:.85rem;border-radius:50px;
+  font-family:'Fredoka One',cursive;font-size:1rem;
+  background:#f1f5f9;color:var(--sombre);border:none;cursor:pointer;transition:all .2s;
+}
+.btn-scroll-top:hover{background:#e2e8f0;transform:translateY(-2px);}
+
+/* Start screen */
+.start-box{
+  background:white;border-radius:var(--r-big);padding:2rem;text-align:center;
+  box-shadow:0 10px 0 rgba(0,0,0,.1);border:4px solid var(--jaune);
+}
+.start-box h2{font-family:'Fredoka One',cursive;font-size:2rem;margin-bottom:.6rem;}
+.start-box p{color:#64748b;font-size:1rem;font-weight:700;line-height:1.7;margin-bottom:1.5rem;}
+.episodes-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1.5rem;}
+@media(max-width:480px){.episodes-grid{grid-template-columns:1fr;}}
+.ep-card{
+  border-radius:var(--r-med);padding:1rem;border:3px solid;cursor:pointer;
+  transition:all .2s;background:white;text-align:left;
+}
+.ep-card:hover{transform:translateY(-3px);box-shadow:0 6px 0 rgba(0,0,0,.12);}
+.ep-emoji{font-size:2rem;display:block;margin-bottom:.4rem;}
+.ep-title{font-family:'Fredoka One',cursive;font-size:1rem;margin-bottom:.2rem;}
+.ep-desc{font-size:.78rem;font-weight:700;color:#64748b;line-height:1.4;}
+.ep-diff{font-size:.7rem;font-weight:800;border-radius:50px;padding:.15rem .5rem;display:inline-block;margin-top:.3rem;}
+
+/* ══ FOOTER BFF ══ */
+footer{background:var(--sombre);padding:3rem 1.5rem 2rem;position:relative;overflow:hidden;}
+footer::before{content:'🌍🌿♻️💧🌱🐝🌍🌿♻️💧🌱🐝';display:block;text-align:center;font-size:1.6rem;letter-spacing:.5rem;opacity:.13;margin-bottom:1.5rem;}
+.footer-inner{max-width:960px;margin:0 auto;}
+.footer-logo{height:80px;width:auto;display:block;margin:0 auto 1.5rem;}
+.footer-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:1.5rem;margin-bottom:1.5rem;}
+.footer-col{display:flex;flex-direction:column;gap:.5rem;}
+.footer-col h4{color:var(--jaune);font-family:'Fredoka One',cursive;font-size:1rem;margin-bottom:.3rem;}
+.footer-col p{font-size:.82rem;color:rgba(255,255,255,.6);line-height:1.6;}
+.footer-col a{color:rgba(255,255,255,.65);text-decoration:none;font-size:.83rem;font-weight:700;transition:color .2s;}
+.footer-col a:hover{color:var(--jaune);}
+.fb-link{display:inline-flex!important;align-items:center;gap:.5rem;background:#1877F2;border-radius:10px;padding:.5rem .9rem;color:white!important;margin-top:.4rem;font-weight:800!important;box-shadow:0 4px 0 #0d5dbf;transition:all .2s!important;}
+.fb-link:hover{transform:translateY(-2px)!important;box-shadow:0 6px 0 #0d5dbf!important;}
+.footer-copy{text-align:center;font-size:.72rem;color:rgba(255,255,255,.25);border-top:1px solid rgba(255,255,255,.08);padding-top:1.2rem;margin-top:.5rem;}
+
+@media(max-width:480px){
+  .hud{gap:.4rem;}
+  .hud-pill{font-size:.75rem;padding:.3rem .75rem;}
+  .scene-body{padding:1.1rem 1rem;}
+}
+
+/* Étoiles flottantes sur bonne réponse */
+.star-burst{position:fixed;pointer-events:none;z-index:999;font-size:1.8rem;animation:starFloat 1.2s ease forwards;}
+@keyframes starFloat{0%{opacity:1;transform:translateY(0) scale(.5);}100%{opacity:0;transform:translateY(-80px) scale(1.2);}}
+</style>
+</head>
+<body>
+
+<!-- ══ NAV BFF ══ -->
+<nav>
+  <a href="bff-atelier-enfant.html" style="flex-shrink:0;text-decoration:none;">
+    <img src="logo-bff.png" alt="BFF" class="nav-logo">
+  </a>
+  <div class="nav-title">Bridge &amp; Flow Folk<small>C'est Notre Nature 🌿</small></div>
+  <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">☰</button>
+  <div class="nav-links">
+    <a href="bff-atelier-enfant.html">🏠 Accueil</a>
+    <a href="quiz-enfant.html">🌍 Quiz</a>
+    <a href="eco-detective.html" class="active">🔍 Éco-Détective</a>
+    <a href="apprendre-enfant.html">📚 Apprendre</a>
+    <a href="partenaires-enfant.html">🤝 Amis</a>
+    <a href="bff-atelier-enfant.html#inscription" class="nav-cta">✍️ S'inscrire !</a>
+  </div>
+</nav>
+
+<!-- ══ HERO ══ -->
+<div class="page-hero">
+  <div class="hero-badge">🆕 Nouveau jeu</div>
+  <h1>🔍 Éco-Détective</h1>
+  <p>Mène l'enquête. Sauve la planète. Deviens un héros !</p>
+</div>
+
+<!-- ══ GAME ══ -->
+<div id="game">
+
+  <!-- HUD (caché au départ) -->
+  <div class="hud" id="hud" style="display:none;">
+    <div class="hud-pill hud-health">🌍 Planète : <span id="hud-hp">100</span>%</div>
+    <div class="hud-pill hud-pts">⭐ <span id="hud-pts">0</span> pts</div>
+    <div class="hud-pill hud-case">📁 Affaire <span id="hud-case">1</span> / <span id="hud-total">—</span></div>
+  </div>
+
+  <!-- JAUGE PLANÈTE (cachée au départ) -->
+  <div class="planet-gauge-wrap" id="gauge-wrap" style="display:none;">
+    <div class="gauge-label">
+      <span>😰 Planète en danger</span>
+      <span class="gauge-icon" id="gauge-icon">🌍</span>
+      <span>🌈 Planète en bonne santé</span>
+    </div>
+    <div class="gauge-bar"><div class="gauge-fill" id="gauge-fill" style="width:100%;background-position:100% 0%;"></div></div>
+  </div>
+
+  <!-- SCÈNE PLANÈTE -->
+  <div class="planet-scene" id="planet-scene" style="display:none;">
+    <div class="planet-bg" id="planet-bg"></div>
+    <!-- Soleil -->
+    <div class="layer sun" id="sun"></div>
+    <!-- Nuages -->
+    <div class="layer cloud cloud-a" id="cloud-a"></div>
+    <div class="layer cloud cloud-b" id="cloud-b"></div>
+    <!-- Zone eau -->
+    <div class="layer water-zone" id="water-zone">
+      <div class="wave"></div><div class="wave wave2"></div>
+    </div>
+    <!-- Arbres -->
+    <div class="layer trees-zone" id="trees-zone">
+      <!-- Arbres SVG générés par JS -->
+    </div>
+    <!-- Animaux -->
+    <div class="layer animal bird-a" id="bird-a">🐦</div>
+    <div class="layer animal bird-b" id="bird-b">🦋</div>
+    <div class="layer animal butterfly" id="butterfly">🐝</div>
+    <!-- Smog -->
+    <div class="smog" id="smog"></div>
+  </div>
+
+  <!-- ÉCRAN DE DÉMARRAGE -->
+  <div class="start-box" id="start-screen">
+    <span style="font-size:4rem;display:block;margin-bottom:.8rem;">🕵️</span>
+    <h2>Mène l'enquête !</h2>
+    <p>
+      La planète a besoin de toi ! Résous des affaires environnementales en faisant les bons choix.
+      Chaque décision a une conséquence : observe ta planète se transformer en direct !
+    </p>
+    <div class="episodes-grid" id="episodes-grid">
+      <!-- Générées par JS -->
+    </div>
+    <button class="btn-restart" style="background:var(--jaune);color:var(--sombre);box-shadow:0 6px 0 #c8a800;font-size:1.2rem;" onclick="startEpisode(0)">
+      🚀 Commencer l'Affaire 1 !
+    </button>
+  </div>
+
+  <!-- CARTE SCÈNE (cachée au départ) -->
+  <div class="scene-card" id="scene-card" style="display:none;">
+    <div class="scene-header">
+      <div class="scene-icon" id="scene-icon">🌿</div>
+      <div class="scene-meta">
+        <div class="case-num" id="case-num">AFFAIRE 1 — SCÈNE 1</div>
+        <div class="case-title" id="case-title">Titre</div>
+      </div>
+    </div>
+    <div class="scene-body">
+      <div class="scene-narrative" id="scene-narrative">Narration…</div>
+      <div class="scene-clue" id="scene-clue" style="display:none;">
+        <span class="scene-clue-icon">🔍</span>
+        <span id="scene-clue-text"></span>
+      </div>
+      <div class="scene-question" id="scene-question">Question ?</div>
+      <div class="choices" id="choices-container"></div>
+      <div class="feedback-panel" id="feedback-panel">
+        <div class="fp-header" id="fp-header"></div>
+        <div class="fp-body" id="fp-body"></div>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-next" id="btn-next" onclick="nextStep()">Continuer l'enquête ➜</button>
+
+  <!-- ÉCRAN DE FIN -->
+  <div class="end-card" id="end-screen" style="display:none;">
+    <span class="end-trophy" id="end-trophy">🏆</span>
+    <div class="end-title" id="end-title">Affaire résolue !</div>
+    <div class="end-subtitle" id="end-subtitle"></div>
+    <div class="end-score-big" id="end-score-big">0 pts</div>
+    <div class="rank-badge" id="rank-badge">Rang ?</div>
+    <div class="end-planet-state" id="end-planet-state"></div>
+    <button class="btn-restart" onclick="restartGame()">🔄 Rejouer cette affaire</button>
+    <button class="btn-scroll-top" onclick="showStartScreen()">📁 Choisir une autre affaire</button>
+  </div>
+
+</div><!-- /game -->
+
+<!-- ══ FOOTER BFF ══ -->
+<footer>
+  <div class="footer-inner">
+    <img src="logo-bff.png" alt="BFF" class="footer-logo">
+    <div class="footer-cols">
+      <div class="footer-col">
+        <h4>🌿 Bridge &amp; Flow Folk</h4>
+        <p>Association de sensibilisation à l'environnement basée à Nogent-le-Roi (Eure-et-Loir).</p>
+      </div>
+      <div class="footer-col">
+        <h4>🔗 Liens utiles</h4>
+        <a href="bff-atelier-enfant.html">🏠 Accueil enfants</a>
+        <a href="quiz-enfant.html">🌍 Quiz Planète</a>
+        <a href="eco-detective.html">🔍 Éco-Détective</a>
+        <a href="apprendre-enfant.html">📚 Apprendre</a>
+      </div>
+      <div class="footer-col">
+        <h4>📱 Suivez-nous</h4>
+        <p>Rejoins la communauté BFF !</p>
+        <a href="https://www.facebook.com/BridgeFlowFolk" class="fb-link" target="_blank" rel="noopener noreferrer">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          Facebook BFF
+        </a>
+      </div>
+    </div>
+    <div class="footer-copy">© 2025 Bridge &amp; Flow Folk — Tous droits réservés — Nogent-le-Roi (28)</div>
+  </div>
+</footer>
+
+<script>
+/* ═══════════════════════════════════════════
+   DONNÉES — 3 AFFAIRES, 5 SCÈNES CHACUNE
+═══════════════════════════════════════════ */
+const EPISODES = [
+  {
+    id:0, emoji:'🌳', color:'#16a34a', border:'#22c55e', bg:'#dcfce7',
+    title:'La Forêt Mystérieuse',
+    desc:'Des arbres disparaissent dans la forêt de Rambouillet. Qui est responsable ?',
+    diff:'Débutant', diffColor:'#dcfce7', diffText:'#166534',
+    scenes:[
+      {
+        icon:'🌳', title:'Les arbres malades',
+        caseLabel:'AFFAIRE 1 — SCÈNE 1',
+        narrative:'En arrivant dans la forêt de Rambouillet, tu remarques que beaucoup d\'arbres ont les feuilles toutes jaunes et tombent. Un bûcheron t\'explique qu\'il utilise des produits chimiques pour "aider" les arbres à pousser plus vite.',
+        clue:'Les champignons autour des arbres malades sont tous morts. C\'est un indice important !',
+        question:'Qu\'est-ce qui cause la maladie des arbres ?',
+        choices:[
+          {icon:'🧪', text:'Les produits chimiques du bûcheron', sub:'Ils tuent les champignons qui aident les racines.', good:true, points:30},
+          {icon:'🌧️', text:'Trop de pluie cette année', sub:'L\'eau est pourtant nécessaire aux arbres.', good:false},
+          {icon:'☀️', text:'Trop de soleil en été', sub:'Les arbres adorent le soleil normalement.', good:false},
+          {icon:'🐛', text:'Des chenilles ont tout mangé', sub:'Les chenilles ne touchent pas les racines.', good:false},
+        ],
+        feedbackGood:{title:'✅ Bonne piste, détective !', body:'Tu as raison ! Les champignons (qu\'on appelle mycorhizes) vivent en symbiose avec les racines des arbres — ils les aident à absorber l\'eau et les minéraux. Les produits chimiques les détruisent, et les arbres s\'affaiblissent.', impact:'🌍 +10 points de santé pour la forêt !', planetDelta:10},
+        feedbackBad:{title:'❌ Mauvaise piste !', body:'Essaie encore ! Les arbres ont besoin de pluie et de soleil. Observe mieux les indices : les champignons sont tous morts autour des arbres malades…', impact:'🌍 -8 points de santé pour la planète.', planetDelta:-8},
+      },
+      {
+        icon:'🔬', title:'L\'expertise du sol',
+        caseLabel:'AFFAIRE 1 — SCÈNE 2',
+        narrative:'Tu prélèves un échantillon de terre. Au laboratoire mobile, tu découvres que le sol contient des traces de pesticides. Tu dois convaincre le bûcheron d\'arrêter. Quelle est la meilleure stratégie ?',
+        clue:'Le bûcheron dit que sans ces produits, les insectes nuisibles dévoreront tout. Il a peur de perdre son travail.',
+        question:'Comment convaincre le bûcheron d\'utiliser d\'autres méthodes ?',
+        choices:[
+          {icon:'🦅', text:'Lui montrer qu\'il existe des prédateurs naturels', sub:'Les rapaces, renards et hérissons mangent les insectes nuisibles.', good:true, points:25},
+          {icon:'🚔', text:'Appeler la police tout de suite', sub:'La confrontation directe ne résout pas toujours les problèmes.', good:false},
+          {icon:'🤷', text:'Rien, c\'est son droit de travailler', sub:'Mais la forêt appartient à tout le monde…', good:false},
+          {icon:'🔥', text:'Brûler les produits chimiques', sub:'Très dangereux et polluant !', good:false},
+        ],
+        feedbackGood:{title:'✅ Solution naturelle trouvée !', body:'Super idée ! En installant des nichoirs pour les rapaces et en préservant les haies, le bûcheron peut contrôler les insectes naturellement. C\'est ce qu\'on appelle la lutte biologique. La forêt retrouve peu à peu son équilibre.', impact:'🌍 +15 points de santé pour la forêt !', planetDelta:15},
+        feedbackBad:{title:'❌ Pas la bonne approche !', body:'Il faut collaborer, pas s\'opposer. Le bûcheron a besoin de comprendre comment travailler avec la nature plutôt que contre elle. Les solutions naturelles existent !', impact:'🌍 -6 points de santé pour la planète.', planetDelta:-6},
+      },
+      {
+        icon:'🌱', title:'Les arbres pionniers',
+        caseLabel:'AFFAIRE 1 — SCÈNE 3',
+        narrative:'La zone touchée est dévastée. Il faut replanter ! Un groupe d\'enfants veut aider mais ne sait pas quoi planter. Un vendeur propose des palmiers exotiques "pour faire joli".',
+        clue:'Les espèces locales (chênes, charmes, hêtres) ont évolué avec les animaux de la forêt depuis des milliers d\'années.',
+        question:'Quelles espèces faut-il planter pour reconstruire la forêt ?',
+        choices:[
+          {icon:'🌳', text:'Des chênes, charmes et hêtres locaux', sub:'Les espèces indigènes sont adaptées au sol et nourrissent les animaux locaux.', good:true, points:30},
+          {icon:'🌴', text:'Des palmiers exotiques colorés', sub:'Jolis mais inadaptés au climat et sans valeur pour la faune locale.', good:false},
+          {icon:'🌾', text:'Du blé et du maïs', sub:'Ce sont des cultures agricoles, pas des arbres forestiers.', good:false},
+          {icon:'🎋', text:'Du bambou, ça pousse vite !', sub:'Le bambou peut devenir envahissant et chasser les plantes locales.', good:false},
+        ],
+        feedbackGood:{title:'✅ Excellent choix naturaliste !', body:'Bravo ! Les espèces locales sont essentielles : elles fournissent des noix et des glands aux écureuils et sangliers, des cavités pour les oiseaux, et elles s\'adaptent parfaitement au sol local. La forêt se reconstruit comme elle doit l\'être !', impact:'🌍 +20 points de santé — les animaux reviennent !', planetDelta:20},
+        feedbackBad:{title:'❌ La forêt a besoin de ses arbres natifs !', body:'Les espèces exotiques ne peuvent pas nourrir la faune locale. Les chênes, hêtres et charmes ont co-évolué avec les animaux de nos forêts depuis des millénaires. C\'est irremplaçable !', impact:'🌍 -10 points de santé pour la planète.', planetDelta:-10},
+      },
+      {
+        icon:'🐿️', title:'Les habitants de la forêt',
+        caseLabel:'AFFAIRE 1 — SCÈNE 4',
+        narrative:'La forêt reprend vie ! Mais une nouvelle menace surgit : une entreprise veut construire une route en plein milieu de la forêt pour gagner 10 minutes de trajet. Le maire hésite.',
+        clue:'Les routes coupent les corridors biologiques : les animaux ne peuvent plus passer d\'une zone à l\'autre pour se nourrir et se reproduire.',
+        question:'Quelle solution proposes-tu au maire ?',
+        choices:[
+          {icon:'🌉', text:'Un passage sous la route pour les animaux', sub:'Des "écoducs" permettent aux animaux de traverser en sécurité.', good:true, points:25},
+          {icon:'✅', text:'Construire la route, 10 min c\'est beaucoup', sub:'Mais les animaux seront coupés en deux populations…', good:false},
+          {icon:'🚫', text:'Interdire toute route en forêt pour toujours', sub:'Trop radical, des routes existent déjà et sont parfois nécessaires.', good:false},
+          {icon:'📺', text:'Faire une émission de télé sur le sujet', sub:'La sensibilisation c\'est bien, mais ça ne résout pas le problème immédiat.', good:false},
+        ],
+        feedbackGood:{title:'✅ Les écoducs, une vraie solution !', body:'Génial ! Les écoducs (passages sous ou au-dessus des routes) sont déjà utilisés en France. Ils permettent aux renards, chevreuils, hérissons et même aux crapauds de traverser sans danger. La route peut être construite avec ces aménagements !', impact:'🌍 +18 points de santé — la biodiversité se maintient !', planetDelta:18},
+        feedbackBad:{title:'❌ La fragmentation, c\'est grave !', body:'Sans corridors biologiques, les animaux s\'isolent. Les petites populations ne peuvent plus se mélanger, elles s\'affaiblissent et disparaissent. Les écoducs sont une vraie solution qui existe déjà !', impact:'🌍 -12 points de santé pour la planète.', planetDelta:-12},
+      },
+      {
+        icon:'🏆', title:'Le rapport final',
+        caseLabel:'AFFAIRE 1 — SCÈNE 5 (FINALE)',
+        narrative:'L\'affaire touche à sa fin. La forêt est sauvée ! Tu dois rédiger ton rapport pour les enfants de l\'école. Quelle est la leçon la plus importante à retenir ?',
+        clue:'Tu as découvert les mycorhizes, la lutte biologique, les espèces indigènes et les écoducs pendant cette enquête.',
+        question:'Quelle est la clé pour protéger une forêt ?',
+        choices:[
+          {icon:'🕸️', text:'Tout est lié : sol, plantes, animaux, humains', sub:'La biodiversité est un réseau — chaque maillon compte.', good:true, points:35},
+          {icon:'🌲', text:'Planter le plus d\'arbres possible, n\'importe lesquels', sub:'La quantité sans qualité ne suffit pas.', good:false},
+          {icon:'🚷', text:'Interdire l\'accès aux forêts à tout le monde', sub:'Les forêts ont besoin d\'être comprises, pas juste protégées par barrière.', good:false},
+          {icon:'💰', text:'Payer les bûcherons pour ne rien faire', sub:'Il vaut mieux les former aux pratiques durables.', good:false},
+        ],
+        feedbackGood:{title:'🏆 Affaire brillamment résolue !', body:'C\'est exactement ça ! La forêt est un écosystème : les champignons nourrissent les arbres, les arbres abritent les oiseaux, les oiseaux mangent les insectes, les insectes pollinisent les fleurs… Toucher un maillon, c\'est ébranler tout le réseau. Tu mérites ton badge de détective !', impact:'🌍 +25 points — la forêt est pleinement sauvée !', planetDelta:25},
+        feedbackBad:{title:'❌ Presque ! Pense au réseau…', body:'La forêt n\'est pas juste des arbres. C\'est un ensemble d\'êtres vivants interdépendants. La vraie protection, c\'est comprendre et respecter toutes ces connexions invisibles.', impact:'🌍 -5 points de santé pour la planète.', planetDelta:-5},
+      },
+    ]
+  },
+  {
+    id:1, emoji:'🌊', color:'#0369a1', border:'#06b6d4', bg:'#e0f2fe',
+    title:'L\'Océan en Péril',
+    desc:'Des dauphins s\'échouent sur les plages bretonnes. Mène l\'enquête sur la pollution marine.',
+    diff:'Intermédiaire', diffColor:'#fef9c3', diffText:'#713f12',
+    scenes:[
+      {
+        icon:'🐬', title:'Les dauphins en détresse',
+        caseLabel:'AFFAIRE 2 — SCÈNE 1',
+        narrative:'Trois dauphins s\'échouent sur la plage de Douarnenez. Un pêcheur explique qu\'il a vu des sacs plastiques flottants à des kilomètres à la ronde. Un autre signale des filets abandonnés.',
+        clue:'Dans l\'estomac des dauphins échoués, les vétérinaires ont trouvé des morceaux de plastique blanc ressemblant à des méduses.',
+        question:'Pourquoi les dauphins avalent-ils du plastique ?',
+        choices:[
+          {icon:'🎭', text:'Ils confondent les sacs avec des méduses', sub:'Les sacs plastiques flottant ressemblent vraiment à des méduses vues du dessous.', good:true, points:30},
+          {icon:'😋', text:'Le plastique a bon goût pour eux', sub:'Non, les dauphins ne peuvent pas percevoir le goût du plastique.', good:false},
+          {icon:'😠', text:'Ils le font exprès pour attirer l\'attention', sub:'Les animaux ne font jamais ça.', good:false},
+          {icon:'🌊', text:'Les vagues les forcent à avaler l\'eau', sub:'Les dauphins contrôlent parfaitement leur bouche sous l\'eau.', good:false},
+        ],
+        feedbackGood:{title:'✅ Bonne déduction !', body:'Exactement ! Vus du dessous, les sacs plastiques transparents ressemblent à des méduses qui pulsent dans l\'eau. Les tortues et dauphins se font régulièrement piéger. Le plastique bouche leur système digestif et ils meurent de faim malgré leur estomac plein.', impact:'🌊 +10 points de santé pour l\'océan !', planetDelta:10},
+        feedbackBad:{title:'❌ Observe les indices !', body:'Les dauphins confondent les sacs plastiques avec leurs proies naturelles — les méduses — quand ils les voient flotter à la surface. C\'est une erreur tragique causée par notre pollution.', impact:'🌊 -8 points de santé pour la planète.', planetDelta:-8},
+      },
+      {
+        icon:'🎣', title:'Les filets fantômes',
+        caseLabel:'AFFAIRE 2 — SCÈNE 2',
+        narrative:'Tu plonges avec des scaphandriers bénévoles. Partout, des filets abandonnés par des bateaux de pêche continuent de capturer des poissons, des oiseaux marins et des dauphins indéfiniment. On les appelle "filets fantômes".',
+        clue:'Ces filets peuvent rester actifs pendant des centaines d\'années car ils sont en plastique synthétique qui ne se dégrade pas dans l\'eau de mer.',
+        question:'Quelle est la solution prioritaire pour les filets fantômes ?',
+        choices:[
+          {icon:'🤿', text:'Organiser des plongées de nettoyage régulières', sub:'Des associations comme Ghost Diving le font déjà en France.', good:true, points:25},
+          {icon:'💣', text:'Faire exploser les filets sous l\'eau', sub:'Extrêmement dangereux pour toute la faune marine alentour.', good:false},
+          {icon:'🚤', text:'Attendre qu\'ils coulent au fond', sub:'Au fond, ils continuent de piéger les animaux aussi.', good:false},
+          {icon:'📋', text:'Remplir un formulaire à la mairie', sub:'Utile pour signaler, mais ça ne retire pas les filets de l\'eau.', good:false},
+        ],
+        feedbackGood:{title:'✅ Action concrète choisie !', body:'Parfait ! Des associations de plongeurs bénévoles organisent des opérations de récupération de filets fantômes sur toutes les côtes françaises. Chaque filet retiré sauve des dizaines d\'animaux. Certains filets récupérés sont même recyclés en matière plastique utile !', impact:'🌊 +15 points de santé pour l\'océan !', planetDelta:15},
+        feedbackBad:{title:'❌ Il faut agir directement !', body:'Seule une action physique de retrait permet de neutraliser ces filets. Des associations spécialisées le font partout en France. Tu peux même les rejoindre dès 12 ans !', impact:'🌊 -7 points de santé pour la planète.', planetDelta:-7},
+      },
+      {
+        icon:'🧴', title:'Les microplastiques',
+        caseLabel:'AFFAIRE 2 — SCÈNE 3',
+        narrative:'Dans ton laboratoire mobile au bord de mer, tu filtres un litre d\'eau : tu trouves des centaines de minuscules particules de plastique invisibles à l\'œil nu. La biologiste marine t\'explique que ce sont des microplastiques qui entrent dans la chaîne alimentaire.',
+        clue:'Ces microplastiques viennent en grande partie du lavage des vêtements synthétiques (polyester, nylon) et des pneus qui s\'usent sur les routes.',
+        question:'Comment réduire les microplastiques du lavage à la maison ?',
+        choices:[
+          {icon:'🧺', text:'Utiliser un filet filtrant pour la machine à laver', sub:'Il capture 90% des fibres plastiques avant qu\'elles filent dans les eaux.', good:true, points:30},
+          {icon:'🚿', text:'Laver ses vêtements à la douche à la main', sub:'Peu efficace et toujours problématique sans filtration.', good:false},
+          {icon:'🔥', text:'Brûler les vêtements synthétiques', sub:'La combustion rejette des polluants dangereux dans l\'air.', good:false},
+          {icon:'👗', text:'Ne plus jamais laver ses vêtements', sub:'Pas vraiment pratique comme solution !', good:false},
+        ],
+        feedbackGood:{title:'✅ Solution ingénieuse !', body:'Bravo ! Les filtres comme Guppyfriend ou Cora Ball existent et sont vendus en France. Ils retiennent les microfibres lors du lavage. En plus, acheter des vêtements en fibres naturelles (coton bio, lin, laine) réduit aussi le problème à la source !', impact:'🌊 +20 points de santé pour l\'océan !', planetDelta:20},
+        feedbackBad:{title:'❌ Il faut filtrer à la source !', body:'Un filet filtrant dans la machine à laver retient jusqu\'à 90% des microfibres plastiques. C\'est un geste simple, abordable et très efficace. En France, des marques comme Guppyfriend proposent ces solutions.', impact:'🌊 -9 points de santé pour la planète.', planetDelta:-9},
+      },
+      {
+        icon:'🐟', title:'La chaîne alimentaire',
+        caseLabel:'AFFAIRE 2 — SCÈNE 4',
+        narrative:'Le poissonnier du marché est inquiet : ses poissons contiennent des traces de plastique. Des clients refusent d\'acheter. Tu dois expliquer le problème clairement à la foule du marché.',
+        clue:'Un petit poisson mange du plancton contaminé → un plus gros poisson mange 100 petits poissons → un thon mange des centaines de gros poissons → et nous mangeons le thon. C\'est la bioaccumulation.',
+        question:'Que faut-il expliquer aux clients du marché ?',
+        choices:[
+          {icon:'🔗', text:'Le plastique se concentre en remontant la chaîne alimentaire', sub:'Plus on est haut dans la chaîne, plus la concentration est forte.', good:true, points:25},
+          {icon:'🚫', text:'Ne plus jamais manger de poisson', sub:'Ce serait injuste pour les pêcheurs et pas nécessairement utile.', good:false},
+          {icon:'😌', text:'Ce n\'est pas grave, le plastique est petit', sub:'Petit mais chimiquement dangereux une fois accumulé.', good:false},
+          {icon:'🧂', text:'Il suffit de bien cuire le poisson', sub:'La cuisson ne détruit pas les contaminants chimiques.', good:false},
+        ],
+        feedbackGood:{title:'✅ Explication parfaite !', body:'C\'est exactement ça ! La bioaccumulation fait que les contaminants se concentrent à chaque niveau de la chaîne. Un thon rouge peut contenir des millions de fois plus de microplastiques que l\'eau qu\'il nage dedans. La solution : réduire la pollution à la source, pas arrêter de manger du poisson.', impact:'🌊 +18 points de santé pour l\'océan !', planetDelta:18},
+        feedbackBad:{title:'❌ Pense à la chaîne alimentaire !', body:'La bioaccumulation est un phénomène réel et inquiétant. Chaque maillon mange le maillon inférieur et concentre davantage les polluants. C\'est pour ça que protéger l\'océan nous protège aussi directement !', impact:'🌊 -10 points de santé pour la planète.', planetDelta:-10},
+      },
+      {
+        icon:'🏆', title:'Le grand nettoyage',
+        caseLabel:'AFFAIRE 2 — SCÈNE 5 (FINALE)',
+        narrative:'Tu as résolu l\'affaire ! La mairie de Douarnenez veut organiser un grand nettoyage. Quelle action aura le plus d\'impact durable — pas juste pour un jour ?',
+        clue:'Un nettoyage ponctuel ramasse 2 tonnes de déchets. Une loi ou une habitude changée évite 200 tonnes par an.',
+        question:'Quelle action a le plus d\'impact sur le long terme ?',
+        choices:[
+          {icon:'🏫', text:'Éduquer les enfants à ne pas jeter dans la nature', sub:'Changer les habitudes dès l\'enfance, c\'est changer l\'avenir.', good:true, points:35},
+          {icon:'🧹', text:'Organiser un grand nettoyage de plage annuel', sub:'Utile mais les déchets reviennent si les comportements ne changent pas.', good:false},
+          {icon:'🤖', text:'Envoyer des robots ramasser les déchets', sub:'La technologie aide mais ne remplace pas le changement de comportement.', good:false},
+          {icon:'💸', text:'Taxer fortement les bouteilles en plastique', sub:'Efficace économiquement, mais seule l\'éducation change vraiment les mentalités.', good:false},
+        ],
+        feedbackGood:{title:'🏆 Affaire de l\'Océan résolue !', body:'Tu as trouvé la clé ! L\'éducation est l\'investissement le plus puissant. Un enfant qui comprend pourquoi les déchets nuisent à l\'océan le transmettra à ses parents, ses amis, et ses propres enfants. Tu viens de sauver des générations d\'océans ! 🌊', impact:'🌊 +25 points — l\'océan respire à nouveau !', planetDelta:25},
+        feedbackBad:{title:'❌ Pense au long terme !', body:'Les nettoyages et taxes sont utiles, mais l\'éducation est la seule solution qui change vraiment les comportements de façon permanente. Un enfant convaincu est le meilleur des ambassadeurs !', impact:'🌊 -5 points de santé pour la planète.', planetDelta:-5},
+      },
+    ]
+  },
+  {
+    id:2, emoji:'🌡️', color:'#7c3aed', border:'#a855f7', bg:'#f3e8ff',
+    title:'Le Défi Climatique',
+    desc:'Les hivers deviennent imprévisibles. Enquête sur le réchauffement climatique dans ta région.',
+    diff:'Expert', diffColor:'#fee2e2', diffText:'#991b1b',
+    scenes:[
+      {
+        icon:'🌡️', title:'La chaleur record',
+        caseLabel:'AFFAIRE 3 — SCÈNE 1',
+        narrative:'Nogent-le-Roi, juillet. Il fait 42°C. C\'est le record historique. Une vieille dame t\'explique qu\'enfants, elle n\'avait jamais vu ça. Le journal local cherche une explication simple pour ses lecteurs.',
+        clue:'Les gaz à effet de serre (CO₂, méthane) agissent comme une couverture autour de la Terre : ils laissent entrer la chaleur du soleil mais l\'empêchent de repartir dans l\'espace.',
+        question:'Quelle explication est la plus juste pour un journal local ?',
+        choices:[
+          {icon:'🔆', text:'Nos émissions de CO₂ piègent la chaleur solaire', sub:'Les combustibles fossiles augmentent l\'effet de serre naturel.', good:true, points:30},
+          {icon:'☀️', text:'Le soleil est plus actif qu\'avant', sub:'L\'activité solaire varie peu et n\'explique pas l\'accélération actuelle.', good:false},
+          {icon:'🏙️', text:'Les villes chauffent localement, c\'est tout', sub:'L\'îlot de chaleur urbain existe, mais le réchauffement est mondial.', good:false},
+          {icon:'🌋', text:'Ce sont les volcans qui réchauffent la planète', sub:'Les volcans refroidissent même temporairement la planète (poussières).', good:false},
+        ],
+        feedbackGood:{title:'✅ Explication parfaite !', body:'Exactement ! L\'effet de serre est naturel et nécessaire (sans lui, la Terre serait à -18°C), mais nos émissions de CO₂ dues aux voitures, usines et avions l\'amplifient trop. La planète retient de plus en plus de chaleur. Le GIEC (groupe d\'experts de l\'ONU) le confirme depuis 30 ans.', impact:'🌡️ +10 points de conscience climatique !', planetDelta:10},
+        feedbackBad:{title:'❌ Revois les causes !', body:'L\'activité solaire, les volcans et les îlots de chaleur existent, mais ne peuvent pas expliquer le réchauffement mondial actuel. La cause principale identifiée par les scientifiques du monde entier : nos émissions de CO₂.', impact:'🌡️ -8 points de santé pour la planète.', planetDelta:-8},
+      },
+      {
+        icon:'🚗', title:'L\'empreinte carbone',
+        caseLabel:'AFFAIRE 3 — SCÈNE 2',
+        narrative:'La mairie d\'Eure-et-Loir veut réduire ses émissions de 40% en 5 ans. Le conseil municipal te demande quelle action unique aura le plus grand impact pour les habitants.',
+        clue:'En France, les transports représentent 31% des émissions de CO₂ — c\'est le secteur le plus émetteur. La voiture individuelle en est le principal responsable.',
+        question:'Quelle action réduit le plus les émissions de CO₂ dans un département rural ?',
+        choices:[
+          {icon:'🚌', text:'Créer des lignes de covoiturage et bus express', sub:'Dans les zones rurales, le transport partagé est la solution la plus efficace.', good:true, points:25},
+          {icon:'💡', text:'Remplacer toutes les ampoules par des LED', sub:'Utile mais l\'éclairage ne représente que 3% de la consommation totale.', good:false},
+          {icon:'🌱', text:'Planter 1000 arbres en ville', sub:'Bon pour la biodiversité, mais l\'absorption de CO₂ est lente et limitée.', good:false},
+          {icon:'🛍️', text:'Interdire les sacs plastiques dans les commerces', sub:'Déjà fait en France depuis 2016, et l\'impact CO₂ est marginal.', good:false},
+        ],
+        feedbackGood:{title:'✅ Impact maximal identifié !', body:'Bravo ! Le transport est le secteur le plus émetteur en France. Dans les zones rurales comme l\'Eure-et-Loir, créer des lignes de covoiturage organisées, des cars express et encourager le télétravail permet de réduire massivement les émissions. C\'est concret et immédiat !', impact:'🌡️ +15 points de conscience climatique !', planetDelta:15},
+        feedbackBad:{title:'❌ Cherche où sont les vraies émissions !', body:'Chaque action compte, mais avec un budget limité, il faut prioriser. Le transport représente le tiers de nos émissions — c\'est là qu\'on a le plus grand levier d\'action, surtout en zone rurale.', impact:'🌡️ -7 points de santé pour la planète.', planetDelta:-7},
+      },
+      {
+        icon:'🌾', title:'L\'agriculture en transition',
+        caseLabel:'AFFAIRE 3 — SCÈNE 3',
+        narrative:'Un agriculteur de Beauce te contacte : ses rendements baissent à cause des sécheresses. Il hésite entre continuer comme avant ou changer ses méthodes. Il te demande conseil.',
+        clue:'Les sols riches en matière organique retiennent 5x plus d\'eau que les sols appauvris par les pesticides. Un sol vivant est aussi un puits de carbone.',
+        question:'Quelle pratique agricole recommandes-tu en priorité ?',
+        choices:[
+          {icon:'🌿', text:'L\'agroécologie : couvrir les sols et réduire le labour', sub:'Moins de labour = sol vivant = meilleure rétention d\'eau = moins de sécheresse.', good:true, points:30},
+          {icon:'💧', text:'Installer plus de canaux d\'irrigation', sub:'Coûteux et puise dans des nappes phréatiques déjà fragilisées.', good:false},
+          {icon:'🧬', text:'Utiliser des semences OGM résistantes', sub:'Controversial et ne résout pas l\'appauvrissement des sols.', good:false},
+          {icon:'🏭', text:'Couvrir les champs de serres géantes', sub:'Irréaliste à grande échelle et énergivore.', good:false},
+        ],
+        feedbackGood:{title:'✅ L\'agroécologie, l\'avenir !', body:'Exactement ! Les pratiques agroécologiques (couverts végétaux, compost, rotations) régénèrent les sols. Un sol riche en vers de terre et en champignons retient l\'eau comme une éponge. En France, des agriculteurs de Beauce font déjà cette transition avec des résultats remarquables.', impact:'🌡️ +20 points de conscience climatique !', planetDelta:20},
+        feedbackBad:{title:'❌ La solution est dans le sol !', body:'L\'irrigation puise dans des nappes déjà basses, et les OGM ne régénèrent pas la vie du sol. L\'agroécologie s\'attaque à la racine du problème : redonner vie à la terre pour qu\'elle se défende naturellement contre la sécheresse.', impact:'🌡️ -9 points de santé pour la planète.', planetDelta:-9},
+      },
+      {
+        icon:'🏘️', title:'La ville de demain',
+        caseLabel:'AFFAIRE 3 — SCÈNE 4',
+        narrative:'Chartres veut construire un nouveau quartier de 2000 logements. Le maire te demande quel élément est absolument indispensable pour que ce quartier soit résilient face au changement climatique.',
+        clue:'Les vagues de chaleur tuent surtout en ville à cause du manque de végétation et de l\'asphalte qui stocke la chaleur. L\'eau est aussi de plus en plus rare en Beauce.',
+        question:'Quel élément est prioritaire dans ce nouveau quartier ?',
+        choices:[
+          {icon:'🌳', text:'Des arbres, jardins partagés et mares de rétention d\'eau', sub:'La végétation refroidit, l\'eau stockée hydrate et les jardins créent du lien.', good:true, points:25},
+          {icon:'❄️', text:'La climatisation pour tous les appartements', sub:'La clim aggrave le réchauffement extérieur et consomme beaucoup d\'énergie.', good:false},
+          {icon:'⬜', text:'Des murs et toits blancs pour réfléchir la chaleur', sub:'Utile mais insuffisant sans végétation et eau.', good:false},
+          {icon:'🏊', text:'Une grande piscine collective', sub:'Gourmande en eau et en produits chimiques, pas suffisant pour le quartier.', good:false},
+        ],
+        feedbackGood:{title:'✅ La nature en ville, c\'est vital !', body:'Parfait ! Un arbre adulte rafraîchit autant que 10 climatiseurs. Les jardins partagés créent du lien social et de la résilience. Les mares et toitures végétalisées gèrent les eaux pluviales. C\'est ce qu\'on appelle les "solutions fondées sur la nature" — c\'est l\'avenir de nos villes !', impact:'🌡️ +18 points de conscience climatique !', planetDelta:18},
+        feedbackBad:{title:'❌ La nature est la meilleure infrastructure !', body:'La climatisation consomme énormément d\'énergie et réchauffe l\'extérieur. Les murs blancs aident peu sans eau et végétation. La solution prouvée : ramener la nature en ville. Un arbre coûte moins qu\'un climatiseur et refroidit mieux !', impact:'🌡️ -10 points de santé pour la planète.', planetDelta:-10},
+      },
+      {
+        icon:'🏆', title:'Le bilan climatique',
+        caseLabel:'AFFAIRE 3 — SCÈNE 5 (FINALE)',
+        narrative:'Tu as parcouru toute l\'enquête climatique ! Un journaliste te demande : "Vu tout ce que tu as découvert, est-il encore temps d\'agir pour le climat ?"',
+        clue:'Chaque fraction de degré compte. Limiter à 1,5°C plutôt que 2°C sauve des milliers d\'espèces et des millions de personnes. Chaque action compte, à chaque échelle.',
+        question:'Quelle est la réponse la plus juste et motivante ?',
+        choices:[
+          {icon:'💪', text:'Oui ! Chaque degré et chaque geste comptent vraiment', sub:'La science dit qu\'agir maintenant réduit les impacts de façon significative.', good:true, points:35},
+          {icon:'😔', text:'Non, c\'est trop tard, rien ne sert de rien', sub:'C\'est ce qu\'on appelle l\'éco-anxiété paralysante — à éviter.', good:false},
+          {icon:'🤖', text:'La technologie va tout résoudre, pas besoin d\'agir', sub:'La tech aide, mais sans changement de comportement, ce n\'est pas suffisant.', good:false},
+          {icon:'🤷', text:'Je ne sais pas, les scientifiques ne sont pas d\'accord', sub:'En réalité, 97% des scientifiques s\'accordent sur le réchauffement climatique humain.', good:false},
+        ],
+        feedbackGood:{title:'🏆 Affaire Climatique résolue — Champion !', body:'C\'est la réponse de la science ET de l\'espoir ! Le GIEC le confirme : limiter le réchauffement à 1,5°C plutôt que 3°C fait une différence immense pour des centaines de millions de personnes et des milliers d\'espèces. Chaque action, à chaque niveau, compte vraiment. Et toi, tu comptes aussi ! 🌍', impact:'🌡️ +25 points — le futur se joue maintenant !', planetDelta:25},
+        feedbackBad:{title:'❌ L\'espoir est une donnée scientifique !', body:'Le découragement et la foi aveugle en la technologie sont tous les deux des pièges. La science dit clairement : agir maintenant fait une vraie différence. 97% des climatologues s\'accordent là-dessus. Le futur n\'est pas écrit — c\'est à toi de l\'écrire !', impact:'🌡️ -5 points de santé pour la planète.', planetDelta:-5},
+      },
+    ]
+  }
+];
+
+/* ═══════════════════════════════════════════
+   ÉTAT DU JEU
+═══════════════════════════════════════════ */
+let state = {
+  episode: null,
+  sceneIndex: 0,
+  planetHP: 60,   // démarre à 60% pour montrer une marge d'amélioration
+  points: 0,
+  answered: false,
+  lastWasGood: false,
+};
+
+/* ═══════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════ */
+function init(){
+  renderEpisodes();
+  buildTrees(60);
+  updatePlanetVisual();
+  navToggle();
+}
+
+function navToggle(){
+  document.querySelector('.nav-toggle').addEventListener('click',()=>{
+    document.querySelector('.nav-links').classList.toggle('open');
+  });
+}
+
+function renderEpisodes(){
+  const grid = document.getElementById('episodes-grid');
+  grid.innerHTML = EPISODES.map((ep,i)=>`
+    <div class="ep-card" style="border-color:${ep.border};background:${ep.bg};"
+         onclick="startEpisode(${i})">
+      <span class="ep-emoji">${ep.emoji}</span>
+      <div class="ep-title" style="color:${ep.color};">${ep.title}</div>
+      <div class="ep-desc">${ep.desc}</div>
+      <span class="ep-diff" style="background:${ep.diffColor};color:${ep.diffText};">${ep.diff}</span>
+    </div>
+  `).join('');
+}
+
+/* ═══════════════════════════════════════════
+   ARBRES SVG
+═══════════════════════════════════════════ */
+function buildTrees(hp){
+  const zone = document.getElementById('trees-zone');
+  const count = Math.max(2, Math.round(hp / 100 * 8));
+  const colors = hp > 50
+    ? ['#22c55e','#16a34a','#15803d','#4ade80']
+    : ['#a16207','#78350f','#92400e','#b45309'];
+  zone.innerHTML = Array.from({length:8},(_,i)=>{
+    const visible = i < count;
+    const h = 40 + (i%3)*18;
+    const c = colors[i%colors.length];
+    const scale = visible ? 1 : 0;
+    return `<svg class="tree-svg" width="${h*.7}" height="${h}" viewBox="0 0 30 50"
+              style="opacity:${visible?1:0};transform:scaleY(${scale});">
+      <polygon points="15,2 28,48 2,48" fill="${c}"/>
+      <rect x="12" y="42" width="6" height="8" fill="#78350f"/>
+    </svg>`;
+  }).join('');
+}
+
+/* ═══════════════════════════════════════════
+   VISUEL PLANÈTE DYNAMIQUE
+═══════════════════════════════════════════ */
+function updatePlanetVisual(){
+  const hp = state.planetHP;
+
+  // Jauge
+  const fill = document.getElementById('gauge-fill');
+  fill.style.width = hp + '%';
+  fill.style.backgroundPosition = (hp) + '% 0%';
+
+  // Icône jauge
+  const icon = document.getElementById('gauge-icon');
+  icon.textContent = hp > 75 ? '🌍' : hp > 50 ? '😐' : hp > 25 ? '😟' : '😱';
+
+  // HUD HP
+  document.getElementById('hud-hp').textContent = hp;
+
+  // Ciel
+  const bg = document.getElementById('planet-bg');
+  if(hp > 60){
+    bg.style.background = 'linear-gradient(180deg,#87CEEB 0%,#b8e4f9 45%,#4ade80 45%,#22c55e 100%)';
+  } else if(hp > 30){
+    bg.style.background = 'linear-gradient(180deg,#9ca3af 0%,#d1d5db 45%,#a3a300 45%,#84700a 100%)';
+  } else {
+    bg.style.background = 'linear-gradient(180deg,#6b7280 0%,#9ca3af 45%,#a16207 45%,#78350f 100%)';
+  }
+
+  // Smog
+  const smog = document.getElementById('smog');
+  const smogOpacity = Math.max(0, (60 - hp) / 60 * .65);
+  smog.style.background = `radial-gradient(ellipse at center,rgba(80,60,20,${smogOpacity*.5}) 0%,rgba(80,60,20,${smogOpacity}) 100%)`;
+
+  // Animaux
+  const birdA = document.getElementById('bird-a');
+  const birdB = document.getElementById('bird-b');
+  const butterfly = document.getElementById('butterfly');
+  if(hp < 30){ birdA.style.opacity='0'; birdB.style.opacity='0'; butterfly.style.opacity='0'; }
+  else if(hp < 60){ birdA.style.opacity='0.5'; birdB.style.opacity='0'; butterfly.style.opacity='0.3'; }
+  else { birdA.style.opacity='1'; birdB.style.opacity='1'; butterfly.style.opacity='1'; }
+
+  // Eau
+  const water = document.getElementById('water-zone');
+  water.style.opacity = hp > 40 ? '1' : (hp / 40).toString();
+
+  // Arbres
+  buildTrees(hp);
+
+  // Soleil
+  const sun = document.getElementById('sun');
+  sun.style.opacity = hp > 50 ? '1' : '0.4';
+}
+
+/* ═══════════════════════════════════════════
+   LANCER UN ÉPISODE
+═══════════════════════════════════════════ */
+function startEpisode(idx){
+  state.episode = idx;
+  state.sceneIndex = 0;
+  state.planetHP = 60;
+  state.points = 0;
+  state.answered = false;
+
+  document.getElementById('start-screen').style.display = 'none';
+  document.getElementById('end-screen').style.display = 'none';
+  document.getElementById('hud').style.display = 'flex';
+  document.getElementById('gauge-wrap').style.display = 'block';
+  document.getElementById('planet-scene').style.display = 'block';
+  document.getElementById('scene-card').style.display = 'block';
+
+  document.getElementById('hud-total').textContent = EPISODES[idx].scenes.length;
+
+  updatePlanetVisual();
+  updateHUD();
+  renderScene();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ═══════════════════════════════════════════
+   RENDU SCÈNE
+═══════════════════════════════════════════ */
+function renderScene(){
+  const ep = EPISODES[state.episode];
+  const scene = ep.scenes[state.sceneIndex];
+  state.answered = false;
+
+  // Rejouer animation
+  const card = document.getElementById('scene-card');
+  card.style.animation = 'none';
+  card.offsetHeight; // reflow
+  card.style.animation = '';
+
+  document.getElementById('scene-icon').textContent = scene.icon;
+  document.getElementById('case-num').textContent = scene.caseLabel;
+  document.getElementById('case-title').textContent = scene.title;
+  document.getElementById('scene-narrative').textContent = scene.narrative;
+  document.getElementById('scene-question').textContent = scene.question;
+
+  const clueEl = document.getElementById('scene-clue');
+  if(scene.clue){
+    clueEl.style.display = 'flex';
+    document.getElementById('scene-clue-text').textContent = scene.clue;
+  } else { clueEl.style.display = 'none'; }
+
+  // Feedback reset
+  const fp = document.getElementById('feedback-panel');
+  fp.className = 'feedback-panel';
+  fp.style.display = 'none';
+
+  // Bouton suivant
+  const btnNext = document.getElementById('btn-next');
+  btnNext.className = 'btn-next';
+
+  // Choix
+  const container = document.getElementById('choices-container');
+  const letters = ['A','B','C','D'];
+  container.innerHTML = scene.choices.map((c,i)=>`
+    <button class="choice-btn" onclick="answer(${i})">
+      <span class="choice-icon">${c.icon}</span>
+      <div class="choice-text">
+        ${c.text}
+        ${c.sub ? `<small>${c.sub}</small>` : ''}
+      </div>
+    </button>
+  `).join('');
+
+  updateHUD();
+}
+
+/* ═══════════════════════════════════════════
+   RÉPONSE
+═══════════════════════════════════════════ */
+function answer(choiceIdx){
+  if(state.answered) return;
+  state.answered = true;
+
+  const ep = EPISODES[state.episode];
+  const scene = ep.scenes[state.sceneIndex];
+  const choice = scene.choices[choiceIdx];
+  const isGood = choice.good;
+  state.lastWasGood = isGood;
+
+  // Colorer les boutons
+  const btns = document.querySelectorAll('.choice-btn');
+  btns.forEach((btn,i)=>{
+    btn.disabled = true;
+    if(i === choiceIdx){
+      btn.classList.add(isGood ? 'chosen-good' : 'chosen-bad');
+    }
+    if(scene.choices[i].good && !isGood){
+      btn.classList.add('correct'); // Montrer la bonne réponse
+    }
+  });
+
+  // Feedback
+  const fb = isGood ? scene.feedbackGood : scene.feedbackBad;
+  const delta = isGood ? fb.planetDelta : fb.planetDelta;
+
+  // Mise à jour HP
+  state.planetHP = Math.max(0, Math.min(100, state.planetHP + delta));
+  if(isGood){ state.points += (choice.points || 20); }
+
+  // Animate HP
+  updatePlanetVisual();
+  updateHUD();
+
+  // Effet scène
+  const card = document.getElementById('scene-card');
+  card.classList.add(isGood ? 'flash-good' : 'shake');
+  setTimeout(()=>{ card.classList.remove('flash-good','shake'); }, 600);
+
+  // Étoiles
+  if(isGood) spawnStars();
+
+  // Panel feedback
+  const fp = document.getElementById('feedback-panel');
+  fp.className = 'feedback-panel show ' + (isGood ? 'good' : 'bad');
+  fp.style.display = 'block';
+  document.getElementById('fp-header').innerHTML = fb.title;
+  document.getElementById('fp-body').innerHTML = `
+    ${fb.body}
+    <div class="fp-impact">${fb.impact}</div>
+  `;
+
+  // Bouton suivant
+  const btnNext = document.getElementById('btn-next');
+  const isLast = state.sceneIndex >= ep.scenes.length - 1;
+  btnNext.textContent = isLast ? '📋 Voir mon bilan !' : 'Continuer l\'enquête ➜';
+  btnNext.className = 'btn-next show';
+}
+
+/* ═══════════════════════════════════════════
+   ÉTAPE SUIVANTE
+═══════════════════════════════════════════ */
+function nextStep(){
+  const ep = EPISODES[state.episode];
+  state.sceneIndex++;
+  document.getElementById('btn-next').className = 'btn-next';
+
+  if(state.sceneIndex >= ep.scenes.length){
+    showEnd();
+  } else {
+    renderScene();
+    document.getElementById('scene-card').scrollIntoView({behavior:'smooth',block:'start'});
+  }
+}
+
+/* ═══════════════════════════════════════════
+   FIN DE JEU
+═══════════════════════════════════════════ */
+function showEnd(){
+  document.getElementById('scene-card').style.display = 'none';
+  document.getElementById('btn-next').className = 'btn-next';
+
+  const ep = EPISODES[state.episode];
+  const maxPts = ep.scenes.reduce((s,sc)=>s + Math.max(...sc.choices.map(c=>c.points||0)),0);
+  const pct = Math.round(state.points / maxPts * 100);
+  const hp = state.planetHP;
+
+  let trophy, rank, rankClass, rankLabel;
+  if(pct >= 90){
+    trophy='🏆'; rank='S'; rankClass='s'; rankLabel='🌟 Éco-Légende !';
+  } else if(pct >= 70){
+    trophy='🥇'; rank='A'; rankClass='a'; rankLabel='🌿 Expert Écolo !';
+  } else if(pct >= 50){
+    trophy='🥈'; rank='B'; rankClass='b'; rankLabel='💧 Apprenti Détective';
+  } else {
+    trophy='🥉'; rank='C'; rankClass='c'; rankLabel='🌱 Rookie à la Nature';
+  }
+
+  document.getElementById('end-trophy').textContent = trophy;
+  document.getElementById('end-title').textContent = `Affaire "${ep.title}" close !`;
+  document.getElementById('end-subtitle').textContent = `${pct}% des bonnes décisions prises`;
+  document.getElementById('end-score-big').textContent = state.points + ' pts';
+  const badge = document.getElementById('rank-badge');
+  badge.className = `rank-badge ${rankClass}`;
+  badge.textContent = rankLabel;
+
+  const planetState = document.getElementById('end-planet-state');
+  if(hp >= 70){
+    planetState.className = 'end-planet-state healthy';
+    planetState.innerHTML = `🌍 <strong>La planète se porte bien !</strong> Tes bonnes décisions ont vraiment porté leurs fruits. La forêt revit, les animaux reviennent et le ciel s'éclaircit. Continue comme ça !`;
+  } else if(hp >= 40){
+    planetState.className = 'end-planet-state damaged';
+    planetState.innerHTML = `😐 <strong>La planète est fragilisée.</strong> Certains de tes choix ont aggravé la situation. Mais il n'est pas trop tard ! Rejoue cette affaire pour améliorer ton score.`;
+  } else {
+    planetState.className = 'end-planet-state damaged';
+    planetState.innerHTML = `😟 <strong>La planète souffre.</strong> Tes décisions n'ont pas toujours été les bonnes. Mais la bonne nouvelle : tu as appris des choses importantes ! Rejoue pour sauver la planète.`;
+  }
+
+  document.getElementById('end-screen').style.display = 'block';
+
+  // Confettis si bonne note
+  if(pct >= 70) launchConfetti();
+
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ═══════════════════════════════════════════
+   RESTART / MENU
+═══════════════════════════════════════════ */
+function restartGame(){
+  document.getElementById('end-screen').style.display = 'none';
+  startEpisode(state.episode);
+}
+
+function showStartScreen(){
+  document.getElementById('end-screen').style.display = 'none';
+  document.getElementById('scene-card').style.display = 'none';
+  document.getElementById('hud').style.display = 'none';
+  document.getElementById('gauge-wrap').style.display = 'none';
+  document.getElementById('planet-scene').style.display = 'none';
+  document.getElementById('start-screen').style.display = 'block';
+
+  state.planetHP = 60;
+  updatePlanetVisual();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ═══════════════════════════════════════════
+   HUD
+═══════════════════════════════════════════ */
+function updateHUD(){
+  document.getElementById('hud-pts').textContent = state.points;
+  document.getElementById('hud-case').textContent = state.sceneIndex + 1;
+}
+
+/* ═══════════════════════════════════════════
+   EFFETS VISUELS
+═══════════════════════════════════════════ */
+function spawnStars(){
+  const emojis = ['⭐','🌟','✨','💚','🌿'];
+  for(let i=0;i<4;i++){
+    setTimeout(()=>{
+      const el = document.createElement('div');
+      el.className = 'star-burst';
+      el.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+      el.style.left = (20 + Math.random()*60) + 'vw';
+      el.style.top = (30 + Math.random()*40) + 'vh';
+      document.body.appendChild(el);
+      setTimeout(()=>el.remove(), 1300);
+    }, i*150);
+  }
+}
+
+function launchConfetti(){
+  const colors = ['#FFD93D','#22C55E','#3B82F6','#FF6B35','#A855F7'];
+  let count = 0;
+  const interval = setInterval(()=>{
+    if(count++ > 5) { clearInterval(interval); return; }
+    const x = .1 + Math.random() * .8;
+    // Simple CSS confetti burst
+    for(let i=0;i<8;i++){
+      const el = document.createElement('div');
+      el.style.cssText = `
+        position:fixed;left:${x*100}vw;top:60vh;width:10px;height:10px;
+        background:${colors[Math.floor(Math.random()*colors.length)]};
+        border-radius:2px;pointer-events:none;z-index:9999;
+        animation:starFloat ${.8+Math.random()*.8}s ease forwards;
+        transform:rotate(${Math.random()*360}deg);
+      `;
+      document.body.appendChild(el);
+      setTimeout(()=>el.remove(), 1600);
+    }
+  }, 300);
+}
+
+// Lance l'init au chargement
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

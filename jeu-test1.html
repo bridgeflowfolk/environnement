@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🔍 Éco‑Détective · Mission Planète · BFF Enfants</title>
+  <!-- Polices & animations -->
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    /* ----- DESIGN SYSTEM BFF (identique navigation / footer) ----- */
+    :root {
+      --jaune: #FFD93D; --orange: #FF6B35; --rouge: #FF4757;
+      --rose: #FF6B9D; --violet: #A855F7; --bleu: #3B82F6;
+      --bleu2: #06B6D4; --vert: #22C55E; --vert2: #16A34A;
+      --fond: #FFFEF7; --sombre: #1E293B;
+      --r-big: 32px; --r-med: 20px; --r-sm: 12px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: var(--fond);
+      color: var(--sombre);
+      overflow-x: hidden;
+    }
+    /* NAV BFF */
+    nav {
+      position: sticky; top: 0; z-index: 300;
+      background: var(--bleu); padding: .7rem 1.2rem;
+      display: flex; align-items: center; gap: .8rem;
+      box-shadow: 0 6px 0 rgba(0,0,0,.15);
+    }
+    .nav-logo { height: 52px; filter: drop-shadow(0 3px 6px rgba(0,0,0,.3)); }
+    .nav-title {
+      font-family: 'Fredoka One', cursive; font-size: 1.2rem;
+      color: white; line-height: 1.1; text-shadow: 2px 2px 0 rgba(0,0,0,.2);
+    }
+    .nav-title small { display: block; font-size: .72rem; font-weight: 700; opacity: .8; }
+    .nav-toggle {
+      display: none; margin-left: auto; background: rgba(255,255,255,.2);
+      border: 2px solid rgba(255,255,255,.4); border-radius: 12px;
+      color: white; font-size: 1.4rem; cursor: pointer; padding: .3rem .6rem;
+    }
+    .nav-links {
+      display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; margin-left: auto;
+    }
+    .nav-links a {
+      color: white; text-decoration: none; font-size: .82rem; font-weight: 800;
+      padding: .4rem .85rem; border-radius: 50px; background: rgba(255,255,255,.18);
+      border: 2px solid rgba(255,255,255,.3); transition: all .2s; white-space: nowrap;
+    }
+    .nav-links a:hover, .nav-links a.active {
+      background: var(--jaune); color: var(--sombre); border-color: var(--jaune);
+      transform: translateY(-2px);
+    }
+    .nav-links .nav-cta {
+      background: var(--vert); border-color: var(--vert2); box-shadow: 0 4px 0 var(--vert2);
+    }
+    @media(max-width:700px){
+      .nav-toggle { display: block; }
+      .nav-links {
+        display: none; position: absolute; top: 100%; left: 0; right: 0;
+        background: var(--bleu); flex-direction: column; align-items: stretch;
+        padding: .8rem 1rem; gap: .4rem; box-shadow: 0 8px 0 rgba(0,0,0,.15); z-index: 200;
+      }
+      .nav-links.open { display: flex; }
+      .nav-links a { text-align: center; border-radius: var(--r-sm); }
+    }
+
+    /* HERO */
+    .page-hero {
+      background: linear-gradient(145deg, #0f6e3f 0%, #0b8a8a 40%, #1e4f8a 100%);
+      padding: 2.8rem 1.5rem 2rem; text-align: center; color: white;
+      position: relative; overflow: hidden;
+    }
+    .page-hero::after {
+      content: '🌍🕵️🔎🌿🐾'; position: absolute; bottom: .3rem; left: 50%;
+      transform: translateX(-50%); font-size: 2.2rem; opacity: .15; letter-spacing: 1.2rem;
+    }
+    .hero-badge {
+      background: rgba(255,255,240,0.2); border: 2px solid rgba(255,255,255,0.5);
+      border-radius: 60px; padding: .4rem 1.4rem; font-weight: 900; font-size: .9rem;
+      backdrop-filter: blur(4px); display: inline-block; margin-bottom: 1rem;
+    }
+    .page-hero h1 {
+      font-family: 'Fredoka One', cursive; font-size: clamp(2.4rem, 7vw, 4rem);
+      text-shadow: 4px 4px 0 rgba(0,0,0,.25); letter-spacing: 1px;
+    }
+    .page-hero p { font-size: 1.2rem; font-weight: 800; opacity: .95; }
+
+    /* GAME CONTAINER */
+    #game {
+      max-width: 1000px; margin: 0 auto; padding: 1.8rem 1.5rem 5rem;
+    }
+
+    /* PLANÈTE SCÈNE 3D-LIKE */
+    .planet-stage {
+      background: radial-gradient(circle at 30% 20%, #bae6fd, #38bdf8);
+      border-radius: 60px 60px 40px 40px; padding: .8rem .8rem 0;
+      box-shadow: 0 20px 0 #0b4f6c, 0 25px 30px -5px rgba(0,0,0,.3);
+      margin-bottom: 2rem; border: 4px solid var(--jaune);
+    }
+    .planet-scene {
+      position: relative; width: 100%; aspect-ratio: 16/9;
+      border-radius: 40px 40px 30px 30px; overflow: hidden;
+      background: #a5d8ff;
+      box-shadow: inset 0 -8px 0 rgba(0,0,0,.08);
+    }
+    .planet-bg {
+      position: absolute; inset: 0;
+      background: linear-gradient(180deg, #7dd3fc 0%, #bae6fd 40%, #86efac 40%, #22c55e 100%);
+      transition: background 1s cubic-bezier(0.2,0.9,0.4,1);
+    }
+    .planet-layer { position: absolute; inset: 0; pointer-events: none; }
+    /* Soleil */
+    .sun {
+      position: absolute; top: 8%; right: 8%; width: 14%; aspect-ratio: 1/1;
+      background: radial-gradient(circle at 30% 30%, #fff9c4, #ffb703);
+      border-radius: 50%; box-shadow: 0 0 0 8px rgba(255,225,0,.3), 0 0 30px #fbbf24;
+      animation: sunGlow 3s infinite alternate;
+    }
+    @keyframes sunGlow { from { box-shadow: 0 0 0 6px #fde04755, 0 0 20px #fbbf24; } to { box-shadow: 0 0 0 14px #fef08a55, 0 0 40px #f59e0b; } }
+    /* nuages */
+    .clouds { position: absolute; inset: 0; }
+    .cloud {
+      position: absolute; background: rgba(255,255,255,0.85); border-radius: 60px;
+      animation: driftCloud 22s linear infinite;
+    }
+    .cloud::before, .cloud::after { content: ''; position: absolute; background: inherit; border-radius: 50%; }
+    .c1 { width: 100px; height: 35px; top: 10%; left: -120px; animation-duration: 28s; }
+    .c1::before { width: 45px; height: 45px; top: -18px; left: 16px; }
+    .c1::after { width: 35px; height: 35px; top: -14px; left: 44px; }
+    .c2 { width: 80px; height: 28px; top: 25%; left: -90px; animation-duration: 38s; opacity: .75; }
+    .c2::before { width: 38px; height: 38px; top: -15px; left: 10px; }
+    .c2::after { width: 28px; height: 28px; top: -10px; left: 34px; }
+    @keyframes driftCloud { from { left: -150px; } to { left: 110%; } }
+    /* Arbres */
+    .trees-layer {
+      position: absolute; bottom: 0; left: 0; right: 0; height: 38%;
+      display: flex; align-items: flex-end; justify-content: space-around; padding: 0 2% 4%;
+    }
+    .tree-svg { transition: all 0.7s cubic-bezier(0.34,1.3,0.64,1); transform-origin: bottom; }
+    /* eau */
+    .water-area {
+      position: absolute; bottom: 0; right: 0; width: 38%; height: 35%;
+      background: linear-gradient(135deg, #0ea5e9, #38bdf8); opacity: .9;
+      border-radius: 70% 0 0 0; transition: opacity .6s;
+    }
+    .wave {
+      position: absolute; bottom: -5px; left: -5px; right: -5px; height: 18px;
+      background: #7dd3fc; border-radius: 50%; animation: waveMove 2.8s infinite alternate;
+    }
+    @keyframes waveMove { from { transform: translateY(0px); } to { transform: translateY(-5px); } }
+    /* animaux */
+    .animal { position: absolute; font-size: clamp(1.8rem, 5vw, 2.8rem); filter: drop-shadow(0 6px 6px rgba(0,0,0,0.15)); transition: opacity .5s; animation: float 4s infinite; }
+    .bird1 { top: 20%; left: 18%; animation-delay: 0s; }
+    .bird2 { top: 14%; left: 42%; animation-delay: -1.2s; }
+    .bee { bottom: 45%; right: 22%; animation-delay: -2s; }
+    @keyframes float { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-9px);} }
+    .smog-overlay {
+      position: absolute; inset: 0; background: radial-gradient(circle, rgba(70,50,20,0) 0%, rgba(40,30,0,0) 100%);
+      pointer-events: none; transition: background .9s;
+    }
+
+    /* JAUGE PLANÈTE + STATS */
+    .planet-hud {
+      display: flex; align-items: center; gap: 1rem; background: white;
+      border-radius: 80px; padding: .5rem 1.5rem .5rem 2rem; margin: 0 1rem 1rem;
+      border: 4px solid var(--jaune); box-shadow: 0 8px 0 #b45309;
+    }
+    .health-bar {
+      flex: 3; height: 22px; background: #e2e8f0; border-radius: 40px;
+      border: 3px solid white; box-shadow: inset 0 2px 5px rgba(0,0,0,.1);
+      overflow: hidden;
+    }
+    .health-fill {
+      height: 100%; width: 60%; background: linear-gradient(90deg, #ef4444, #f97316, #eab308, #22c55e);
+      background-size: 300% 100%; border-radius: 40px; transition: width .8s, background-position .8s;
+    }
+    .planet-stats {
+      display: flex; gap: 1.5rem; font-weight: 900;
+    }
+    .stat { display: flex; align-items: center; gap: 6px; background: #f8fafc; padding: .2rem 1rem; border-radius: 30px; }
+    /* SCÈNE CARD */
+    .case-card {
+      background: white; border-radius: 40px; border: 5px solid var(--jaune);
+      box-shadow: 0 18px 0 #b45309, 0 20px 25px -5px rgba(0,0,0,.2);
+      overflow: hidden; margin-bottom: 1.5rem;
+    }
+    .case-header {
+      padding: 1.5rem 2rem; background: linear-gradient(135deg, var(--bleu), #0e7490);
+      color: white; display: flex; align-items: center; gap: 1rem;
+    }
+    .case-icon { font-size: 2.5rem; filter: drop-shadow(2px 4px 4px #00000030); }
+    .case-title { font-family: 'Fredoka One', cursive; font-size: 1.6rem; }
+    .case-sub { font-weight: 800; opacity: .9; letter-spacing: 1px; }
+    .case-body { padding: 2rem 2rem 1.8rem; }
+    .narrative {
+      font-size: 1.1rem; font-weight: 700; background: #f1f5f9; padding: 1.2rem 1.8rem;
+      border-radius: 24px; margin-bottom: 1.6rem; border-left: 8px solid var(--jaune);
+    }
+    .clue-box {
+      background: #fef9c3; border-radius: 20px; padding: 1rem 1.5rem;
+      border: 3px dashed #ca8a04; margin-bottom: 1.5rem; font-weight: 800;
+      display: flex; gap: 12px; align-items: center;
+    }
+    .question {
+      font-family: 'Fredoka One', cursive; font-size: 1.5rem; margin-bottom: 1.5rem;
+    }
+    .choices-grid {
+      display: grid; grid-template-columns: repeat(2,1fr); gap: 1rem;
+    }
+    .choice-btn {
+      background: white; border: 4px solid #cbd5e1; border-radius: 28px;
+      padding: 1.2rem 1rem; font-weight: 800; font-size: 1rem;
+      display: flex; align-items: center; gap: 1rem; cursor: pointer;
+      transition: all .15s; text-align: left; box-shadow: 0 6px 0 #94a3b8;
+    }
+    .choice-btn:hover { transform: translateY(-3px); box-shadow: 0 9px 0 #64748b; }
+    .choice-btn.chosen-good { background: #dcfce7; border-color: #22c55e; box-shadow: 0 6px 0 #15803d; }
+    .choice-btn.chosen-bad { background: #fee2e2; border-color: #ef4444; box-shadow: 0 6px 0 #b91c1c; }
+    .choice-btn:disabled { opacity: .8; cursor: default; }
+    .choice-icon { font-size: 2rem; }
+    .feedback-pop {
+      margin-top: 1.8rem; border-radius: 28px; padding: 1.2rem 1.8rem;
+      font-weight: 700; animation: slideIn .4s;
+    }
+    .feedback-good { background: #dcfce7; border: 4px solid #22c55e; color: #14532d; }
+    .feedback-bad { background: #fee2e2; border: 4px solid #ef4444; color: #7f1d1d; }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+
+    .next-btn {
+      display: block; width: 100%; padding: 1.2rem; border: none;
+      background: var(--orange); color: white; font-family: 'Fredoka One', cursive;
+      font-size: 1.4rem; border-radius: 60px; cursor: pointer;
+      box-shadow: 0 10px 0 #b45309; transition: .1s; margin-top: 1rem;
+    }
+    .next-btn:active { transform: translateY(4px); box-shadow: 0 6px 0 #b45309; }
+    /* ÉCRAN DÉPART */
+    .start-dashboard {
+      background: white; border-radius: 48px; padding: 2.5rem;
+      box-shadow: 0 18px 0 #b45309, 0 20px 30px -8px black; border: 5px solid var(--jaune);
+      text-align: center;
+    }
+    .mission-grid {
+      display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5rem; margin: 2rem 0;
+    }
+    .mission-card {
+      background: #f8fafc; border-radius: 32px; padding: 1.5rem 1rem; border: 4px solid;
+      cursor: pointer; transition: .2s; box-shadow: 0 10px 0 #94a3b8;
+    }
+    .mission-card:hover { transform: translateY(-6px); box-shadow: 0 16px 0 #64748b; }
+    /* FOOTER BFF */
+    footer {
+      background: var(--sombre); padding: 3rem 1.5rem 2rem; position: relative;
+    }
+    footer::before {
+      content: '🌍🌿♻️💧🐝'; display: block; text-align: center; font-size: 2rem;
+      opacity: .15; margin-bottom: 1.5rem; letter-spacing: 1rem;
+    }
+    .footer-inner { max-width: 1000px; margin: 0 auto; }
+    .footer-logo { height: 80px; display: block; margin: 0 auto 1.5rem; }
+    .footer-cols {
+      display: grid; grid-template-columns: repeat(auto-fit,minmax(180px,1fr)); gap: 1.8rem;
+    }
+    .footer-col h4 { color: var(--jaune); font-family: 'Fredoka One', cursive; margin-bottom: .5rem; }
+    .footer-col a, .footer-col p { color: rgba(255,255,255,0.7); text-decoration: none; font-weight: 600; }
+    .fb-link {
+      display: inline-flex; align-items: center; gap: .5rem; background: #1877F2;
+      border-radius: 16px; padding: .6rem 1.2rem; color: white !important; margin-top: .5rem;
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV BFF (identique) -->
+<nav>
+  <a href="bff-atelier-enfant.html" style="flex-shrink:0;"><img src="logo-bff.png" alt="BFF" class="nav-logo"></a>
+  <div class="nav-title">Bridge & Flow Folk<small>C'est Notre Nature 🌿</small></div>
+  <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')">☰</button>
+  <div class="nav-links">
+    <a href="bff-atelier-enfant.html">🏠 Accueil</a>
+    <a href="quiz-enfant.html">🌍 Quiz</a>
+    <a href="eco-detective.html" class="active">🔍 Éco-Détective</a>
+    <a href="apprendre-enfant.html">📚 Apprendre</a>
+    <a href="partenaires-enfant.html">🤝 Amis</a>
+    <a href="bff-atelier-enfant.html#inscription" class="nav-cta">✍️ S'inscrire !</a>
+  </div>
+</nav>
+
+<div class="page-hero">
+  <div class="hero-badge">🕵️‍♂️ NOUVELLE MISSION</div>
+  <h1>🔍 ÉCO‑DÉTECTIVE</h1>
+  <p>Résous les mystères de la nature · Sauve la planète · Deviens une légende !</p>
+</div>
+
+<div id="game">
+  <!-- SCÈNE PLANÈTE (toujours visible après start) -->
+  <div class="planet-stage" id="planetStage" style="display:none;">
+    <div class="planet-scene">
+      <div class="planet-bg" id="planetBg"></div>
+      <div class="planet-layer">
+        <div class="sun" id="sun"></div>
+        <div class="clouds">
+          <div class="cloud c1"></div><div class="cloud c2"></div>
+        </div>
+        <div class="trees-layer" id="treesLayer"></div>
+        <div class="water-area" id="waterArea"><div class="wave"></div></div>
+        <div class="animal bird1" id="bird1">🦜</div>
+        <div class="animal bird2" id="bird2">🦋</div>
+        <div class="animal bee" id="bee">🐝</div>
+        <div class="smog-overlay" id="smog"></div>
+      </div>
+    </div>
+    <div class="planet-hud">
+      <div style="font-weight:900;">🌡️ Santé</div>
+      <div class="health-bar"><div class="health-fill" id="healthFill" style="width:60%"></div></div>
+      <div class="planet-stats">
+        <span class="stat">⭐ <span id="pointsDisplay">0</span></span>
+        <span class="stat">📋 <span id="progressDisplay">1/5</span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ÉCRAN DÉMARRAGE -->
+  <div id="startScreen" class="start-dashboard">
+    <span style="font-size:5rem;">🕵️‍♀️🌍</span>
+    <h2 style="font-family:'Fredoka One'; font-size:2.5rem;">Mission Planète</h2>
+    <p style="font-size:1.2rem; font-weight:700;">Chaque choix change le monde. Deviens le héros que la Terre attend !</p>
+    <div class="mission-grid" id="missionGrid"></div>
+    <button onclick="startEpisode(0)" style="background:var(--jaune); border:none; font-size:1.4rem; padding:1rem 3rem; border-radius:60px; font-weight:900; box-shadow:0 10px 0 #b45309; cursor:pointer;">🚀 LANCER L'ENQUÊTE</button>
+  </div>
+
+  <!-- CARD SCÈNE -->
+  <div id="caseCard" class="case-card" style="display:none;">
+    <div class="case-header">
+      <span class="case-icon" id="caseIcon">🌳</span>
+      <div><div class="case-sub" id="caseLabel">AFFAIRE 1 · SCÈNE 1</div><div class="case-title" id="caseTitle">Titre</div></div>
+    </div>
+    <div class="case-body">
+      <div class="narrative" id="narrative"></div>
+      <div class="clue-box" id="clueBox"><span>🔎</span> <span id="clueText"></span></div>
+      <div class="question" id="question"></div>
+      <div class="choices-grid" id="choices"></div>
+      <div id="feedbackArea"></div>
+    </div>
+  </div>
+  <button class="next-btn" id="nextBtn" onclick="nextScene()" style="display:none;">➡️ Continuer</button>
+
+  <!-- FIN -->
+  <div id="endScreen" style="display:none; background:white; border-radius:48px; padding:2.5rem; text-align:center; border:6px solid var(--jaune); box-shadow:0 20px 0 #b45309;">
+    <span style="font-size:5rem;" id="endEmoji">🏆</span>
+    <h2 style="font-family:'Fredoka One'; font-size:3rem;" id="endTitle"></h2>
+    <p id="endMessage" style="font-size:1.3rem;"></p>
+    <div style="font-size:4rem; font-weight:900; color:var(--orange);" id="finalScore">0</div>
+    <button onclick="restartGame()" style="background:var(--vert); border:none; padding:1rem 2.5rem; border-radius:60px; font-weight:900; margin:1rem; box-shadow:0 8px 0 #15803d;">🔄 Rejouer</button>
+    <button onclick="location.reload()" style="background:#e2e8f0; border:none; padding:1rem 2rem; border-radius:60px; font-weight:900;">📁 Menu</button>
+  </div>
+</div>
+
+<!-- FOOTER BFF -->
+<footer>
+  <div class="footer-inner">
+    <img src="logo-bff.png" alt="BFF" class="footer-logo">
+    <div class="footer-cols">
+      <div class="footer-col"><h4>🌿 BFF</h4><p>Association à Nogent-le-Roi · Éducation nature</p></div>
+      <div class="footer-col"><h4>🔗 Liens</h4><a href="bff-atelier-enfant.html">Accueil</a><a href="quiz-enfant.html">Quiz</a><a href="eco-detective.html">Éco‑Détective</a></div>
+      <div class="footer-col"><h4>📱 Suivez</h4><a href="#" class="fb-link">📘 Facebook BFF</a></div>
+    </div>
+    <div style="text-align:center; color:#64748b; margin-top:2rem;">© 2025 Bridge & Flow Folk</div>
+  </div>
+</footer>
+
+<script>
+  (function(){
+    // Données enrichies
+    const EPISODES = [
+      { id:0, emoji:'🌳', color:'#16a34a', title:'Forêt Mystérieuse', desc:'Sauve la forêt de Rambouillet', diff:'🌱 Débutant',
+        scenes:[
+          { icon:'🌲', title:'Arbres malades', clue:'Les champignons du sol sont morts.', narrative:'Dans la forêt, les arbres jaunissent. Le bûcheron utilise des produits chimiques.', question:'Pourquoi les arbres sont-ils malades ?',
+            choices:[
+              {icon:'🧪',text:'Produits chimiques',good:true,points:25,feedback:'Bravo ! Les mycorhizes sont détruites.',impact:12},
+              {icon:'🌧️',text:'Trop de pluie',good:false,feedback:'Non, l\'eau est bénéfique.',impact:-8}
+            ] },
+          { icon:'🔬', title:'Sol vivant', clue:'Les vers de terre ont disparu.', narrative:'Le sol est compact. Comment le régénérer ?', question:'Que proposes-tu ?',
+            choices:[
+              {icon:'🍂',text:'Compost et paillage',good:true,points:30,feedback:'Le sol retrouve vie !',impact:18},
+              {icon:'🧂',text:'Plus d\'engrais',good:false,feedback:'Cela aggrave le problème.',impact:-10}
+            ] },
+          { icon:'🌱', title:'Reboisement', clue:'Espèces locales = biodiversité.', narrative:'Il faut replanter. Des arbres exotiques sont proposés.', question:'Que planter ?',
+            choices:[
+              {icon:'🌳',text:'Chênes, charmes',good:true,points:30,feedback:'Parfait pour la faune locale.',impact:20},
+              {icon:'🌴',text:'Palmiers',good:false,feedback:'Inadaptés.',impact:-12}
+            ] },
+          { icon:'🦊', title:'Corridor', clue:'Les animaux traversent.', narrative:'Une route menace de couper la forêt.', question:'Solution ?',
+            choices:[
+              {icon:'🌉',text:'Écoduc',good:true,points:25,feedback:'Les animaux peuvent passer.',impact:15},
+              {icon:'🚧',text:'Mur anti-bruit',good:false,feedback:'Inefficace.',impact:-9}
+            ] },
+  {icon:'🏁', title:'Bilan', clue:'Tout est connecté.', narrative:'Quelle leçon retenir ?', question:'Le plus important ?',
+            choices:[
+              {icon:'🕸️',text:'Écosystème lié',good:true,points:40,feedback:'Bravo détective !',impact:25},
+              {icon:'💰',text:'Planter vite',good:false,feedback:'Qualité > quantité.',impact:-5}
+            ] }
+        ] },
+      { id:1, emoji:'🌊', color:'#0284c7', title:'Océan en danger', desc:'Pollution marine en Bretagne', diff:'💧 Intermédiaire',
+        scenes:[
+          { icon:'🐬', title:'Dauphins échoués', clue:'Plastique dans l\'estomac.', narrative:'Des sacs plastiques flottent.', question:'Pourquoi les dauphins mangent du plastique ?',
+            choices:[
+              {icon:'🎭',text:'Confusion avec méduses',good:true,points:25,feedback:'Oui, ressemblance tragique.',impact:12},
+              {icon:'😋',text:'Ils aiment le goût',good:false,feedback:'Non.',impact:-8}
+            ] },
+          { icon:'🕸️', title:'Filets fantômes', clue:'Ils piègent sans fin.', narrative:'Que faire des filets abandonnés ?', question:'Action prioritaire ?',
+            choices:[
+              {icon:'🤿',text:'Plongées de nettoyage',good:true,points:30,feedback:'Efficace !',impact:18},
+              {icon:'📄',text:'Rapport administratif',good:false,feedback:'Trop lent.',impact:-10}
+            ] },
+          { icon:'🧴', title:'Microplastiques', clue:'Lavage des vêtements.', narrative:'Comment réduire les microplastiques ?', question:'Bonne idée ?',
+            choices:[
+              {icon:'🧺',text:'Filtre machine',good:true,points:30,feedback:'Retient 90% des fibres.',impact:20},
+              {icon:'🔥',text:'Brûler les vêtements',good:false,feedback:'Pollution de l\'air.',impact:-15}
+            ] },
+          { icon:'🐟', title:'Chaîne alimentaire', clue:'Bioaccumulation.', narrative:'Les poissons accumulent les toxiques.', question:'Que dire aux clients ?',
+            choices:[
+              {icon:'🔗',text:'Concentration en haut de chaîne',good:true,points:25,feedback:'Exact.',impact:15},
+              {icon:'🚫',text:'Ne plus manger de poisson',good:false,feedback:'Pas la solution.',impact:-8}
+            ] },
+          { icon:'🏆', title:'Grand nettoyage', clue:'Éducation = long terme.', narrative:'Impact durable ?', question:'Priorité ?',
+            choices:[
+              {icon:'📚',text:'Éduquer les enfants',good:true,points:40,feedback:'Changer les mentalités.',impact:25},
+              {icon:'🧹',text:'Nettoyage annuel',good:false,feedback:'Utile mais ponctuel.',impact:-5}
+            ] }
+        ] },
+      { id:2, emoji:'🌡️', color:'#7c3aed', title:'Défi Climat', desc:'Comprendre et agir', diff:'🔥 Expert',
+        scenes:[
+          { icon:'🌡️', title:'Canicule', clue:'CO₂ = couverture.', narrative:'42°C record. Explique au journal.', question:'Cause principale ?',
+            choices:[
+              {icon:'🏭',text:'Gaz à effet de serre',good:true,points:25,feedback:'Oui, activités humaines.',impact:12},
+              {icon:'☀️',text:'Soleil plus actif',good:false,feedback:'Non.',impact:-8}
+            ] },
+          { icon:'🚗', title:'Transports', clue:'31% des émissions.', narrative:'Eure-et-Loir : réduire CO₂.', question:'Action la plus impactante ?',
+            choices:[
+              {icon:'🚌',text:'Covoiturage / bus',good:true,points:30,feedback:'Levier principal.',impact:18},
+              {icon:'💡',text:'Ampoules LED',good:false,feedback:'Impact faible.',impact:-7}
+            ] },
+          { icon:'🌾', title:'Agriculture', clue:'Sols vivants = éponges.', narrative:'Sécheresses en Beauce.', question:'Meilleure pratique ?',
+            choices:[
+              {icon:'🌿',text:'Agroécologie',good:true,points:30,feedback:'Régénère les sols.',impact:20},
+              {icon:'💧',text:'Irrigation intensive',good:false,feedback:'Épuise les nappes.',impact:-12}
+            ] },
+          { icon:'🏘️', title:'Ville résiliente', clue:'Végétation = climatiseur.', narrative:'Nouveau quartier à Chartres.', question:'Indispensable ?',
+            choices:[
+              {icon:'🌳',text:'Arbres, jardins, mares',good:true,points:25,feedback:'Rafraîchit naturellement.',impact:15},
+              {icon:'❄️',text:'Clim partout',good:false,feedback:'Aggrave le problème.',impact:-10}
+            ] },
+          { icon:'💪', title:'Espoir', clue:'Chaque degré compte.', narrative:'Est-il trop tard ?', question:'Message juste ?',
+            choices:[
+              {icon:'🌟',text:'Agir maintenant change tout',good:true,points:40,feedback:'L\'espoir est scientifique.',impact:25},
+              {icon:'😔',text:'Trop tard',good:false,feedback:'Défaitisme dangereux.',impact:-5}
+            ] }
+        ] }
+    ];
+
+    let currentEp = 0, sceneIdx = 0, planetHP = 60, totalPoints = 0, answered = false;
+    let currentEpisodeData = EPISODES[0];
+
+    function updateUI() {
+      document.getElementById('pointsDisplay').textContent = totalPoints;
+      document.getElementById('progressDisplay').textContent = `${sceneIdx+1}/${currentEpisodeData.scenes.length}`;
+      const fill = document.getElementById('healthFill');
+      fill.style.width = planetHP + '%';
+      fill.style.backgroundPosition = (planetHP) + '% center';
+      // Visuel planète
+      document.getElementById('bird1').style.opacity = planetHP>40 ? 1 : 0.2;
+      document.getElementById('bird2').style.opacity = planetHP>50 ? 1 : 0.3;
+      document.getElementById('bee').style.opacity = planetHP>30 ? 1 : 0.2;
+      document.getElementById('waterArea').style.opacity = 0.5 + (planetHP/200);
+      const bg = document.getElementById('planetBg');
+      if(planetHP>60) bg.style.background = 'linear-gradient(180deg, #7dd3fc, #bae6fd 40%, #86efac 40%, #22c55e)';
+      else if(planetHP>30) bg.style.background = 'linear-gradient(180deg, #9ca3af, #cbd5e1 40%, #a3a300 40%, #84700a)';
+      else bg.style.background = 'linear-gradient(180deg, #6b7280, #9ca3af 40%, #a16207 40%, #78350f)';
+      document.getElementById('smog').style.background = `radial-gradient(circle, rgba(60,40,0,${Math.max(0,0.01*(70-planetHP))}) 0%, transparent 80%)`;
+      // arbres
+      const treeZone = document.getElementById('treesLayer');
+      treeZone.innerHTML = Array.from({length:6}, (_,i)=> {
+        let visible = i < Math.round(planetHP/100*6);
+        return `<svg class="tree-svg" width="40" height="60" viewBox="0 0 30 50" style="opacity:${visible?1:0.3};transform:scale(${visible?1:0.6});"><polygon points="15,2 28,48 2,48" fill="${planetHP>50?'#2d6a4f':'#78350f'}"/><rect x="12" y="42" width="6" height="8" fill="#5c3a1e"/></svg>`;
+      }).join('');
+    }
+
+    function loadScene() {
+      const ep = currentEpisodeData, scene = ep.scenes[sceneIdx];
+      document.getElementById('caseIcon').textContent = scene.icon;
+      document.getElementById('caseLabel').textContent = `AFFAIRE ${currentEp+1} · SCÈNE ${sceneIdx+1}`;
+      document.getElementById('caseTitle').textContent = scene.title;
+      document.getElementById('narrative').textContent = scene.narrative;
+      document.getElementById('clueText').textContent = scene.clue;
+      document.getElementById('question').textContent = scene.question;
+      const choicesDiv = document.getElementById('choices');
+      choicesDiv.innerHTML = scene.choices.map((c,i)=> `
+        <div class="choice-btn" onclick="handleAnswer(${i})">
+          <span class="choice-icon">${c.icon}</span> ${c.text}
+        </div>`).join('');
+      document.getElementById('feedbackArea').innerHTML = '';
+      document.getElementById('nextBtn').style.display = 'none';
+      answered = false;
+      updateUI();
+    }
+
+    window.handleAnswer = function(idx) {
+      if(answered) return;
+      answered = true;
+      const scene = currentEpisodeData.scenes[sceneIdx];
+      const choice = scene.choices[idx];
+      const btns = document.querySelectorAll('.choice-btn');
+      btns.forEach((b,i)=>{ b.style.pointerEvents='none'; if(i===idx) b.classList.add(choice.good?'chosen-good':'chosen-bad'); });
+      // feedback
+      const fbDiv = document.getElementById('feedbackArea');
+      fbDiv.innerHTML = `<div class="feedback-pop ${choice.good?'feedback-good':'feedback-bad'}">
+        <strong>${choice.good?'✅ Bonne décision !':'❌ Pas idéal…'}</strong><br>${choice.feedback}
+        <div style="margin-top:8px;">🌍 ${choice.impact>0?'+':''}${choice.impact} santé</div>
+      </div>`;
+      if(choice.good) totalPoints += choice.points;
+      planetHP = Math.min(100, Math.max(5, planetHP + choice.impact));
+      updateUI();
+      document.getElementById('nextBtn').style.display = 'block';
+      // petite surprise visuelle
+      if(choice.good) {
+        for(let i=0;i<4;i++) setTimeout(()=>{
+          const star = document.createElement('span'); star.textContent='✨'; star.style.position='fixed'; star.style.left=Math.random()*80+'%'; star.style.top=Math.random()*60+'%'; star.style.fontSize='2rem'; star.style.pointerEvents='none'; star.style.zIndex=999; document.body.appendChild(star); setTimeout(()=>star.remove(),800);
+        }, i*80);
+      }
+    };
+
+    window.nextScene = function() {
+      if(sceneIdx + 1 < currentEpisodeData.scenes.length) {
+        sceneIdx++;
+        loadScene();
+      } else {
+        // fin
+        document.getElementById('caseCard').style.display='none';
+        document.getElementById('nextBtn').style.display='none';
+        document.getElementById('planetStage').style.display='none';
+        const end = document.getElementById('endScreen');
+        end.style.display='block';
+        document.getElementById('endEmoji').textContent = planetHP>=70?'🏆🌍':'🌱';
+        document.getElementById('endTitle').textContent = `Mission "${currentEpisodeData.title}" terminée`;
+        document.getElementById('endMessage').innerHTML = `Planète à ${planetHP}% · ${totalPoints} points`;
+        document.getElementById('finalScore').textContent = totalPoints+'⭐';
+      }
+    };
+
+    window.startEpisode = function(idx) {
+      currentEp = idx; currentEpisodeData = EPISODES[idx];
+      sceneIdx = 0; planetHP = 60; totalPoints = 0;
+      document.getElementById('startScreen').style.display='none';
+      document.getElementById('planetStage').style.display='block';
+      document.getElementById('caseCard').style.display='block';
+      loadScene();
+    };
+
+    window.restartGame = function() {
+      document.getElementById('endScreen').style.display='none';
+      startEpisode(currentEp);
+    };
+
+    // init missions
+    const grid = document.getElementById('missionGrid');
+    grid.innerHTML = EPISODES.map((ep,i)=> `
+      <div class="mission-card" style="border-color:${ep.color}" onclick="startEpisode(${i})">
+        <div style="font-size:3rem;">${ep.emoji}</div>
+        <h3 style="font-family:'Fredoka One';">${ep.title}</h3>
+        <p>${ep.desc}</p>
+        <span style="background:#f1f5f9; padding:.2rem 1rem; border-radius:30px;">${ep.diff}</span>
+      </div>`).join('');
+
+    // nav toggle
+    document.querySelector('.nav-toggle').addEventListener('click', ()=> document.querySelector('.nav-links').classList.toggle('open'));
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Éco-Détective PRO 🔍 — BFF Enfants</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════
+   VARIABLES & RESET
+═══════════════════════════════════════════ */
+:root {
+  --jaune:#FFD93D; --orange:#FF6B35; --rouge:#FF4757;
+  --rose:#FF6B9D; --violet:#A855F7; --bleu:#3B82F6;
+  --bleu-clair:#bae6fd; --bleu-fonce:#1e3a8a;
+  --vert:#22C55E; --vert2:#16A34A;
+  --fond:#f4f4f9; --sombre:#1E293B; --gris:#64748b;
+  --dossier:#fef3c7; --papier:#fffaf0;
+  --r-big:24px; --r-med:16px; --r-sm:10px;
+}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Nunito', sans-serif; background: var(--fond); color: var(--sombre); overflow-x: hidden; }
+button { font-family: inherit; cursor: pointer; border: none; outline: none; }
+
+/* ═══════════════════════════════════════════
+   NAV & FOOTER (Design Original Conservé)
+═══════════════════════════════════════════ */
+nav { position: sticky; top: 0; z-index: 1000; background: var(--bleu); padding: .7rem 1.2rem; display: flex; align-items: center; gap: .8rem; box-shadow: 0 6px 0 rgba(0,0,0,.15); }
+.nav-title { font-family: 'Fredoka One', cursive; font-size: 1.2rem; color: white; line-height: 1.1; text-shadow: 2px 2px 0 rgba(0,0,0,.2); }
+.nav-title small { display: block; font-size: .72rem; font-family: 'Nunito', sans-serif; font-weight: 700; opacity: .8; }
+.nav-links { display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; margin-left: auto; }
+.nav-links a { color: white; text-decoration: none; font-size: .85rem; font-weight: 800; padding: .4rem .85rem; border-radius: 50px; background: rgba(255,255,255,.18); border: 2px solid rgba(255,255,255,.3); transition: all .2s; }
+.nav-links a:hover, .nav-links a.active { background: var(--jaune); color: var(--sombre); border-color: var(--jaune); transform: translateY(-2px); }
+footer { background: var(--sombre); padding: 3rem 1.5rem 2rem; color: white; margin-top: auto; position: relative;}
+.footer-inner { max-width: 960px; margin: 0 auto; text-align: center; }
+.footer-copy { font-size: .8rem; color: rgba(255,255,255,.5); margin-top: 1rem; border-top: 1px solid rgba(255,255,255,.1); padding-top: 1rem; }
+
+/* ═══════════════════════════════════════════
+   HERO & STRUCTURE JEU
+═══════════════════════════════════════════ */
+.hero {
+  background: radial-gradient(circle at top, var(--bleu-fonce), var(--sombre));
+  padding: 3rem 1rem; text-align: center; color: white; position: relative; overflow: hidden;
+}
+.hero h1 { font-family: 'Fredoka One', cursive; font-size: clamp(2.5rem, 6vw, 4rem); text-shadow: 0 4px 10px rgba(0,0,0,.4); margin-bottom: .5rem; letter-spacing: 1px;}
+.hero p { font-size: 1.2rem; font-weight: 700; color: var(--jaune); }
+
+#game-container {
+  max-width: 1000px; margin: -40px auto 4rem; padding: 0 1rem;
+  position: relative; z-index: 10; display: flex; flex-direction: column; gap: 2rem;
+}
+@media(min-width: 800px) { #game-container { flex-direction: row; align-items: flex-start; } }
+
+/* ═══════════════════════════════════════════
+   PANNEAU GAUCHE : HOLOGRAMME & STATS
+═══════════════════════════════════════════ */
+.dashboard-left {
+  flex: 1; background: white; border-radius: var(--r-big); padding: 1.5rem;
+  box-shadow: 0 10px 30px rgba(0,0,0,.08); border: 4px solid var(--bleu-clair);
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+}
+
+/* Planète 3D-ish */
+.planet-hologram {
+  width: 180px; height: 180px; border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #4ade80, #3b82f6);
+  box-shadow: inset -20px -20px 40px rgba(0,0,0,.3), 0 0 20px rgba(59,130,246,.4), 0 0 0 10px rgba(59,130,246,.1);
+  position: relative; overflow: hidden; margin: 1rem 0;
+  transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: floatPlanet 6s ease-in-out infinite;
+}
+@keyframes floatPlanet { 0%,100%{transform:translateY(0) rotate(0deg);} 50%{transform:translateY(-15px) rotate(5deg);} }
+
+.planet-continent {
+  position: absolute; background: rgba(34,197,94,.8); border-radius: 50px;
+  filter: blur(2px); animation: spinEarth 20s linear infinite;
+}
+.c1 { width: 80px; height: 40px; top: 30%; left: -40px; }
+.c2 { width: 100px; height: 60px; top: 60%; left: 80px; }
+@keyframes spinEarth { 0%{transform:translateX(0);} 100%{transform:translateX(200px);} }
+
+/* Stats (HUD) */
+.hud-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; width: 100%; margin-top: 1.5rem; }
+.hud-item {
+  background: var(--fond); padding: 1rem; border-radius: var(--r-med);
+  border: 2px solid #e2e8f0; font-family: 'Fredoka One', cursive; font-size: 1.2rem;
+}
+.hud-item span { display: block; font-family: 'Nunito', sans-serif; font-size: .8rem; font-weight: 800; color: var(--gris); text-transform: uppercase; margin-bottom: .2rem; }
+.hud-score { color: var(--orange); }
+.hud-hp { color: var(--vert); }
+.combo-badge {
+  position: absolute; top: -15px; right: -15px; background: var(--jaune); color: var(--sombre);
+  font-family: 'Fredoka One'; padding: 0.5rem 1rem; border-radius: 20px; font-size: 1.1rem;
+  box-shadow: 0 4px 0 #d97706; transform: rotate(10deg); display: none; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* ═══════════════════════════════════════════
+   PANNEAU DROIT : LE DOSSIER D'ENQUÊTE
+═══════════════════════════════════════════ */
+.dashboard-right { flex: 2; position: relative; perspective: 1000px; width: 100%; }
+
+.case-folder {
+  background: var(--dossier); border-radius: 5px 20px 20px 20px;
+  padding: 2rem; box-shadow: inset 0 0 60px rgba(217,119,6,.1), 0 15px 35px rgba(0,0,0,.15);
+  border: 1px solid #fde68a; position: relative; min-height: 450px;
+  transform-origin: left; transition: transform 0.5s;
+}
+.case-folder::before {
+  content: 'TOP SECRET'; position: absolute; top: -35px; left: 0; background: var(--dossier);
+  padding: 0.5rem 1.5rem; font-family: 'Fredoka One'; color: #b45309;
+  border-radius: 10px 10px 0 0; font-size: .9rem; border: 1px solid #fde68a; border-bottom: none;
+}
+
+/* Narration & Effet Machine à écrire */
+.scene-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; border-bottom: 2px dashed #d97706; padding-bottom: 1rem; }
+.scene-title { font-family: 'Fredoka One', cursive; font-size: 1.5rem; color: #78350f; }
+.scene-id { font-weight: 800; color: #b45309; background: #fef08a; padding: 0.3rem 0.8rem; border-radius: 8px; font-size: .8rem; }
+
+.narrative-box {
+  background: var(--papier); padding: 1.5rem; border-radius: 4px; box-shadow: inset 0 0 10px rgba(0,0,0,.05);
+  font-family: 'Courier New', Courier, monospace; font-weight: bold; font-size: 1.05rem; line-height: 1.6; color: #333; margin-bottom: 1.5rem; position: relative;
+}
+.narrative-box::after { content: ''; position: absolute; left: 1rem; top: 0; bottom: 0; width: 2px; background: rgba(255,0,0,.2); }
+
+/* Indices interactifs */
+.clue-btn {
+  background: var(--bleu); color: white; font-family: 'Fredoka One'; padding: 0.6rem 1.2rem;
+  border-radius: 50px; display: inline-flex; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem;
+  box-shadow: 0 4px 0 var(--bleu-fonce); transition: all 0.2s;
+}
+.clue-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 0 var(--bleu-fonce); }
+.clue-btn:active { transform: translateY(2px); box-shadow: 0 0 0 var(--bleu-fonce); }
+.clue-content {
+  display: none; background: #fef9c3; border: 2px dashed #eab308; padding: 1rem;
+  border-radius: var(--r-sm); margin-bottom: 1.5rem; font-weight: 800; color: #713f12; animation: slideDown 0.3s ease-out;
+}
+
+/* Choix */
+.choices-grid { display: grid; gap: 1rem; }
+.choice-btn {
+  background: white; border: 3px solid #e2e8f0; border-radius: var(--r-med);
+  padding: 1rem; text-align: left; display: flex; align-items: center; gap: 1rem;
+  transition: all 0.2s; font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 1rem; color: var(--sombre);
+}
+.choice-btn:hover { border-color: var(--bleu); transform: translateX(5px); background: #f0f9ff; }
+.choice-icon { font-size: 1.8rem; background: var(--fond); padding: 0.5rem; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,.1); }
+
+/* Feedbacks et Tampons */
+.stamp {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(2) rotate(-15deg);
+  font-family: 'Fredoka One'; font-size: 4rem; padding: 0.5rem 1rem; border: 8px solid; border-radius: 10px;
+  opacity: 0; pointer-events: none; z-index: 100;
+}
+.stamp.good { color: rgba(34,197,94,.8); border-color: rgba(34,197,94,.8); animation: stampAnim 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+.stamp.bad { color: rgba(239,68,68,.8); border-color: rgba(239,68,68,.8); animation: stampAnim 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+
+.feedback-box {
+  display: none; margin-top: 1.5rem; padding: 1.5rem; border-radius: var(--r-med);
+  animation: popIn 0.4s ease-out; font-weight: 700; font-size: 1.05rem; line-height: 1.5;
+}
+.feedback-box.good { background: #dcfce7; color: #166534; border: 3px solid var(--vert); }
+.feedback-box.bad { background: #fee2e2; color: #991b1b; border: 3px solid var(--rouge); }
+
+.next-btn {
+  display: none; width: 100%; margin-top: 1.5rem; padding: 1.2rem; border-radius: 50px;
+  background: var(--jaune); color: var(--sombre); font-family: 'Fredoka One'; font-size: 1.2rem;
+  box-shadow: 0 6px 0 #d97706; transition: all 0.2s;
+}
+.next-btn:hover { transform: translateY(-3px); box-shadow: 0 9px 0 #d97706; }
+.next-btn:active { transform: translateY(3px); box-shadow: 0 0 0 #d97706; }
+
+/* ═══════════════════════════════════════════
+   ÉCRANS : ACCUEIL & FIN
+═══════════════════════════════════════════ */
+.screen-overlay {
+  position: absolute; inset: 0; background: var(--dossier); border-radius: 5px 20px 20px 20px;
+  z-index: 50; display: flex; flex-direction: column; justify-content: center; align-items: center;
+  text-align: center; padding: 2rem;
+}
+.mission-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; width: 100%; margin-top: 2rem; }
+.mission-card {
+  background: white; border: 3px solid var(--sombre); border-radius: var(--r-med); padding: 1.5rem 1rem;
+  transition: all 0.2s; cursor: pointer; display: flex; flex-direction: column; align-items: center;
+}
+.mission-card:hover { transform: translateY(-5px); box-shadow: 0 8px 0 var(--sombre); }
+.mission-icon { font-size: 3rem; margin-bottom: 0.5rem; }
+
+.rank-display { font-family: 'Fredoka One'; font-size: 4rem; color: var(--orange); margin: 1rem 0; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+
+/* ═══════════════════════════════════════════
+   ANIMATIONS & EFFETS
+═══════════════════════════════════════════ */
+@keyframes slideDown { from{opacity:0; transform:translateY(-10px);} to{opacity:1; transform:translateY(0);} }
+@keyframes popIn { 0%{opacity:0; transform:scale(0.5);} 70%{transform:scale(1.1);} 100%{opacity:1; transform:scale(1);} }
+@keyframes stampAnim { 0%{opacity:0; transform:translate(-50%,-50%) scale(3) rotate(-30deg);} 50%{opacity:1; transform:translate(-50%,-50%) scale(0.9) rotate(-15deg);} 100%{opacity:1; transform:translate(-50%,-50%) scale(1) rotate(-15deg);} }
+@keyframes shakeError { 0%,100%{transform:translateX(0);} 20%,60%{transform:translateX(-10px);} 40%,80%{transform:translateX(10px);} }
+.shake-anim { animation: shakeError 0.4s ease-in-out; }
+
+/* Événement Urgence */
+.alert-overlay {
+  position: fixed; inset: 0; background: rgba(239,68,68,0.9); z-index: 2000;
+  display: flex; justify-content: center; align-items: center; flex-direction: column;
+  color: white; font-family: 'Fredoka One'; text-align: center; padding: 2rem; display: none;
+}
+.alert-overlay h2 { font-size: 3rem; animation: blink 1s infinite; margin-bottom: 1rem;}
+.alert-overlay p { font-family: 'Nunito'; font-weight: 800; font-size: 1.5rem; margin-bottom: 2rem; max-width: 600px;}
+@keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.5;} }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-title">Bridge &amp; Flow Folk<small>C'est Notre Nature 🌿</small></div>
+  <div class="nav-links">
+    <a href="#">🏠 Accueil</a>
+    <a href="#" class="active">🔍 Éco-Détective PRO</a>
+    <a href="#">📚 Apprendre</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <h1>🔍 Le Bureau des Détectives</h1>
+  <p>Chaque enquête est unique. La planète compte sur toi !</p>
+</div>
+
+<div id="game-container">
+  
+  <div class="dashboard-left">
+    <div class="planet-hologram" id="planet">
+      <div class="planet-continent c1"></div>
+      <div class="planet-continent c2"></div>
+    </div>
+    <h2>État de la Planète</h2>
+    
+    <div class="hud-grid">
+      <div class="hud-item hud-hp">
+        <span>Santé</span>
+        <div id="hp-val">100%</div>
+      </div>
+      <div class="hud-item hud-score" style="position:relative;">
+        <span>Score</span>
+        <div id="score-val">0</div>
+        <div class="combo-badge" id="combo-badge">Combo x2!</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dashboard-right">
+    <div class="case-folder" id="case-folder">
+      
+      <div class="screen-overlay" id="start-screen">
+        <h2 style="font-family:'Fredoka One'; font-size:2rem; margin-bottom:1rem;">Nouveaux Dossiers Reçus</h2>
+        <p style="font-weight:700;">Choisis ton terrain d'enquête. Les scénarios changent à chaque partie !</p>
+        <div class="mission-cards">
+          <div class="mission-card" onclick="startGame('foret')" style="border-color:var(--vert); color:var(--vert2);">
+            <div class="mission-icon">🌲</div>
+            <h3 style="font-family:'Fredoka One';">Forêt Mystère</h3>
+          </div>
+          <div class="mission-card" onclick="startGame('ocean')" style="border-color:var(--bleu); color:var(--bleu-fonce);">
+            <div class="mission-icon">🌊</div>
+            <h3 style="font-family:'Fredoka One';">Alerte Océan</h3>
+          </div>
+          <div class="mission-card" onclick="startGame('ville')" style="border-color:var(--violet); color:#7e22ce;">
+            <div class="mission-icon">🏙️</div>
+            <h3 style="font-family:'Fredoka One';">Ville Durable</h3>
+          </div>
+        </div>
+      </div>
+
+      <div id="investigation-ui" style="display:none;">
+        <div class="scene-header">
+          <div class="scene-title" id="scene-title">Titre de la Scène</div>
+          <div class="scene-id" id="scene-counter">Enquête 1/3</div>
+        </div>
+
+        <div class="narrative-box" id="narrative-text"></div>
+        
+        <button class="clue-btn" id="btn-clue" onclick="showClue()">🔍 Révéler un Indice</button>
+        <div class="clue-content" id="clue-box"></div>
+
+        <h3 style="font-family:'Fredoka One'; margin-bottom:1rem;" id="question-text">Question ?</h3>
+        <div class="choices-grid" id="choices-grid"></div>
+
+        <div class="feedback-box" id="feedback-box"></div>
+        <button class="next-btn" id="btn-next" onclick="nextScene()">Continuer l'enquête ➜</button>
+      </div>
+
+      <div class="stamp" id="stamp">RÉSOLU</div>
+
+      <div class="screen-overlay" id="end-screen" style="display:none;">
+        <h2 style="font-family:'Fredoka One'; font-size:2.5rem;">Dossier Classé !</h2>
+        <div class="rank-display" id="end-rank">S</div>
+        <p style="font-size:1.2rem; font-weight:800; margin-bottom:1rem;" id="end-score-text">Score final: 0</p>
+        <p style="font-weight:700; color:var(--gris); margin-bottom:2rem;" id="end-msg"></p>
+        <button class="next-btn" style="display:block; width:auto; padding:1rem 2rem;" onclick="location.reload()">📁 Prendre un nouveau dossier</button>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<div class="alert-overlay" id="alert-overlay">
+  <h2>🚨 URGENCE ÉCOLO 🚨</h2>
+  <p id="alert-text">Un promeneur a laissé un feu de camp mal éteint dans la forêt sèche !</p>
+  <div style="display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;">
+    <button class="next-btn" style="display:block; width:auto; background:white;" onclick="resolveAlert(true)">L'étouffer avec de la terre et de l'eau</button>
+    <button class="next-btn" style="display:block; width:auto; background:var(--sombre); color:white;" onclick="resolveAlert(false)">Souffler dessus fort</button>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <h3 style="font-family:'Fredoka One'; color:var(--jaune);">🌿 Bridge &amp; Flow Folk</h3>
+    <p style="font-size:.9rem; margin-top:.5rem;">Protéger la nature, ça s'apprend en s'amusant !</p>
+    <div class="footer-copy">© 2026 Bridge &amp; Flow Folk — Nogent-le-Roi (28)</div>
+  </div>
+</footer>
+
+<script>
+/* ═══════════════════════════════════════════
+   BANQUE DE DONNÉES MASSIVE (Pour rejouabilité)
+═══════════════════════════════════════════ */
+const QUESTION_BANK = {
+  foret: [
+    { title: "L'invasion des chenilles", narrative: "Les chênes de la forêt perdent toutes leurs feuilles au printemps. Des chenilles processionnaires envahissent les arbres. Le maire veut pulvériser de l'insecticide par hélicoptère.", clue: "Les oiseaux de la famille des mésanges adorent manger ces chenilles, même avec leurs poils urticants !", question: "Quelle alternative naturelle et durable proposes-tu ?", choices: [{text: "Installer des dizaines de nichoirs à mésanges", good: true}, {text: "Couper tous les chênes malades", good: false}, {text: "Attendre l'hiver prochain", good: false}], feedbackGood: "Génial ! Une seule mésange peut manger des centaines de chenilles par jour. C'est la lutte biologique parfaite.", feedbackBad: "Mauvaise idée ! Cela détruit l'écosystème. Les prédateurs naturels comme la mésange sont la vraie solution." },
+    { title: "Le mystère du sol mort", narrative: "Un fermier remarque que la terre en lisière de forêt devient dure comme de la pierre. Rien n'y pousse, et l'eau n'y pénètre plus quand il pleut.", clue: "Un sol en bonne santé est plein de petits ouvriers invisibles et de vers de terre qui le labourent naturellement.", question: "Comment redonner vie à ce sol ?", choices: [{text: "Le couvrir de compost et de feuilles mortes", good: true}, {text: "Verser des engrais chimiques liquides", good: false}, {text: "Le goudronner pour faire un parking", good: false}], feedbackGood: "Exact ! Le compost et le paillage nourrissent les vers de terre et les micro-organismes. Le sol redevient une éponge vivante !", feedbackBad: "Non ! Les engrais chimiques ou le goudron tuent la vie du sol. Il faut de la matière organique (feuilles, compost)." },
+    { title: "Le ruisseau silencieux", narrative: "Le petit ruisseau qui traverse la forêt n'a plus de poissons. L'eau est trouble et une mousse verte recouvre la surface.", clue: "Une usine de lessive s'est installée en amont, et les champs voisins utilisent beaucoup d'engrais.", question: "Quel est le problème de ce ruisseau ?", choices: [{text: "Trop de nutriments/polluants étouffent l'eau (Eutrophisation)", good: true}, {text: "Les poissons sont tous partis en vacances", good: false}, {text: "L'eau est trop chaude à cause du soleil", good: false}], feedbackGood: "Brillant ! L'excès d'engrais ou de phosphates (lessive) fait exploser les algues, qui volent l'oxygène des poissons. Il faut filtrer l'eau avec des roseaux !", feedbackBad: "Faux ! C'est une pollution chimique. Les nutriments en excès créent des algues qui étouffent le ruisseau." },
+    { title: "L'arbre mort", narrative: "Un immense chêne mort menace de s'effondrer près d'un sentier. Le garde forestier veut l'enlever complètement pour 'faire propre'.", clue: "Dans la nature, le 'propre' n'existe pas. Le bois mort est un restaurant et un hôtel 5 étoiles pour la forêt.", question: "Que dois-tu conseiller au garde ?", choices: [{text: "Le couper mais laisser le tronc sur place au sol", good: true}, {text: "Tout brûler pour nettoyer", good: false}, {text: "Le peindre en vert pour faire joli", good: false}], feedbackGood: "Parfait ! Le bois mort abrite des insectes xylophages, des champignons et sert de nourriture aux pics-verts. C'est vital !", feedbackBad: "Erreur ! Retirer le bois mort prive la forêt de nutriments essentiels et détruit l'habitat de milliers d'insectes." }
+  ],
+  ocean: [
+    { title: "La tortue trompée", narrative: "Une tortue marine a été secourue, très faible. Elle refuse de manger. Une radiographie montre une masse étrange dans son estomac, qui ressemble à une grosse proie.", clue: "Les tortues se nourrissent souvent de méduses qui flottent au gré des courants.", question: "Qu'a avalé cette tortue par erreur ?", choices: [{text: "Un sac plastique transparent", good: true}, {text: "Une grosse pierre d'aquarium", good: false}, {text: "Un filet de pêche en métal", good: false}], feedbackGood: "Triste mais vrai, bien vu détective. Sous l'eau, un sac plastique ressemble exactement à une méduse. Réduisons nos plastiques !", feedbackBad: "Pas tout à fait. C'est la ressemblance avec les méduses qui les trompe. Ce sont les sacs plastiques le fléau." },
+    { title: "La plage qui disparaît", narrative: "La belle plage de la commune rétrécit chaque année. Le sable s'en va avec les vagues. Le maire veut construire un gros mur en béton pour bloquer la mer.", clue: "Les plantes avec des racines profondes (comme les oyats) retiennent le sable mieux que n'importe quel mur.", question: "Quelle est la solution la plus écologique ?", choices: [{text: "Protéger les dunes et planter des oyats", good: true}, {text: "Construire un mur de béton géant", good: false}, {text: "Remplacer le sable par des cailloux", good: false}], feedbackGood: "Excellent ! Les dunes couvertes d'oyats (plantes des sables) sont des boucliers naturels et souples contre l'érosion.", feedbackBad: "Aïe ! Un mur en béton renvoie la force des vagues et détruit la plage encore plus vite. La nature fait mieux." },
+    { title: "Silence sous-marin", narrative: "Les baleines de la région n'arrivent plus à communiquer entre elles. Les baleineaux se perdent souvent.", clue: "Le son voyage 4 fois plus vite et plus loin dans l'eau que dans l'air. Les moteurs de bateaux font un bruit continu.", question: "De quel type de pollution souffrent les baleines ?", choices: [{text: "La pollution sonore marine", good: true}, {text: "La pollution plastique", good: false}, {text: "La pollution lumineuse", good: false}], feedbackGood: "Exact ! Le vacarme des navires marchands désoriente les cétacés qui utilisent le son pour 'voir' et se parler. On appelle ça la pollution sonore.", feedbackBad: "Non, observe bien l'indice sur la communication. C'est le bruit (pollution sonore) qui les empêche de s'entendre." }
+  ],
+  ville: [
+    { title: "Le four urbain", narrative: "En été, le centre-ville devient insupportable. Il y fait 5°C de plus qu'à la campagne voisine. Les habitants allument tous la climatisation, ce qui aggrave les choses.", clue: "Le bitume noir et le béton emmagasinent la chaleur du soleil. L'ombre et l'évaporation de l'eau rafraîchissent l'air.", question: "Quelle est la meilleure action pour refroidir la ville ?", choices: [{text: "Planter massivement des arbres et enlever du bitume", good: true}, {text: "Peindre les routes en noir", good: false}, {text: "Installer des clims géantes dehors", good: false}], feedbackGood: "Super ! Les arbres créent de l'ombre et transpirent de l'eau (évapotranspiration). C'est le meilleur climatiseur naturel !", feedbackBad: "Faux ! Les clims rejettent de l'air chaud dehors, et le noir capte le soleil. Il faut désimperméabiliser et végétaliser." },
+    { title: "Le voyage du jean", narrative: "Un grand magasin vend des jeans à très bas prix. Tu enquêtes sur leur fabrication : coton d'Inde, tissé en Chine, teint au Bangladesh, vendu en France.", clue: "Le transport en bateau et en avion dégage énormément de gaz à effet de serre.", question: "Pourquoi ce jean pas cher coûte-t-il 'très cher' à la planète ?", choices: [{text: "Son empreinte carbone due aux milliers de kilomètres parcourus", good: true}, {text: "Parce qu'il est moche", good: false}, {text: "Parce qu'il est en coton", good: false}], feedbackGood: "Bien déduit. C'est ce qu'on appelle la 'Fast Fashion'. Acheter moins, de meilleure qualité, ou de seconde main est la solution !", feedbackBad: "Ce n'est pas la bonne raison. C'est le transport mondialisé et les étapes multiples qui explosent le bilan carbone de ce vêtement." },
+    { title: "Poubelles débordantes", narrative: "La cantine de l'école jette des kilos de nourriture chaque jour, et les poubelles sentent très mauvais. Que faire de ces déchets organiques ?", clue: "Les épluchures, restes de légumes et coquilles d'œufs peuvent se transformer en or noir pour les plantes.", question: "Quelle installation l'école doit-elle créer ?", choices: [{text: "Un grand bac à compost dans la cour", good: true}, {text: "Un plus gros camion poubelle", good: false}, {text: "Une machine à brûler les déchets", good: false}], feedbackGood: "Bingo ! Le compostage réduit le volume des poubelles de 30% et crée du terreau gratuit pour le potager de l'école !", feedbackBad: "Non ! Brûler ou transporter de l'eau (la nourriture c'est 80% d'eau) pollue. Il faut composter sur place." }
+  ]
+};
+
+/* ═══════════════════════════════════════════
+   ÉTAT DU JEU & LOGIQUE
+═══════════════════════════════════════════ */
+let state = {
+  hp: 60,
+  score: 0,
+  combo: 0,
+  currentMission: [],
+  sceneIndex: 0,
+  isTyping: false
+};
+
+// Fonction utilitaire : mélanger un tableau
+function shuffle(array) {
+  return array.sort(() => Math.random() - 0.5);
+}
+
+// Lancer une partie
+function startGame(category) {
+  // Sélectionner 3 questions aléatoires de la catégorie
+  const pool = [...QUESTION_BANK[category]];
+  state.currentMission = shuffle(pool).slice(0, 3);
+  
+  state.hp = 60;
+  state.score = 0;
+  state.combo = 0;
+  state.sceneIndex = 0;
+
+  document.getElementById('start-screen').style.display = 'none';
+  document.getElementById('investigation-ui').style.display = 'block';
+  
+  updateHUD();
+  loadScene();
+}
+
+// Charger une scène
+function loadScene() {
+  const scene = state.currentMission[state.sceneIndex];
+  
+  // Reset UI
+  document.getElementById('btn-clue').style.display = 'inline-flex';
+  document.getElementById('clue-box').style.display = 'none';
+  document.getElementById('feedback-box').style.display = 'none';
+  document.getElementById('btn-next').style.display = 'none';
+  document.getElementById('stamp').style.opacity = '0';
+  document.getElementById('stamp').className = 'stamp';
+  
+  document.getElementById('scene-counter').textContent = `Enquête ${state.sceneIndex + 1}/${state.currentMission.length}`;
+  document.getElementById('scene-title').textContent = scene.title;
+  document.getElementById('question-text').textContent = scene.question;
+
+  // Mélanger les choix
+  const choicesHtml = shuffle([...scene.choices]).map((c, i) => `
+    <button class="choice-btn" onclick="handleAnswer(${c.good}, '${c.text.replace(/'/g, "\\'")}')">
+      <span class="choice-icon">${c.good ? '👉' : '🤔'}</span>
+      <span>${c.text}</span>
+    </button>
+  `).join('');
+  document.getElementById('choices-grid').innerHTML = choicesHtml;
+  document.getElementById('choices-grid').style.pointerEvents = 'auto';
+
+  // Effet Machine à écrire pour la narration
+  typeWriterEffect(scene.narrative);
+}
+
+// Effet Machine à écrire
+function typeWriterEffect(text) {
+  const el = document.getElementById('narrative-text');
+  el.textContent = "";
+  state.isTyping = true;
+  let i = 0;
+  
+  function type() {
+    if (i < text.length && state.isTyping) {
+      el.textContent += text.charAt(i);
+      i++;
+      setTimeout(type, 20); // Vitesse de frappe
+    } else {
+      el.textContent = text; // Assure que le texte est complet si on skip
+      state.isTyping = false;
+    }
+  }
+  type();
+}
+
+// Montrer un indice
+function showClue() {
+  const scene = state.currentMission[state.sceneIndex];
+  const clueBox = document.getElementById('clue-box');
+  clueBox.innerHTML = `💡 <strong>Indice de l'expert :</strong> ${scene.clue}`;
+  clueBox.style.display = 'block';
+  document.getElementById('btn-clue').style.display = 'none';
+}
+
+// Gérer la réponse
+function handleAnswer(isGood, textChoisi) {
+  if (state.isTyping) state.isTyping = false; // Coupe la machine à écrire
+  document.getElementById('choices-grid').style.pointerEvents = 'none'; // Bloque le double clic
+  
+  const scene = state.currentMission[state.sceneIndex];
+  const fbBox = document.getElementById('feedback-box');
+  const stamp = document.getElementById('stamp');
+  
+  fbBox.style.display = 'block';
+  
+  if (isGood) {
+    // BONNE RÉPONSE
+    state.combo++;
+    const pointsEarned = 100 * state.combo;
+    state.score += pointsEarned;
+    state.hp = Math.min(100, state.hp + 20);
+    
+    fbBox.className = 'feedback-box good';
+    fbBox.innerHTML = `<strong>✅ Bien vu !</strong><br>${scene.feedbackGood} <br><small style="color:var(--vert2)">+${pointsEarned} pts (Combo x${state.combo})</small>`;
+    
+    stamp.textContent = "RÉSOLU";
+    stamp.className = 'stamp good';
+    
+    if(state.combo > 1) {
+      const badge = document.getElementById('combo-badge');
+      badge.textContent = `Combo x${state.combo}!`;
+      badge.style.display = 'block';
+      setTimeout(() => badge.style.display = 'none', 2000);
+    }
+    launchConfetti();
+
+  } else {
+    // MAUVAISE RÉPONSE
+    state.combo = 0;
+    state.hp = Math.max(0, state.hp - 15);
+    
+    fbBox.className = 'feedback-box bad';
+    fbBox.innerHTML = `<strong>❌ Erreur de jugement !</strong><br>${scene.feedbackBad}`;
+    
+    stamp.textContent = "ERREUR";
+    stamp.className = 'stamp bad';
+    
+    document.getElementById('case-folder').classList.add('shake-anim');
+    setTimeout(() => document.getElementById('case-folder').classList.remove('shake-anim'), 400);
+  }
+
+  updateHUD();
+  updatePlanetVisual();
+
+  const nextBtn = document.getElementById('btn-next');
+  nextBtn.textContent = (state.sceneIndex === state.currentMission.length - 1) ? "📋 Voir le Rapport Final" : "Continuer l'enquête ➜";
+  nextBtn.style.display = 'block';
+}
+
+// Scène suivante ou événement
+function nextScene() {
+  state.sceneIndex++;
+  
+  // 30% de chance d'avoir une urgence écolo si on n'est pas à la fin
+  if (state.sceneIndex < state.currentMission.length && Math.random() < 0.3) {
+    document.getElementById('alert-overlay').style.display = 'flex';
+  } else if (state.sceneIndex >= state.currentMission.length) {
+    showEndScreen();
+  } else {
+    loadScene();
+  }
+}
+
+// Résoudre urgence écolo
+function resolveAlert(isGood) {
+  document.getElementById('alert-overlay').style.display = 'none';
+  if(isGood) {
+    state.score += 50;
+    alert("Bravo ! L'urgence a été évitée. (+50 pts)");
+  } else {
+    state.hp = Math.max(0, state.hp - 10);
+    state.combo = 0;
+    alert("Catastrophe ! L'urgence a mal tourné... (-10 Santé)");
+  }
+  updateHUD();
+  updatePlanetVisual();
+  
+  if (state.sceneIndex >= state.currentMission.length) {
+    showEndScreen();
+  } else {
+    loadScene();
+  }
+}
+
+// Fin du jeu
+function showEndScreen() {
+  document.getElementById('investigation-ui').style.display = 'none';
+  document.getElementById('end-screen').style.display = 'flex';
+  
+  document.getElementById('end-score-text').textContent = `Score total : ${state.score} pts`;
+  
+  const rankEl = document.getElementById('end-rank');
+  const msgEl = document.getElementById('end-msg');
+  
+  if (state.hp >= 80) {
+    rankEl.textContent = 'S';
+    rankEl.style.color = '#eab308';
+    msgEl.textContent = "Légende écologique ! La planète est entre de bonnes mains.";
+    launchConfetti();
+    launchConfetti(); // double dose !
+  } else if (state.hp >= 50) {
+    rankEl.textContent = 'A';
+    rankEl.style.color = 'var(--vert)';
+    msgEl.textContent = "Bon travail détective. Quelques erreurs, mais la nature te remercie.";
+  } else {
+    rankEl.textContent = 'C';
+    rankEl.style.color = 'var(--rouge)';
+    msgEl.textContent = "Aïe... La planète souffre encore. Il faut réviser tes manuels d'écologie !";
+  }
+}
+
+/* ═══════════════════════════════════════════
+   VISUELS & HUD
+═══════════════════════════════════════════ */
+function updateHUD() {
+  document.getElementById('hp-val').textContent = `${state.hp}%`;
+  document.getElementById('score-val').textContent = state.score;
+}
+
+function updatePlanetVisual() {
+  const planet = document.getElementById('planet');
+  if (state.hp > 70) {
+    planet.style.background = 'radial-gradient(circle at 30% 30%, #4ade80, #3b82f6)';
+    planet.style.boxShadow = 'inset -20px -20px 40px rgba(0,0,0,.3), 0 0 20px rgba(59,130,246,.4), 0 0 0 10px rgba(59,130,246,.1)';
+  } else if (state.hp > 30) {
+    planet.style.background = 'radial-gradient(circle at 30% 30%, #a3e635, #0ea5e9)';
+    planet.style.boxShadow = 'inset -20px -20px 40px rgba(0,0,0,.5), 0 0 15px rgba(234,179,8,.4)';
+  } else {
+    planet.style.background = 'radial-gradient(circle at 30% 30%, #9ca3af, #6b7280)';
+    planet.style.boxShadow = 'inset -20px -20px 40px rgba(0,0,0,.7), 0 0 30px rgba(239,68,68,.4), 0 0 0 10px rgba(239,68,68,.2)';
+  }
+}
+
+function launchConfetti() {
+  const colors = ['#22c55e', '#3b82f6', '#fde047', '#a855f7'];
+  for (let i = 0; i < 30; i++) {
+    const confetti = document.createElement('div');
+    confetti.style.position = 'fixed';
+    confetti.style.left = Math.random() * 100 + 'vw';
+    confetti.style.top = '-10px';
+    confetti.style.width = '10px';
+    confetti.style.height = '10px';
+    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+    confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    confetti.style.zIndex = '9999';
+    confetti.style.pointerEvents = 'none';
+    
+    // Animation via JS
+    const duration = 1000 + Math.random() * 2000;
+    confetti.animate([
+      { transform: `translate3d(0,0,0) rotate(0deg)`, opacity: 1 },
+      { transform: `translate3d(${Math.random()*100 - 50}px, 100vh, 0) rotate(${Math.random()*360}deg)`, opacity: 0 }
+    ], { duration: duration, easing: 'cubic-bezier(.37,0,.63,1)' });
+    
+    document.body.appendChild(confetti);
+    setTimeout(() => confetti.remove(), duration);
+  }
+}
+
+// Init visuals
+updatePlanetVisual();
+</script>
+</body>
+</html>

@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>🌿 BOTANICAL RUSH · Bridge and Flow Folk</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4ade80;
+            --secondary: #fde047;
+            --danger: #fb7185;
+            --fb-blue: #1877F2;
+            --wa-green: #25D366;
+            --bg: #030b06;
+            --glass: rgba(10, 35, 20, 0.95);
+        }
+
+        * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            margin: 0; padding: 0;
+            font-family: 'Outfit', sans-serif;
+            overflow: hidden; touch-action: none;
+            height: 100vh; height: 100dvh; width: 100vw;
+            background: var(--bg); color: white;
+        }
+
+        #bg-canvas {
+            position: absolute; inset: 0; z-index: 0;
+            background: radial-gradient(circle at 50% 100%, #0a2a1a, #030b06);
+        }
+
+        /* --- UI OVERLAYS --- */
+        .overlay {
+            position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+            z-index: 100; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            background: rgba(0, 0, 0, 0.8); transition: opacity 0.4s ease;
+        }
+
+        .card {
+            background: var(--glass);
+            border: 1px solid rgba(74, 222, 128, 0.2);
+            border-radius: 40px; padding: 2rem 1.5rem;
+            text-align: center; width: 92%; max-width: 380px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.8);
+            animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes pop { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        h1 { font-size: 2.2rem; font-weight: 900; margin: 0; color: var(--primary); line-height: 1; }
+        .asso-tag { font-size: 0.75rem; letter-spacing: 2px; color: var(--secondary); font-weight: 700; margin: 10px 0 20px 0; }
+
+        /* --- GRID RÈGLES --- */
+        .rules-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 25px;
+        }
+        .rule-card {
+            background: rgba(255,255,255,0.05); padding: 12px 8px; border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; align-items: center; gap: 5px;
+        }
+        .rule-card span { font-size: 0.8rem; font-weight: 600; }
+        .rule-card b { font-size: 0.7rem; color: var(--primary); opacity: 0.8; }
+
+        /* --- BOUTONS --- */
+        .btn {
+            width: 100%; padding: 1.1rem; border-radius: 50px; border: none;
+            font-size: 1.1rem; font-weight: 900; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 12px;
+            transition: all 0.2s; text-decoration: none; margin-bottom: 12px;
+        }
+        .btn-play { background: var(--primary); color: #022c16; box-shadow: 0 6px 0 #059669; margin-bottom: 15px; }
+        .btn-fb { background: var(--fb-blue); color: white; font-size: 0.9rem; }
+        .btn-wa { background: var(--wa-green); color: white; font-size: 0.9rem; }
+        .btn:active { transform: translateY(3px); box-shadow: none; }
+
+        /* --- HUD --- */
+        .hud {
+            position: absolute; top: env(safe-area-inset-top, 20px); left: 20px; right: 20px;
+            display: flex; justify-content: space-between; align-items: center; z-index: 50;
+        }
+        .badge { background: rgba(0,0,0,0.6); padding: 8px 18px; border-radius: 25px; font-weight: 900; font-size: 1.1rem; border: 1px solid rgba(255,255,255,0.1); }
+
+        /* --- JEU --- */
+        #game-area { position: absolute; inset: 0; z-index: 10; overflow: hidden; }
+        .target { position: absolute; width: 80px; height: 80px; z-index: 20; display: flex; align-items: center; justify-content: center; }
+        .target-img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; filter: drop-shadow(0 8px 15px rgba(0,0,0,0.5)); }
+        .timer-ring { position: absolute; inset: -5px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.1); border-top: 3px solid var(--primary); animation: spin linear forwards; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        .float-text { position: absolute; font-weight: 900; font-size: 1.5rem; animation: floatUp 0.8s forwards; pointer-events: none; z-index: 60; }
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-100px); } }
+        
+        #rank-banner { font-size: 1.3rem; font-weight: 900; color: var(--secondary); margin: 10px 0; text-shadow: 0 0 15px rgba(253, 224, 71, 0.4); }
+    </style>
+</head>
+<body>
+
+<div id="bg-canvas"></div>
+
+<div class="hud">
+    <div class="badge">🍃 <span id="score">0</span></div>
+    <div class="badge" style="color: var(--danger)" id="lives">♥♥♥</div>
+</div>
+
+<div id="start-screen" class="overlay">
+    <div class="card">
+        <h1>BOTANICAL RUSH</h1>
+        <div class="asso-tag">BRIDGE AND FLOW FOLK</div>
+        
+        <div class="rules-grid">
+            <div class="rule-card"><span>🌿</span><b>+10 PTS</b><span>FEUILLE</span></div>
+            <div class="rule-card"><span>🍄</span><b>DANGER</b><span>CHAMPIGNON</span></div>
+            <div class="rule-card"><span>💧</span><b>RALENTI</b><span>EAU</span></div>
+            <div class="rule-card"><span>⭐</span><b>+100 PTS</b><span>LOGO BFF</span></div>
+        </div>
+
+        <button class="btn btn-play" onclick="startGame()">JOUER</button>
+        
+        <a href="https://www.facebook.com/share/14YBdZ5HDyj/" target="_blank" class="btn btn-fb">
+            NOTRE PAGE FACEBOOK
+        </a>
+        
+        <div style="font-size: 0.75rem; color: #888; margin-top: 15px;">
+            MEILLEUR GRADE : <span id="best-rank" style="color: var(--primary)">NOVICE</span>
+        </div>
+    </div>
+</div>
+
+<div id="gameover-screen" class="overlay" style="display: none;">
+    <div class="card">
+        <h2 style="color: var(--danger); margin: 0; font-size: 0.9rem; letter-spacing: 1px;">RÉSULTAT DE LA MISSION</h2>
+        <div id="rank-banner">GRADE : NOVICE</div>
+        <div style="font-size: 3.5rem; font-weight: 900; margin: 10px 0 20px 0;" id="final-score">0</div>
+        
+        <button class="btn btn-play" onclick="restartGame()">REESSAYER</button>
+        
+        <div style="margin-top: 25px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
+            <p style="font-size: 0.85rem; margin-bottom: 15px; color: var(--primary); font-weight: 700;">PARTAGEZ VOTRE GRADE !</p>
+            <button class="btn btn-wa" onclick="shareWhatsApp()">PARTAGER SUR WHATSAPP</button>
+            <button class="btn btn-fb" onclick="shareFacebook()">PARTAGER SUR FACEBOOK</button>
+        </div>
+    </div>
+</div>
+
+<div id="game-area"></div>
+
+<script>
+    const FB_LINK = "https://www.facebook.com/share/14YBdZ5HDyj/";
+    
+    // Système de Grades (L'idée géniale pour la viralité)
+    const RANKS = [
+        { min: 0, title: "Graine d'Espoir 🌱" },
+        { min: 400, title: "Jeune Pousse 🌿" },
+        { min: 1000, title: "Gardien du Flow 🛡️" },
+        { min: 2000, title: "Protecteur Sylvestre 🌳" },
+        { min: 4000, title: "Maître de la Canopée 👑" }
+    ];
+
+    const AudioEngine = {
+        ctx: null,
+        init() { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); },
+        play(freq, type, duration, vol) {
+            if(!this.ctx || this.ctx.state === 'suspended') return;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+            gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
+            osc.connect(gain); gain.connect(this.ctx.destination);
+            osc.start(); osc.stop(this.ctx.currentTime + duration);
+        }
+    };
+
+    let score = 0, lives = 3, gameActive = false, spawnTimer;
+    let baseSpeed = 1600;
+
+    function startGame() {
+        if(!AudioEngine.ctx) AudioEngine.init();
+        if(AudioEngine.ctx.state === 'suspended') AudioEngine.ctx.resume();
+        document.getElementById('start-screen').style.opacity = '0';
+        setTimeout(() => {
+            document.getElementById('start-screen').style.display = 'none';
+            resetGame();
+        }, 400);
+    }
+
+    function restartGame() {
+        document.getElementById('gameover-screen').style.opacity = '0';
+        setTimeout(() => {
+            document.getElementById('gameover-screen').style.display = 'none';
+            resetGame();
+        }, 400);
+    }
+
+    function resetGame() {
+        score = 0; lives = 3; baseSpeed = 1600; gameActive = true;
+        document.getElementById('score').innerText = '0';
+        document.getElementById('lives').innerText = '♥♥♥';
+        document.getElementById('game-area').innerHTML = '';
+        gameLoop();
+    }
+
+    function gameLoop() {
+        if(!gameActive) return;
+        createItem();
+        
+        // VITESSE PROGRESSIVE : Le jeu accélère de plus en plus
+        let currentInterval = Math.max(380, baseSpeed - (score * 2.3));
+        spawnTimer = setTimeout(gameLoop, currentInterval);
+    }
+
+    function createItem() {
+        const item = document.createElement('div');
+        item.className = 'target';
+        
+        const rand = Math.random();
+        let type = 'leaf', content = '<span style="font-size:2.8rem">🌿</span>';
+
+        if(rand > 0.91) {
+            type = 'bff';
+            content = `<img src="logo-bff.png" class="target-img" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2245%22 fill=%22%23fde047%22/><text y=%2265%22 x=%2250%22 font-size=%2240%22 text-anchor=%22middle%22 font-weight=%22bold%22>BFF</text></svg>'">`;
+        } else if(rand > 0.83) {
+            type = 'mushroom'; content = '<span style="font-size:2.8rem">🍄</span>';
+        } else if(rand > 0.75) {
+            type = 'water'; content = '<span style="font-size:2.8rem">💧</span>';
+        }
+
+        item.innerHTML = content + '<div class="timer-ring"></div>';
+        
+        const x = Math.random() * (window.innerWidth - 90) + 10;
+        const y = Math.random() * (window.innerHeight - 250) + 120;
+        item.style.left = x + 'px'; item.style.top = y + 'px';
+
+        // Temps de réaction qui diminue avec le score
+        let duration = Math.max(550, 2000 - (score * 2.5));
+        item.querySelector('.timer-ring').style.animationDuration = duration + 'ms';
+
+        const hit = (e) => { e.preventDefault(); handleHit(type, x, y); item.remove(); };
+        item.addEventListener('touchstart', hit);
+        item.addEventListener('mousedown', hit);
+
+        document.getElementById('game-area').appendChild(item);
+
+        setTimeout(() => {
+            if(item.parentElement) {
+                item.remove();
+                if(type === 'leaf' || type === 'bff') handleMiss();
+            }
+        }, duration);
+    }
+
+    function handleHit(type, x, y) {
+        if(!gameActive) return;
+        
+        if(type === 'leaf') {
+            score += 10; AudioEngine.play(800, 'sine', 0.1, 0.1);
+            showFloat("+10", x, y, "#4ade80");
+        } else if(type === 'bff') {
+            score += 100; AudioEngine.play(1200, 'triangle', 0.3, 0.1);
+            showFloat("✨ BFF +100 ✨", x, y, "#fde047");
+        } else if(type === 'mushroom') {
+            score = Math.max(0, score - 50); handleMiss();
+            showFloat("-50", x, y, "#fb7185");
+        } else if(type === 'water') {
+            score += 20; baseSpeed += 250; // Bonus : ralentit le rythme d'apparition
+            AudioEngine.play(1500, 'sine', 0.2, 0.05);
+            showFloat("💧 RELAX", x, y, '#60a5fa');
+        }
+
+        document.getElementById('score').innerText = score;
+        if(navigator.vibrate) navigator.vibrate(25);
+    }
+
+    function handleMiss() {
+        lives--;
+        AudioEngine.play(150, 'sawtooth', 0.3, 0.1);
+        document.getElementById('lives').innerText = '♥'.repeat(Math.max(0, lives));
+        if(lives <= 0) gameOver();
+    }
+
+    function showFloat(txt, x, y, col) {
+        const el = document.createElement('div');
+        el.className = 'float-text';
+        el.innerText = txt; el.style.left = x + 'px'; el.style.top = y + 'px'; el.style.color = col;
+        document.getElementById('game-area').appendChild(el);
+        setTimeout(() => el.remove(), 800);
+    }
+
+    function getRank(s) {
+        return RANKS.slice().reverse().find(r => s >= r.min).title;
+    }
+
+    function shareWhatsApp() {
+        const rank = getRank(score);
+        const text = `🌿 J'ai atteint le grade "${rank}" (${score} pts) sur Botanical Rush ! Soutiens l'association Bridge and Flow Folk en jouant aussi : ${FB_LINK}`;
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`);
+    }
+
+    function shareFacebook() {
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(FB_LINK)}`, 'fb-share', 'width=600,height=400');
+    }
+
+    function gameOver() {
+        gameActive = false;
+        clearTimeout(spawnTimer);
+        const rank = getRank(score);
+        
+        document.getElementById('rank-banner').innerText = `GRADE : ${rank}`;
+        document.getElementById('final-score').innerText = score;
+        
+        const bestScore = localStorage.getItem('bff_best') || 0;
+        if(score > bestScore) {
+            localStorage.setItem('bff_best', score);
+            localStorage.setItem('bff_rank', rank);
+        }
+        
+        const screen = document.getElementById('gameover-screen');
+        screen.style.display = 'flex';
+        setTimeout(() => screen.style.opacity = '1', 50);
+    }
+
+    // Init Records au chargement
+    document.getElementById('best-rank').innerText = localStorage.getItem('bff_rank') || "Graine d'Espoir 🌱";
+</script>
+
+</body>
+</html>

@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>🌿 BOTANICAL RUSH · Bridge and Flow Folk</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4ade80;
+            --secondary: #fde047;
+            --danger: #fb7185;
+            --fb-blue: #1877F2;
+            --wa-green: #25D366;
+            --bg: #030b06;
+            --glass: rgba(10, 35, 20, 0.9);
+        }
+
+        * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            margin: 0; padding: 0;
+            font-family: 'Outfit', sans-serif;
+            overflow: hidden; touch-action: none;
+            height: 100vh; height: 100dvh; width: 100vw;
+            background: var(--bg); color: white;
+        }
+
+        #bg-canvas {
+            position: absolute; inset: 0; z-index: 0;
+            background: radial-gradient(circle at 50% 100%, #0a2a1a, #030b06);
+        }
+
+        /* --- UI --- */
+        .overlay {
+            position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+            z-index: 100; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            background: rgba(0, 0, 0, 0.75); transition: opacity 0.4s ease;
+        }
+
+        .card {
+            background: var(--glass);
+            border: 1px solid rgba(74, 222, 128, 0.2);
+            border-radius: 35px; padding: 1.5rem;
+            text-align: center; width: 92%; max-width: 380px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.8);
+        }
+
+        h1 { font-size: 1.8rem; font-weight: 900; margin: 0; color: var(--primary); }
+        .asso-name { font-size: 0.8rem; letter-spacing: 1.5px; color: var(--secondary); font-weight: 700; margin-bottom: 15px; }
+
+        .rules-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+            margin: 1rem 0; text-align: left; font-size: 0.8rem;
+        }
+        .rule-item { background: rgba(255,255,255,0.05); padding: 8px; border-radius: 12px; display: flex; align-items: center; gap: 6px; }
+
+        /* --- BOUTONS --- */
+        .btn {
+            width: 100%; padding: 1rem; border-radius: 50px; border: none;
+            font-size: 1.1rem; font-weight: 900; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            transition: all 0.2s; text-decoration: none; margin-bottom: 10px;
+        }
+        .btn-play { background: var(--primary); color: #022c16; box-shadow: 0 6px 0 #059669; }
+        .btn-fb { background: var(--fb-blue); color: white; font-size: 0.9rem; }
+        .btn-wa { background: var(--wa-green); color: white; font-size: 0.9rem; }
+        .btn-outline { background: transparent; border: 1px solid rgba(255,255,255,0.2); color: white; font-size: 0.9rem; }
+        
+        .btn:active { transform: translateY(3px); box-shadow: none; }
+
+        /* --- HUD --- */
+        .hud {
+            position: absolute; top: env(safe-area-inset-top, 20px); left: 15px; right: 15px;
+            display: flex; justify-content: space-between; align-items: center; z-index: 50;
+        }
+        .badge { background: rgba(0,0,0,0.5); padding: 6px 15px; border-radius: 20px; font-weight: 900; }
+
+        /* --- JEU --- */
+        #game-area { position: absolute; inset: 0; z-index: 10; }
+        .target { position: absolute; width: 75px; height: 75px; z-index: 20; display: flex; align-items: center; justify-content: center; }
+        .target-img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.4)); }
+        .timer-ring { position: absolute; inset: -4px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.1); border-top: 3px solid var(--primary); animation: spin linear forwards; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        .float-text { position: absolute; font-weight: 900; animation: floatUp 0.7s forwards; pointer-events: none; }
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-80px); } }
+    </style>
+</head>
+<body>
+
+<div id="bg-canvas"></div>
+
+<div class="hud">
+    <div class="badge">🍃 <span id="score">0</span></div>
+    <div class="badge" style="color: var(--danger)" id="lives">♥♥♥</div>
+</div>
+
+<div id="start-screen" class="overlay">
+    <div class="card">
+        <h1>BOTANICAL RUSH</h1>
+        <div class="asso-name">BRIDGE AND FLOW FOLK</div>
+        
+        <div class="rules-grid">
+            <div class="rule-item">🌿 <span>+10 pts</span></div>
+            <div class="rule-item">🍄 <span>Danger!</span></div>
+            <div class="rule-item">💧 <span>Ralenti</span></div>
+            <div class="rule-item">⭐ <span>BFF +100</span></div>
+        </div>
+
+        <button class="btn btn-play" onclick="startGame()">JOUER</button>
+        <a href="https://www.facebook.com/share/14YBdZ5HDyj/" target="_blank" class="btn btn-fb">
+            SUIVRE BFF SUR FACEBOOK
+        </a>
+        <p style="font-size: 0.7rem; color: #888; margin-top: 10px;">Record : <span id="best-score">0</span></p>
+    </div>
+</div>
+
+<div id="gameover-screen" class="overlay" style="display: none;">
+    <div class="card">
+        <h2 style="color: var(--danger); margin: 0;">SCORE FINAL</h2>
+        <div style="font-size: 3.5rem; font-weight: 900; margin: 5px 0;" id="final-score">0</div>
+        
+        <button class="btn btn-play" onclick="restartGame()">REJOUER</button>
+        
+        <div style="margin: 15px 0; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
+            <p style="font-size: 0.8rem; margin-bottom: 10px; color: var(--primary);">Soutenez notre association !</p>
+            <button class="btn btn-wa" onclick="shareWhatsApp()">PARTAGER SUR WHATSAPP</button>
+            <a href="https://www.facebook.com/share/14YBdZ5HDyj/" target="_blank" class="btn btn-fb">PAGE FACEBOOK BFF</a>
+        </div>
+    </div>
+</div>
+
+<div id="game-area"></div>
+
+<script>
+    const FB_LINK = "https://www.facebook.com/share/14YBdZ5HDyj/";
+    
+    const AudioEngine = {
+        ctx: null,
+        init() { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); },
+        play(freq, type, duration, vol) {
+            if(!this.ctx) return;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+            gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
+            osc.connect(gain); gain.connect(this.ctx.destination);
+            osc.start(); osc.stop(this.ctx.currentTime + duration);
+        }
+    };
+
+    let score = 0, lives = 3, gameActive = false, spawnTimer;
+    let baseSpeed = 1600; // Vitesse de spawn initiale
+
+    function startGame() {
+        if(!AudioEngine.ctx) AudioEngine.init();
+        document.getElementById('start-screen').style.display = 'none';
+        resetGame();
+    }
+
+    function restartGame() {
+        document.getElementById('gameover-screen').style.display = 'none';
+        resetGame();
+    }
+
+    function resetGame() {
+        score = 0; lives = 3; baseSpeed = 1600; gameActive = true;
+        document.getElementById('score').innerText = '0';
+        document.getElementById('lives').innerText = '♥♥♥';
+        document.getElementById('game-area').innerHTML = '';
+        gameLoop();
+    }
+
+    function gameLoop() {
+        if(!gameActive) return;
+        
+        createItem();
+        
+        // --- DIFFICULTÉ PROGRESSIVE ---
+        // On réduit l'intervalle de spawn selon le score (min 450ms)
+        let currentInterval = Math.max(450, baseSpeed - (score * 1.8));
+        spawnTimer = setTimeout(gameLoop, currentInterval);
+    }
+
+    function createItem() {
+        const item = document.createElement('div');
+        item.className = 'target';
+        
+        const rand = Math.random();
+        let type = 'leaf', content = '<span style="font-size:2.5rem">🌿</span>';
+
+        if(rand > 0.90) {
+            type = 'bff';
+            content = `<img src="logo-bff.png" class="target-img" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2245%22 fill=%22%23fde047%22/><text y=%2265%22 x=%2250%22 font-size=%2240%22 text-anchor=%22middle%22 font-weight=%22bold%22>BFF</text></svg>'">`;
+        } else if(rand > 0.80) {
+            type = 'mushroom'; content = '<span style="font-size:2.5rem">🍄</span>';
+        } else if(rand > 0.72) {
+            type = 'water'; content = '<span style="font-size:2.5rem">💧</span>';
+        }
+
+        item.innerHTML = content + '<div class="timer-ring"></div>';
+        
+        // Placement aléatoire avec marges de sécurité
+        const x = Math.random() * (window.innerWidth - 80) + 10;
+        const y = Math.random() * (window.innerHeight - 240) + 120;
+        item.style.left = x + 'px'; item.style.top = y + 'px';
+
+        // --- DIFFICULTÉ PROGRESSIVE (TEMPS DE RÉACTION) ---
+        // Le temps pour cliquer diminue avec le score (min 650ms)
+        let duration = Math.max(650, 2000 - (score * 2));
+        item.querySelector('.timer-ring').style.animationDuration = duration + 'ms';
+
+        const hit = (e) => { e.preventDefault(); handleHit(type, x, y); item.remove(); };
+        item.addEventListener('touchstart', hit);
+        item.addEventListener('mousedown', hit);
+
+        document.getElementById('game-area').appendChild(item);
+
+        setTimeout(() => {
+            if(item.parentElement) {
+                item.remove();
+                if(type === 'leaf' || type === 'bff') handleMiss();
+            }
+        }, duration);
+    }
+
+    function handleHit(type, x, y) {
+        if(!gameActive) return;
+        
+        if(type === 'leaf') {
+            score += 10; AudioEngine.play(800, 'sine', 0.1, 0.1);
+            showFloat("+10", x, y, varColor('--primary'));
+        } else if(type === 'bff') {
+            score += 100; AudioEngine.play(1200, 'triangle', 0.3, 0.1);
+            showFloat("✨ BFF +100 ✨", x, y, varColor('--secondary'));
+        } else if(type === 'mushroom') {
+            score = Math.max(0, score - 50); handleMiss();
+            showFloat("-50", x, y, varColor('--danger'));
+        } else if(type === 'water') {
+            score += 20; baseSpeed += 150; // Bonus : Ralentit le jeu
+            AudioEngine.play(1500, 'sine', 0.2, 0.05);
+            showFloat("💧 RELAX", x, y, '#60a5fa');
+        }
+
+        document.getElementById('score').innerText = score;
+        if(navigator.vibrate) navigator.vibrate(25);
+    }
+
+    function handleMiss() {
+        lives--;
+        AudioEngine.play(150, 'sawtooth', 0.3, 0.1);
+        document.getElementById('lives').innerText = '♥'.repeat(Math.max(0, lives));
+        if(lives <= 0) gameOver();
+    }
+
+    function showFloat(txt, x, y, col) {
+        const el = document.createElement('div');
+        el.className = 'float-text';
+        el.innerText = txt; el.style.left = x + 'px'; el.style.top = y + 'px'; el.style.color = col;
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 700);
+    }
+
+    function shareWhatsApp() {
+        const text = `🌿 J'ai fait un score de ${score} sur Botanical Rush ! Rejoins l'association Bridge and Flow Folk sur Facebook pour découvrir nos activités : ${FB_LINK}`;
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`);
+    }
+
+    function gameOver() {
+        gameActive = false;
+        clearTimeout(spawnTimer);
+        const best = localStorage.getItem('bff_best') || 0;
+        if(score > best) localStorage.setItem('bff_best', score);
+        document.getElementById('final-score').innerText = score;
+        document.getElementById('gameover-screen').style.display = 'flex';
+    }
+
+    function varColor(name) { return getComputedStyle(document.documentElement).getPropertyValue(name); }
+    document.getElementById('best-score').innerText = localStorage.getItem('bff_best') || 0;
+</script>
+
+</body>
+</html>

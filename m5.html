@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>🌿 BOTANICAL RUSH · BFF PRO</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4ade80;
+            --secondary: #fde047;
+            --danger: #fb7185;
+            --bg: #030b06;
+            --glass: rgba(10, 35, 20, 0.85);
+        }
+
+        * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            margin: 0; padding: 0;
+            font-family: 'Outfit', sans-serif;
+            overflow: hidden;
+            touch-action: none;
+            height: 100vh; height: 100dvh;
+            width: 100vw;
+            background: var(--bg);
+            color: white;
+        }
+
+        /* 🌳 BACKGROUND ANIMÉ */
+        #bg-canvas {
+            position: absolute; inset: 0; z-index: 0;
+            background: radial-gradient(circle at 50% 100%, #0a2a1a, #030b06);
+        }
+
+        /* --- UI COMPONENTS --- */
+        .overlay {
+            position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+            z-index: 100; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            background: rgba(0, 0, 0, 0.7);
+            transition: opacity 0.4s ease;
+        }
+
+        .card {
+            background: var(--glass);
+            border: 1px solid rgba(74, 222, 128, 0.3);
+            border-radius: 40px; padding: 2rem;
+            text-align: center; width: 90%; max-width: 400px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            animation: cardPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes cardPop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        h1 { 
+            font-size: 2.2rem; font-weight: 900; margin: 0;
+            background: linear-gradient(135deg, #a7f3d0, var(--primary));
+            -webkit-background-clip: text; color: transparent;
+        }
+
+        .rules-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+            margin: 1.5rem 0; text-align: left; font-size: 0.85rem;
+        }
+
+        .rule-item {
+            background: rgba(255,255,255,0.05); padding: 10px; border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 8px;
+        }
+
+        /* --- HUD --- */
+        .hud {
+            position: absolute; top: env(safe-area-inset-top, 20px); left: 20px; right: 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 50; pointer-events: none;
+        }
+        .badge {
+            background: rgba(0,0,0,0.5); backdrop-filter: blur(10px);
+            padding: 8px 18px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.1);
+            font-weight: 900; font-size: 1.2rem;
+        }
+
+        /* --- JEU --- */
+        #game-area { position: absolute; inset: 0; z-index: 10; }
+        
+        .target {
+            position: absolute; width: 85px; height: 85px;
+            display: flex; align-items: center; justify-content: center;
+            z-index: 20; cursor: pointer;
+        }
+
+        .target-img {
+            width: 100%; height: 100%; object-fit: contain;
+            border-radius: 50%; filter: drop-shadow(0 8px 15px rgba(0,0,0,0.4));
+            transition: transform 0.1s;
+        }
+
+        .target-bff {
+            width: 100px; height: 100px;
+            filter: drop-shadow(0 0 15px var(--secondary));
+        }
+
+        .timer-ring {
+            position: absolute; inset: -5px; border-radius: 50%;
+            border: 3px solid rgba(255,255,255,0.1);
+            border-top: 3px solid var(--primary);
+            animation: spin linear forwards;
+        }
+
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        /* --- BUTTONS --- */
+        .btn-play {
+            width: 100%; padding: 1.2rem; border-radius: 50px; border: none;
+            background: var(--primary); color: #022c16;
+            font-size: 1.3rem; font-weight: 900; cursor: pointer;
+            box-shadow: 0 8px 0 #059669, 0 15px 30px rgba(74, 222, 128, 0.4);
+            transition: all 0.1s;
+        }
+        .btn-play:active { transform: translateY(4px); box-shadow: 0 4px 0 #059669; }
+
+        /* Animations de feedback */
+        .float-text {
+            position: absolute; font-weight: 900; font-size: 1.8rem;
+            pointer-events: none; animation: floatUp 0.8s ease-out forwards;
+        }
+        @keyframes floatUp { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-100px); opacity: 0; } }
+        
+        .shake { animation: shake 0.3s ease-in-out; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
+    </style>
+</head>
+<body>
+
+<div id="bg-canvas"></div>
+
+<div class="hud">
+    <div class="badge">🍃 <span id="score">0</span></div>
+    <div class="badge" style="color: var(--danger)" id="lives">♥♥♥</div>
+</div>
+
+<div id="start-screen" class="overlay">
+    <div class="card">
+        <h1>BOTANICAL RUSH</h1>
+        <p style="margin: 5px 0; color: var(--primary); font-weight: 700; letter-spacing: 2px;">EDITION BFF</p>
+        
+        <div class="rules-grid">
+            <div class="rule-item">🌿 <span><b>+10</b> Points</span></div>
+            <div class="rule-item">🍄 <span><b>-50</b> & ❤️-1</span></div>
+            <div class="rule-item">💧 <span><b>Ralenti</b></span></div>
+            <div class="rule-item">⭐ <span><b>BFF: +100!</b></span></div>
+        </div>
+
+        <p style="font-size: 0.8rem; color: #aaa; margin-bottom: 20px;">Clique sur les éléments avant qu'ils ne disparaissent !</p>
+        
+        <button class="btn-play" onclick="startGame()">JOUER MAINTENANT</button>
+        <p style="margin-top: 15px; font-size: 0.9rem;">Record : <span id="best-score">0</span></p>
+    </div>
+</div>
+
+<div id="gameover-screen" class="overlay" style="display: none; opacity: 0;">
+    <div class="card">
+        <h2 style="font-size: 2rem; color: var(--danger);">FIN DE PARTIE</h2>
+        <p style="font-size: 1rem; color: #aaa;">Ton score final</p>
+        <div style="font-size: 4rem; font-weight: 900; margin: 10px 0;" id="final-score">0</div>
+        <button class="btn-play" onclick="restartGame()">REESSAYER</button>
+    </div>
+</div>
+
+<div id="game-area"></div>
+
+<script>
+    const AudioEngine = {
+        ctx: null,
+        init() { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); },
+        play(freq, type, duration, vol) {
+            if(!this.ctx) return;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+            gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
+            osc.connect(gain); gain.connect(this.ctx.destination);
+            osc.start(); osc.stop(this.ctx.currentTime + duration);
+        },
+        tap() { this.play(800, 'sine', 0.1, 0.1); },
+        bad() { this.play(150, 'sawtooth', 0.3, 0.1); },
+        bonus() { this.play(1200, 'sine', 0.2, 0.1); this.play(1500, 'sine', 0.3, 0.05); },
+        bff() { 
+            const notes = [523, 659, 783, 1046];
+            notes.forEach((n, i) => setTimeout(() => this.play(n, 'triangle', 0.4, 0.1), i * 100));
+        }
+    };
+
+    let score = 0;
+    let lives = 3;
+    let gameActive = false;
+    let spawnTimer;
+    let speed = 1800;
+
+    function startGame() {
+        if(!AudioEngine.ctx) AudioEngine.init();
+        document.getElementById('start-screen').style.opacity = '0';
+        setTimeout(() => document.getElementById('start-screen').style.display = 'none', 400);
+        resetState();
+        gameLoop();
+    }
+
+    function restartGame() {
+        document.getElementById('gameover-screen').style.opacity = '0';
+        setTimeout(() => {
+            document.getElementById('gameover-screen').style.display = 'none';
+            resetState();
+            gameLoop();
+        }, 400);
+    }
+
+    function resetState() {
+        score = 0; lives = 3; speed = 1800; gameActive = true;
+        document.getElementById('score').innerText = '0';
+        document.getElementById('lives').innerText = '♥♥♥';
+        document.getElementById('game-area').innerHTML = '';
+    }
+
+    function gameLoop() {
+        if(!gameActive) return;
+        createItem();
+        let nextSpawn = Math.max(500, speed - (score * 1.5));
+        spawnTimer = setTimeout(gameLoop, nextSpawn);
+    }
+
+    function createItem() {
+        const item = document.createElement('div');
+        item.className = 'target';
+        
+        const rand = Math.random();
+        let type = 'leaf';
+        let content = '<span style="font-size:3rem">🌿</span>';
+
+        if(rand > 0.92) {
+            type = 'bff';
+            item.classList.add('target-bff');
+            content = '<img src="logo-bff.png" class="target-img" onerror="this.src=\'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2245%22 fill=%22yellow%22/><text y=%2265%22 x=%2250%22 font-size=%2240%22 text-anchor=%22middle%22 font-weight=%22bold%22>BFF</text></svg>\'">';
+        } else if(rand > 0.82) {
+            type = 'mushroom';
+            content = '<span style="font-size:3rem">🍄</span>';
+        } else if(rand > 0.75) {
+            type = 'water';
+            content = '<span style="font-size:3rem">💧</span>';
+        }
+
+        item.innerHTML = content + '<div class="timer-ring"></div>';
+        
+        const x = Math.random() * (window.innerWidth - 100) + 10;
+        const y = Math.random() * (window.innerHeight - 250) + 120;
+        item.style.left = x + 'px';
+        item.style.top = y + 'px';
+
+        let duration = Math.max(700, 2200 - (score * 2));
+        item.querySelector('.timer-ring').style.animationDuration = duration + 'ms';
+
+        const hit = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            handleHit(type, x, y);
+            item.remove();
+        };
+
+        item.addEventListener('touchstart', hit);
+        item.addEventListener('mousedown', hit);
+
+        document.getElementById('game-area').appendChild(item);
+
+        setTimeout(() => {
+            if(item.parentElement) {
+                item.remove();
+                if(type === 'leaf' || type === 'bff') handleMiss();
+            }
+        }, duration);
+    }
+
+    function handleHit(type, x, y) {
+        if(!gameActive) return;
+        
+        if(type === 'leaf') {
+            score += 10; AudioEngine.tap();
+            showFloat(`+10`, x, y, '#4ade80');
+        } else if(type === 'bff') {
+            score += 100; AudioEngine.bff();
+            showFloat(`✨ BFF +100 ✨`, x, y, '#fde047');
+        } else if(type === 'mushroom') {
+            score = Math.max(0, score - 50);
+            handleMiss();
+            showFloat(`-50`, x, y, '#fb7185');
+        } else if(type === 'water') {
+            score += 20; AudioEngine.bonus();
+            speed += 200; // Ralentit temporairement le spawn
+            showFloat(`💧 SLOW`, x, y, '#60a5fa');
+        }
+
+        document.getElementById('score').innerText = score;
+        if(navigator.vibrate) navigator.vibrate(30);
+    }
+
+    function handleMiss() {
+        lives--;
+        AudioEngine.bad();
+        document.body.classList.add('shake');
+        setTimeout(() => document.body.classList.remove('shake'), 300);
+        document.getElementById('lives').innerText = '♥'.repeat(Math.max(0, lives));
+        if(lives <= 0) gameOver();
+        if(navigator.vibrate) navigator.vibrate(150);
+    }
+
+    function showFloat(txt, x, y, color) {
+        const el = document.createElement('div');
+        el.className = 'float-text';
+        el.innerText = txt;
+        el.style.left = x + 'px'; el.style.top = y + 'px'; el.style.color = color;
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 800);
+    }
+
+    function gameOver() {
+        gameActive = false;
+        clearTimeout(spawnTimer);
+        document.getElementById('final-score').innerText = score;
+        const best = localStorage.getItem('botanical_best') || 0;
+        if(score > best) localStorage.setItem('botanical_best', score);
+        document.getElementById('best-score').innerText = localStorage.getItem('botanical_best');
+        
+        const screen = document.getElementById('gameover-screen');
+        screen.style.display = 'flex';
+        setTimeout(() => screen.style.opacity = '1', 50);
+    }
+
+    // Initialisation
+    document.getElementById('best-score').innerText = localStorage.getItem('botanical_best') || 0;
+</script>
+
+</body>
+</html>

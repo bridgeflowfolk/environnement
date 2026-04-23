@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Botanical Rush x BFF</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #070d08;
+            --leaf: #4ade80;
+            --mushroom: #fb7185;
+            --water: #38bdf8;
+            --bff-gold: #fde047;
+        }
+
+        * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            margin: 0; padding: 0;
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg);
+            color: #fff;
+            overflow: hidden;
+            touch-action: manipulation;
+            height: 100vh; width: 100vw;
+        }
+
+        /* --- UI & Overlays --- */
+        .overlay {
+            position: absolute; inset: 0;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 100; backdrop-filter: blur(15px);
+            background: rgba(0,0,0,0.8);
+            transition: all 0.4s ease;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 40px; padding: 2.5rem;
+            text-align: center; width: 90%; max-width: 420px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        h1 { font-weight: 900; font-size: 2.2rem; margin: 0; color: var(--leaf); letter-spacing: -1px; }
+
+        button {
+            width: 100%; padding: 1.3rem; margin-top: 1.5rem;
+            border: none; border-radius: 20px;
+            background: linear-gradient(135deg, var(--leaf), #22c55e); color: #052e16;
+            font-size: 1.3rem; font-weight: 900;
+            cursor: pointer; box-shadow: 0 10px 20px rgba(34, 197, 94, 0.2);
+        }
+
+        .hud {
+            position: absolute; top: 25px; left: 20px; right: 20px;
+            display: flex; justify-content: space-between;
+            font-size: 1.4rem; font-weight: 900; z-index: 10; pointer-events: none;
+        }
+
+        /* --- Game Objects --- */
+        #game-area { position: absolute; inset: 0; z-index: 1; }
+
+        .target {
+            position: absolute; width: 80px; height: 80px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; z-index: 5;
+            transition: transform 0.1s;
+        }
+
+        /* Style spécial pour le Logo BFF */
+        .target-bff {
+            width: 100px; height: 100px;
+            filter: drop-shadow(0 0 15px var(--bff-gold));
+            animation: bff-glow 1s infinite alternate, emerge 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .target-bff img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; }
+
+        @keyframes bff-glow {
+            from { transform: scale(1); filter: drop-shadow(0 0 10px var(--bff-gold)); }
+            to { transform: scale(1.1); filter: drop-shadow(0 0 25px var(--bff-gold)); }
+        }
+
+        @keyframes emerge {
+            0% { transform: scale(0) rotate(-45deg); opacity: 0; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+
+        .timer-ring {
+            position: absolute; inset: 0;
+            border: 4px solid rgba(255,255,255,0.2);
+            border-radius: 50%;
+            animation: timer-drain linear forwards;
+        }
+
+        @keyframes timer-drain {
+            from { clip-path: inset(0 0 0 0); border-color: var(--leaf); }
+            to { clip-path: inset(100% 0 0 0); border-color: var(--mushroom); }
+        }
+
+        /* --- Feedbacks --- */
+        .floating-score {
+            position: absolute; font-weight: 900; pointer-events: none;
+            animation: floatUp 0.8s ease-out forwards; z-index: 20;
+        }
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-100px) scale(1.5); opacity: 0; }
+        }
+
+        .shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+
+        #slow-mo-bar {
+            position: absolute; bottom: 0; left: 0; height: 8px;
+            background: var(--water); width: 0%; z-index: 50;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="hud">
+        <div style="color: var(--leaf)">SCORE: <span id="score">0</span></div>
+        <div style="color: var(--mushroom)" id="lives-display">♥♥♥</div>
+    </div>
+    <div id="slow-mo-bar"></div>
+
+    <div id="start-screen" class="overlay">
+        <div class="card">
+            <h1 style="color: #fff">BRIDGE & FLOW <br><span style="color: var(--leaf)">FOLK RUSH</span></h1>
+            <p style="color: #aaa; margin: 1.2rem 0;">Devenez un maître de la nature.</p>
+            <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 20px; text-align: left; font-size: 0.85rem; margin-bottom: 20px;">
+                🌿 Cible normale : +10 points<br>
+                🍄 Toxique : -50 points (À éviter !)<br>
+                💧 Goutte : Ralentit le temps<br>
+                ✨ <strong>Logo BFF : SUPER BONUS (+100!)</strong>
+            </div>
+            <button onclick="initGame()">LANCER L'AVENTURE</button>
+            <p style="font-size: 0.8rem; color: #555; margin-top: 15px;">Meilleur score : <span id="best">0</span></p>
+        </div>
+    </div>
+
+    <div id="go-screen" class="overlay" style="display: none; opacity: 0;">
+        <div class="card">
+            <h2 id="go-title">PARTIE TERMINÉE</h2>
+            <p id="final-score" style="font-size: 1.8rem; margin: 1rem 0;">Score : 0</p>
+            <button onclick="startGame()">REJOUER</button>
+        </div>
+    </div>
+
+    <div id="game-area"></div>
+
+    <script>
+        // --- AUDIO ENGINE ---
+        const AudioFX = {
+            ctx: null,
+            init() { if(!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); },
+            play(f, t, d, v=0.1) {
+                const o = this.ctx.createOscillator();
+                const g = this.ctx.createGain();
+                o.type = t; o.frequency.setValueAtTime(f, this.ctx.currentTime);
+                g.gain.setValueAtTime(v, this.ctx.currentTime);
+                g.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + d);
+                o.connect(g); g.connect(this.ctx.destination);
+                o.start(); o.stop(this.ctx.currentTime + d);
+            },
+            hit() { this.play(900, 'sine', 0.2); },
+            bad() { this.play(100, 'sawtooth', 0.4, 0.05); },
+            bonus() { this.play(500, 'sine', 0.3); this.play(1000, 'sine', 0.5); },
+            bff() { // Son épique pour le logo
+                [440, 554, 659, 880].forEach((f, i) => {
+                    setTimeout(() => this.play(f, 'triangle', 0.6, 0.1), i * 100);
+                });
+            }
+        };
+
+        // --- GAME STATE ---
+        let score = 0, lives = 3, gameActive = false;
+        let isSlowMo = false, currentBaseSpeed = 2500;
+        let spawnTimeout;
+        const area = document.getElementById('game-area');
+
+        function initGame() { AudioFX.init(); startGame(); }
+
+        function startGame() {
+            score = 0; lives = 3; gameActive = true;
+            currentBaseSpeed = 2500; // Départ lent
+            document.getElementById('score').innerText = "0";
+            document.getElementById('lives-display').innerText = "♥♥♥";
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('go-screen').style.display = 'none';
+            document.getElementById('go-screen').style.opacity = '0';
+            area.innerHTML = '';
+            spawnLoop();
+        }
+
+        function spawnLoop() {
+            if(!gameActive) return;
+            createTarget();
+
+            // COURBE DE DIFFICULTÉ : Ramp-up plus rapide après les 100 premiers points
+            let speedDrop = score > 100 ? 3.5 : 2.0; 
+            currentBaseSpeed = Math.max(450, 2500 - (score * speedDrop));
+            
+            let delay = isSlowMo ? currentBaseSpeed * 2.2 : currentBaseSpeed;
+            spawnTimeout = setTimeout(spawnLoop, delay);
+        }
+
+        function createTarget() {
+            const target = document.createElement('div');
+            target.className = 'target';
+            
+            const rand = Math.random();
+            let type = 'leaf'; let content = '🌿';
+
+            if(rand > 0.95) { // 5% chance BFF
+                type = 'bff';
+                target.classList.add('target-bff');
+                content = '<img src="logo-bff.png" alt="BFF">';
+            } else if(rand > 0.88) { 
+                type = 'water'; content = '💧';
+            } else if(rand > 0.70) { 
+                type = 'mushroom'; content = '🍄';
+            }
+
+            target.innerHTML = `${content}<div class="timer-ring"></div>`;
+            
+            const x = Math.random() * (window.innerWidth - 100) + 10;
+            const y = Math.random() * (window.innerHeight - 180) + 80;
+            target.style.left = `${x}px`;
+            target.style.top = `${y}px`;
+
+            let lifeTime = isSlowMo ? 4500 : Math.max(900, currentBaseSpeed * 1.4);
+            target.querySelector('.timer-ring').style.animationDuration = `${lifeTime}ms`;
+
+            target.onclick = (e) => {
+                e.stopPropagation();
+                handleHit(type, x, y);
+                target.remove();
+            };
+
+            area.appendChild(target);
+
+            setTimeout(() => {
+                if(target.parentElement) {
+                    target.remove();
+                    if(type === 'leaf' || type === 'bff') handleMiss();
+                }
+            }, lifeTime);
+        }
+
+        function handleHit(type, x, y) {
+            if(!gameActive) return;
+
+            if(type === 'leaf') {
+                score += 10; AudioFX.hit(); vibrate(30);
+                showFloatingText("+10", x, y, 'var(--leaf)');
+            } else if(type === 'bff') {
+                score += 100; AudioFX.bff(); vibrate([100, 50, 100]);
+                showFloatingText("SUPER BFF +100", x, y, 'var(--bff-gold)');
+            } else if(type === 'mushroom') {
+                score = Math.max(0, score - 50); AudioFX.bad(); vibrate(150);
+                document.body.classList.add('shake');
+                setTimeout(() => document.body.classList.remove('shake'), 400);
+                showFloatingText("-50", x, y, 'var(--mushroom)');
+            } else if(type === 'water') {
+                AudioFX.bonus(); vibrate(60); activateSlowMo();
+                showFloatingText("RALENTI", x, y, 'var(--water)');
+            }
+            document.getElementById('score').innerText = score;
+        }
+
+        function handleMiss() {
+            lives--;
+            vibrate(250);
+            document.getElementById('lives-display').innerText = "♥".repeat(lives);
+            document.body.classList.add('shake');
+            setTimeout(() => document.body.classList.remove('shake'), 400);
+            if(lives <= 0) gameOver();
+        }
+
+        function activateSlowMo() {
+            if(isSlowMo) return;
+            isSlowMo = true;
+            let time = 100;
+            const bar = document.getElementById('slow-mo-bar');
+            const itv = setInterval(() => {
+                time -= 0.4;
+                bar.style.width = time + "%";
+                if(time <= 0) { clearInterval(itv); isSlowMo = false; }
+            }, 20);
+        }
+
+        function showFloatingText(txt, x, y, col) {
+            const el = document.createElement('div');
+            el.className = 'floating-score';
+            el.innerText = txt; el.style.left = x+"px"; el.style.top = y+"px"; el.style.color = col;
+            area.appendChild(el);
+            setTimeout(() => el.remove(), 800);
+        }
+
+        function vibrate(p) { if(navigator.vibrate) navigator.vibrate(p); }
+
+        function gameOver() {
+            gameActive = false; clearTimeout(spawnTimeout);
+            const best = localStorage.getItem('botanical_bff_best') || 0;
+            if(score > best) localStorage.setItem('botanical_bff_best', score);
+            
+            document.getElementById('final-score').innerText = "Score : " + score;
+            document.getElementById('best').innerText = localStorage.getItem('botanical_bff_best');
+            const go = document.getElementById('go-screen');
+            go.style.display = 'flex';
+            setTimeout(() => go.style.opacity = '1', 50);
+        }
+    </script>
+</body>
+</html>

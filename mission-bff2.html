@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>🌿 BOTANICAL RUSH · BFF ÉDITION</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;900&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+        body {
+            margin: 0; padding: 0;
+            font-family: 'Outfit', sans-serif;
+            overflow: hidden;
+            touch-action: manipulation;
+            height: 100vh; width: 100vw;
+            background: #030b06;
+        }
+
+        /* 🌳 FORÊT ENCHANTÉE (fond animé multicouche) */
+        #forest-bg {
+            position: absolute; inset: 0; z-index: 0;
+            pointer-events: none;
+        }
+        .forest-layer {
+            position: absolute; inset: 0;
+            background-repeat: repeat-x;
+            background-position: bottom;
+            background-size: auto 100%;
+            opacity: 0.9;
+            will-change: transform;
+        }
+        .layer-1 { background-image: radial-gradient(circle at 20% 80%, #0a2a1a, #041008 90%); }
+        .layer-2 { background: url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 400 200\'%3E%3Cpath fill=\'%231a4a2a\' d=\'M0 200 L20 140 L50 160 L80 110 L120 150 L150 90 L190 140 L220 100 L260 160 L290 120 L330 150 L360 100 L400 140 L400 200 Z\' opacity=\'0.5\'/%3E%3C/svg%3E'); background-size: cover; opacity: 0.3; animation: drift 25s infinite linear; }
+        .layer-3 { background: url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 400 200\'%3E%3Cpath fill=\'%2321632e\' d=\'M-10 200 L30 130 L70 160 L100 90 L150 140 L180 70 L230 130 L280 80 L330 150 L370 110 L410 160 L410 200 Z\'/%3E%3C/svg%3E'); background-size: cover; opacity: 0.45; animation: drift 18s infinite reverse; }
+        .layer-4 { background: url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 400 200\'%3E%3Ccircle cx=\'30\' cy=\'40\' r=\'3\' fill=\'%23fde047\' opacity=\'0.6\'/%3E%3Ccircle cx=\'110\' cy=\'25\' r=\'2\' fill=\'%23fde047\' opacity=\'0.8\'/%3E%3Ccircle cx=\'250\' cy=\'35\' r=\'4\' fill=\'%23fde047\' opacity=\'0.5\'/%3E%3Ccircle cx=\'370\' cy=\'20\' r=\'2.5\' fill=\'%23fde047\'/%3E%3C/svg%3E'); background-size: cover; opacity: 0.5; animation: twinkle 3s infinite alternate; }
+        
+        @keyframes drift { 0% { background-position: 0 0; } 100% { background-position: 400px 0; } }
+        @keyframes twinkle { 0% { opacity: 0.3; } 100% { opacity: 0.8; } }
+
+        /* 🌫️ brume / particules */
+        .particle {
+            position: absolute; background: rgba(180, 240, 150, 0.2);
+            border-radius: 50%; filter: blur(4px);
+            animation: floatParticle 8s infinite ease-in-out;
+        }
+        @keyframes floatParticle {
+            0% { transform: translateY(0) scale(1); opacity: 0.1; }
+            50% { transform: translateY(-30px) scale(1.2); opacity: 0.3; }
+            100% { transform: translateY(0) scale(1); opacity: 0.1; }
+        }
+
+        /* --- UI & OVERLAYS --- */
+        .overlay {
+            position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+            z-index: 100; backdrop-filter: blur(18px); background: rgba(2, 15, 8, 0.7);
+            transition: all 0.5s cubic-bezier(0.2, 0.9, 0.4, 1);
+        }
+        .card {
+            background: rgba(10, 35, 20, 0.7);
+            border: 2px solid rgba(74, 222, 128, 0.3);
+            border-radius: 48px; padding: 2.5rem 1.8rem;
+            text-align: center; width: 90%; max-width: 440px;
+            box-shadow: 0 25px 40px rgba(0,0,0,0.6), 0 0 30px rgba(74, 222, 128, 0.2);
+            backdrop-filter: blur(10px);
+        }
+        h1 {
+            font-weight: 900; font-size: 2.5rem; margin: 0;
+            background: linear-gradient(135deg, #a7f3d0, #4ade80); -webkit-background-clip: text; background-clip: text;
+            color: transparent; letter-spacing: -1px; text-shadow: 0 0 15px #22c55e;
+        }
+        .bff-glow-text {
+            color: #fde047; text-shadow: 0 0 20px #fbbf24; font-size: 1.2rem; margin-top: -5px;
+        }
+        button {
+            width: 100%; padding: 1.4rem; margin-top: 1.8rem;
+            border: none; border-radius: 60px;
+            background: linear-gradient(145deg, #4ade80, #059669); color: #022c16;
+            font-size: 1.5rem; font-weight: 900; letter-spacing: 2px;
+            box-shadow: 0 12px 0 #064e3b, 0 10px 30px #22c55e80;
+            cursor: pointer; transition: all 0.08s;
+            border: 1px solid #86efac;
+        }
+        button:active { transform: translateY(5px); box-shadow: 0 6px 0 #064e3b, 0 8px 20px #4ade80; }
+        
+        .hud {
+            position: absolute; top: 30px; left: 24px; right: 24px;
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 1.8rem; font-weight: 900; z-index: 30; pointer-events: none;
+            text-shadow: 0 4px 8px #00000060;
+        }
+        .score-badge {
+            background: rgba(0,0,0,0.3); backdrop-filter: blur(5px);
+            padding: 8px 22px; border-radius: 60px; border: 1px solid #4ade8050;
+        }
+        .lives-badge { color: #fb7185; filter: drop-shadow(0 0 12px #fb7185); }
+
+        /* --- CIBLES (game objects) --- */
+        #game-area { position: absolute; inset: 0; z-index: 20; }
+        .target {
+            position: absolute; width: 90px; height: 90px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; z-index: 25;
+            transition: transform 0.1s;
+            filter: drop-shadow(0 10px 12px #00000060);
+            font-size: 3.4rem;
+        }
+        .target:active { transform: scale(0.85); }
+        
+        .target-bff {
+            width: 110px; height: 110px;
+            filter: drop-shadow(0 0 25px #fde047);
+            animation: bff-float 2s infinite alternate, emerge 0.3s ease-out;
+        }
+        .target-bff img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; }
+        @keyframes bff-float { from { transform: translateY(0px); } to { transform: translateY(-12px); } }
+        
+        .timer-ring {
+            position: absolute; inset: -6px; border-radius: 50%;
+            border: 5px solid rgba(255,255,255,0.2);
+            border-top-color: #4ade80; border-right-color: #fde047;
+            animation: spinTimer 2s linear forwards;
+        }
+        @keyframes spinTimer { 0% { transform: rotate(0deg); opacity: 1; } 100% { transform: rotate(360deg); opacity: 0.3; } }
+
+        /* Feedbacks */
+        .floating-score {
+            position: absolute; font-weight: 900; font-size: 2rem; pointer-events: none;
+            animation: floatUp 0.9s cubic-bezier(0.2, 0.8, 0.4, 1) forwards; z-index: 100;
+            text-shadow: 0 4px 12px black;
+        }
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-140px) scale(2); opacity: 0; }
+        }
+        .shake { animation: shake 0.35s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-3px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
+            40%, 60% { transform: translate3d(6px, 0, 0); }
+        }
+        #slow-mo-bar {
+            position: absolute; bottom: 0; left: 0; height: 10px;
+            background: linear-gradient(90deg, #38bdf8, #a78bfa); width: 0%; z-index: 40;
+            box-shadow: 0 -2px 15px #38bdf8; transition: width 0.1s;
+        }
+        
+        /* viral micro-interaction */
+        .combo-pop {
+            position: absolute; bottom: 100px; left: 0; right: 0; text-align: center;
+            font-weight: 900; font-size: 2.8rem; color: #fde047; z-index: 35;
+            text-shadow: 0 0 30px #eab308; pointer-events: none; opacity: 0;
+            animation: comboFlash 0.6s ease-out;
+        }
+        @keyframes comboFlash {
+            0% { opacity: 0; transform: scale(0.5); }
+            40% { opacity: 1; transform: scale(1.2); }
+            100% { opacity: 0; transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+<!-- FORÊT ANIMÉE -->
+<div id="forest-bg">
+    <div class="forest-layer layer-1"></div>
+    <div class="forest-layer layer-2"></div>
+    <div class="forest-layer layer-3"></div>
+    <div class="forest-layer layer-4"></div>
+</div>
+<!-- particules flottantes -->
+<div id="particles-container" style="position:absolute; inset:0; z-index:5; pointer-events:none;"></div>
+
+<div class="hud">
+    <div class="score-badge">🍃 <span id="score">0</span></div>
+    <div class="lives-badge" id="lives-display">♥♥♥</div>
+</div>
+<div id="slow-mo-bar"></div>
+<div id="combo-message" class="combo-pop"></div>
+
+<!-- ÉCRANS -->
+<div id="start-screen" class="overlay">
+    <div class="card">
+        <h1>BOTANICAL RUSH</h1>
+        <div class="bff-glow-text">✨ BRIDGE & FLOW FOLK ✨</div>
+        <p style="color: #ccc; margin: 1.5rem 0 0.8rem; font-weight: 400;">🌱 Deviens la légende de la forêt</p>
+        <div style="background: #0a2818; padding: 16px; border-radius: 28px; text-align: left; font-size: 0.9rem; margin: 10px 0; border:1px solid #4ade8050;">
+            <div>🌿 Feuille +10 &nbsp;&nbsp;| 🍄 Toxique -50</div>
+            <div>💧 Ralenti &nbsp;&nbsp;| <span style="color:#fde047;">✨ LOGO BFF : +100 + COMBO !</span></div>
+        </div>
+        <button onclick="initGame()">🌳 ENTRER DANS LA FORÊT</button>
+        <p style="font-size: 0.9rem; color: #aaa; margin-top: 15px;">🏆 Record: <span id="best">0</span></p>
+    </div>
+</div>
+
+<div id="go-screen" class="overlay" style="display: none; opacity: 0;">
+    <div class="card">
+        <h2 id="go-title" style="color:#fb7185;">PARTIE TERMINÉE</h2>
+        <p id="final-score" style="font-size: 2.4rem; margin: 1rem 0; color: white;">0</p>
+        <button onclick="startGame()">🔥 REJOUER</button>
+    </div>
+</div>
+
+<div id="game-area"></div>
+
+<script>
+    (function(){
+        "use strict";
+
+        // --- AUDIO (web audio, plus immersif) ---
+        const AudioFX = {
+            ctx: null,
+            init() { if(!this.ctx) { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); if(this.ctx.state === 'suspended') this.ctx.resume(); }},
+            play(f, t, d, v=0.12) {
+                if(!this.ctx) return;
+                const o = this.ctx.createOscillator();
+                const g = this.ctx.createGain();
+                o.type = t; o.frequency.value = f;
+                g.gain.setValueAtTime(v, this.ctx.currentTime);
+                g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + d);
+                o.connect(g); g.connect(this.ctx.destination);
+                o.start(); o.stop(this.ctx.currentTime + d);
+            },
+            hit() { this.play(1000, 'sine', 0.15, 0.08); },
+            bad() { this.play(80, 'sawtooth', 0.3, 0.07); },
+            bonus() { this.play(600, 'sine', 0.2); this.play(800, 'triangle', 0.25, 0.05); },
+            bff() { 
+                [523, 659, 784, 1046].forEach((f, i) => setTimeout(() => this.play(f, 'triangle', 0.45, 0.09), i*80));
+            }
+        };
+
+        // --- STATE ---
+        let score = 0, lives = 3, gameActive = false;
+        let isSlowMo = false, currentBaseSpeed = 2200;
+        let spawnTimeout, comboCnt = 0, lastHitType = null;
+        const area = document.getElementById('game-area');
+        const scoreSpan = document.getElementById('score');
+        const livesDisplay = document.getElementById('lives-display');
+        const comboMsg = document.getElementById('combo-message');
+        
+        // génération particules forêt
+        function generateParticles() {
+            const container = document.getElementById('particles-container');
+            for(let i=0; i<18; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                const size = 40 + Math.random() * 120;
+                p.style.width = size+'px'; p.style.height = size+'px';
+                p.style.left = Math.random()*100+'%'; p.style.top = Math.random()*100+'%';
+                p.style.animationDelay = Math.random()*8+'s';
+                p.style.background = `radial-gradient(circle, rgba(180,240,150,0.15) 0%, transparent 70%)`;
+                container.appendChild(p);
+            }
+        } generateParticles();
+
+        function vibrate(p) { if(navigator.vibrate) navigator.vibrate(p); }
+
+        function initGame() {
+            AudioFX.init();
+            if (AudioFX.ctx && AudioFX.ctx.state === 'suspended') AudioFX.ctx.resume();
+            startGame();
+        }
+
+        function startGame() {
+            score = 0; lives = 3; gameActive = true; comboCnt = 0;
+            currentBaseSpeed = 2200;
+            scoreSpan.innerText = "0";
+            livesDisplay.innerText = "♥♥♥";
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('go-screen').style.display = 'none';
+            document.getElementById('go-screen').style.opacity = '0';
+            area.innerHTML = '';
+            if(spawnTimeout) clearTimeout(spawnTimeout);
+            spawnLoop();
+        }
+
+        function spawnLoop() {
+            if(!gameActive) return;
+            createTarget();
+            let speedFactor = Math.max(0.7, 1.0 - (score / 600));
+            let base = Math.max(550, currentBaseSpeed * speedFactor);
+            let delay = isSlowMo ? base * 2.0 : base;
+            spawnTimeout = setTimeout(spawnLoop, delay);
+        }
+
+        function createTarget() {
+            const target = document.createElement('div');
+            target.className = 'target';
+            const rand = Math.random();
+            let type = 'leaf', content = '🌿';
+            
+            if(rand > 0.94) { type = 'bff'; target.classList.add('target-bff'); content = '<img src="data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'%23fde047\'/%3E%3Ctext x=\'50\' y=\'70\' font-size=\'55\' text-anchor=\'middle\' fill=\'%23052e16\' font-weight=\'900\'%3EBFF%3C/text%3E%3C/svg%3E" alt="BFF" style="border-radius:50%25; background:%23fbbf24; padding:8px;">'; }
+            else if(rand > 0.86) { type = 'water'; content = '💧'; }
+            else if(rand > 0.68) { type = 'mushroom'; content = '🍄'; }
+            
+            target.innerHTML = `${content}<div class="timer-ring"></div>`;
+            const x = Math.random() * (window.innerWidth - 110) + 20;
+            const y = Math.random() * (window.innerHeight - 180) + 80;
+            target.style.left = x+'px'; target.style.top = y+'px';
+            
+            let lifeTime = isSlowMo ? 4000 : Math.max(950, currentBaseSpeed * 1.3);
+            const ring = target.querySelector('.timer-ring');
+            ring.style.animation = `spinTimer ${lifeTime}ms linear forwards`;
+            
+            target.onclick = (e) => {
+                e.stopPropagation();
+                handleHit(type, x, y, target);
+                target.remove();
+            };
+            area.appendChild(target);
+            
+            setTimeout(() => { if(target.parentElement) { target.remove(); if(type==='leaf'||type==='bff') handleMiss(); } }, lifeTime);
+        }
+
+        function showComboMessage(txt) {
+            comboMsg.innerText = txt;
+            comboMsg.style.animation = 'none';
+            comboMsg.offsetHeight;
+            comboMsg.style.animation = 'comboFlash 0.6s ease-out';
+        }
+
+        function handleHit(type, x, y, el) {
+            if(!gameActive) return;
+            
+            // gestion combo
+            if(type === lastHitType && (type==='leaf'||type==='bff')) comboCnt++; else comboCnt = 1;
+            lastHitType = type;
+            let comboBonus = (comboCnt>2 && type==='leaf') ? Math.floor(comboCnt/2)*2 : 0;
+            
+            if(type === 'leaf') {
+                let add = 10 + comboBonus;
+                score += add; AudioFX.hit(); vibrate(20);
+                showFloatingText(`+${add}`, x, y, '#4ade80');
+                if(comboCnt>=3) showComboMessage(`COMBO x${comboCnt}! +${comboBonus}`);
+            } else if(type === 'bff') {
+                score += 100; AudioFX.bff(); vibrate([100, 60, 120]);
+                showFloatingText("✨ BFF +100 ✨", x, y, '#fde047');
+                showComboMessage('🌟 BFF LEGEND! +100');
+                comboCnt = 0;
+            } else if(type === 'mushroom') {
+                score = Math.max(0, score - 50); AudioFX.bad(); vibrate(180);
+                document.body.classList.add('shake'); setTimeout(()=>document.body.classList.remove('shake'),400);
+                showFloatingText("-50", x, y, '#fb7185');
+                comboCnt = 0;
+            } else if(type === 'water') {
+                AudioFX.bonus(); vibrate(40); activateSlowMo();
+                showFloatingText("💧 RALENTI", x, y, '#38bdf8');
+                comboCnt = 0;
+            }
+            scoreSpan.innerText = score;
+            
+            // difficulté dynamique : plus ça va vite
+            if(score>150) currentBaseSpeed = Math.max(500, 1800 - (score*1.8));
+            else currentBaseSpeed = 2200;
+        }
+
+        function handleMiss() {
+            lives--; vibrate(250);
+            livesDisplay.innerText = "♥".repeat(lives);
+            document.body.classList.add('shake'); setTimeout(()=>document.body.classList.remove('shake'),400);
+            if(lives <= 0) gameOver();
+        }
+
+        function activateSlowMo() {
+            if(isSlowMo) return;
+            isSlowMo = true;
+            const bar = document.getElementById('slow-mo-bar');
+            let width = 100;
+            bar.style.width = '100%';
+            const itv = setInterval(() => {
+                width -= 1.5;
+                bar.style.width = Math.max(0, width) + '%';
+                if(width <= 0) { clearInterval(itv); isSlowMo = false; }
+            }, 30);
+        }
+
+        function showFloatingText(txt, x, y, col) {
+            const el = document.createElement('div');
+            el.className = 'floating-score';
+            el.innerText = txt; el.style.left = x+'px'; el.style.top = y+'px'; el.style.color = col;
+            area.appendChild(el); setTimeout(()=>el.remove(), 900);
+        }
+
+        function gameOver() {
+            gameActive = false; clearTimeout(spawnTimeout);
+            const best = localStorage.getItem('botanical_bff_best') || 0;
+            if(score > best) localStorage.setItem('botanical_bff_best', score);
+            document.getElementById('final-score').innerText = score;
+            document.getElementById('best').innerText = localStorage.getItem('botanical_bff_best');
+            const go = document.getElementById('go-screen');
+            go.style.display = 'flex'; 
+            setTimeout(()=> go.style.opacity = '1', 40);
+        }
+
+        // Rendre start global pour le onclick
+        window.initGame = initGame;
+        window.startGame = startGame;
+
+        // préchargement audio au premier touch
+        document.body.addEventListener('touchstart', ()=> { if(AudioFX.ctx?.state==='suspended') AudioFX.ctx.resume(); }, {once:true});
+        document.body.addEventListener('click', ()=> { if(AudioFX.ctx?.state==='suspended') AudioFX.ctx.resume(); }, {once:true});
+        
+        // best score init
+        document.getElementById('best').innerText = localStorage.getItem('botanical_bff_best') || '0';
+    })();
+</script>
+</body>
+</html>

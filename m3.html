@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>🌿 BOTANICAL RUSH · BFF ÉDITION</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;900&display=swap" rel="stylesheet">
+    <style>
+        /* --- CORE FIXES --- */
+        * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            margin: 0; padding: 0;
+            font-family: 'Outfit', sans-serif;
+            overflow: hidden;
+            touch-action: none; /* Empêche le scroll/zoom accidentel en jouant */
+            height: 100vh; 
+            height: 100dvh; /* Fix pour mobile : utilise toute la hauteur réelle */
+            width: 100vw;
+            background: #030b06;
+            /* Gestion des zones sécurisées (encoches iPhone) */
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+        }
+
+        /* 🌳 FORÊT ENCHANTÉE */
+        #forest-bg { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+        .forest-layer {
+            position: absolute; inset: 0;
+            background-repeat: repeat-x;
+            background-position: bottom;
+            background-size: auto 100%;
+            opacity: 0.9;
+            will-change: transform;
+        }
+        .layer-1 { background-image: radial-gradient(circle at 20% 80%, #0a2a1a, #041008 90%); }
+        .layer-2 { background: url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 400 200\'%3E%3Cpath fill=\'%231a4a2a\' d=\'M0 200 L20 140 L50 160 L80 110 L120 150 L150 90 L190 140 L220 100 L260 160 L290 120 L330 150 L360 100 L400 140 L400 200 Z\' opacity=\'0.5\'/%3E%3C/svg%3E'); background-size: cover; opacity: 0.3; animation: drift 25s infinite linear; }
+        .layer-3 { background: url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 400 200\'%3E%3Cpath fill=\'%2321632e\' d=\'M-10 200 L30 130 L70 160 L100 90 L150 140 L180 70 L230 130 L280 80 L330 150 L370 110 L410 160 L410 200 Z\'/%3E%3C/svg%3E'); background-size: cover; opacity: 0.45; animation: drift 18s infinite reverse; }
+        
+        @keyframes drift { 0% { background-position: 0 0; } 100% { background-position: 400px 0; } }
+
+        /* --- UI MODERNE --- */
+        .overlay {
+            position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+            z-index: 100; backdrop-filter: blur(18px); background: rgba(2, 15, 8, 0.8);
+        }
+        .card {
+            background: rgba(10, 35, 20, 0.8);
+            border: 2px solid rgba(74, 222, 128, 0.3);
+            border-radius: 40px; padding: 2rem 1.5rem;
+            text-align: center; width: 85%; max-width: 400px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+        }
+        h1 { font-size: 2rem; background: linear-gradient(135deg, #a7f3d0, #4ade80); -webkit-background-clip: text; color: transparent; margin-bottom: 0.5rem; }
+        
+        .hud {
+            position: absolute; top: env(safe-area-inset-top, 20px); left: 15px; right: 15px;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 30; pointer-events: none;
+        }
+        .score-badge { background: rgba(0,0,0,0.4); padding: 10px 20px; border-radius: 30px; border: 1px solid #4ade8040; color: white; font-weight: 900; font-size: 1.2rem; }
+        .lives-badge { color: #fb7185; font-size: 1.5rem; filter: drop-shadow(0 0 5px #fb7185); }
+
+        /* --- GAME OBJECTS --- */
+        #game-area { position: absolute; inset: 0; z-index: 20; overflow: hidden; }
+        .target {
+            position: absolute; width: 75px; height: 75px;
+            display: flex; align-items: center; justify-content: center;
+            z-index: 25; font-size: 2.5rem;
+            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.4));
+            transition: transform 0.1s;
+        }
+        /* Style spécifique pour ton logo */
+        .target-bff img {
+            width: 100%; height: 100%;
+            object-fit: contain;
+            border-radius: 50%;
+            border: 2px solid #fde047;
+            background: rgba(253, 224, 71, 0.1);
+        }
+        
+        .timer-ring {
+            position: absolute; inset: -4px; border-radius: 50%;
+            border: 3px solid rgba(255,255,255,0.1);
+            border-top-color: #4ade80;
+            animation: spinTimer linear forwards;
+        }
+        @keyframes spinTimer { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Animation d'apparition */
+        @keyframes emerge { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        .emerge { animation: emerge 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+
+        button {
+            width: 100%; padding: 1.2rem; border-radius: 50px; border: none;
+            background: #4ade80; color: #022c16; font-weight: 900; font-size: 1.2rem;
+            box-shadow: 0 8px 0 #059669; cursor: pointer;
+        }
+        button:active { transform: translateY(4px); box-shadow: 0 4px 0 #059669; }
+    </style>
+</head>
+<body>
+
+<div id="forest-bg">
+    <div class="forest-layer layer-1"></div>
+    <div class="forest-layer layer-2"></div>
+    <div class="forest-layer layer-3"></div>
+</div>
+
+<div class="hud">
+    <div class="score-badge">🍃 <span id="score">0</span></div>
+    <div class="lives-badge" id="lives-display">♥♥♥</div>
+</div>
+
+<div id="start-screen" class="overlay">
+    <div class="card">
+        <h1>BOTANICAL RUSH</h1>
+        <p style="color: #4ade80; font-weight: 900; margin-bottom: 20px;">BFF ÉDITION</p>
+        <button onclick="initGame()">COMMENCER</button>
+        <p style="color: #888; font-size: 0.8rem; margin-top: 15px;">Record: <span id="best">0</span></p>
+    </div>
+</div>
+
+<div id="go-screen" class="overlay" style="display: none;">
+    <div class="card">
+        <h2 style="color:#fb7185;">TERMINÉ</h2>
+        <p id="final-score" style="font-size: 3rem; color: white; margin: 10px 0;">0</p>
+        <button onclick="startGame()">REESSAYER</button>
+    </div>
+</div>
+
+<div id="game-area"></div>
+
+<script>
+    (function(){
+        "use strict";
+
+        let score = 0, lives = 3, gameActive = false;
+        let spawnTimeout;
+        const area = document.getElementById('game-area');
+        const scoreSpan = document.getElementById('score');
+        const livesDisplay = document.getElementById('lives-display');
+
+        function initGame() {
+            document.getElementById('start-screen').style.display = 'none';
+            startGame();
+        }
+
+        function startGame() {
+            score = 0; lives = 3; gameActive = true;
+            scoreSpan.innerText = "0";
+            livesDisplay.innerText = "♥♥♥";
+            document.getElementById('go-screen').style.display = 'none';
+            area.innerHTML = '';
+            if(spawnTimeout) clearTimeout(spawnTimeout);
+            spawnLoop();
+        }
+
+        function spawnLoop() {
+            if(!gameActive) return;
+            createTarget();
+            // Accélération progressive
+            let delay = Math.max(600, 1500 - (score * 2));
+            spawnTimeout = setTimeout(spawnLoop, delay);
+        }
+
+        function createTarget() {
+            const target = document.createElement('div');
+            target.className = 'target emerge';
+            const rand = Math.random();
+            let type = 'leaf', content = '🌿';
+            
+            // --- LOGIC LOGO BFF ---
+            if(rand > 0.90) { 
+                type = 'bff'; 
+                target.classList.add('target-bff');
+                // ICI : Utilisation de ton image réelle
+                content = '<img src="logo-bff.png" alt="BFF">'; 
+            } 
+            else if(rand > 0.80) { type = 'mushroom'; content = '🍄'; }
+            else if(rand > 0.70) { type = 'water'; content = '💧'; }
+            
+            target.innerHTML = `${content}<div class="timer-ring"></div>`;
+            
+            // --- FIX POSITION MOBILE (Evite les bords et le HUD) ---
+            const targetSize = 80;
+            const x = Math.random() * (window.innerWidth - targetSize - 40) + 20;
+            const y = Math.random() * (window.innerHeight - targetSize - 150) + 100;
+            
+            target.style.left = x + 'px';
+            target.style.top = y + 'px';
+            
+            let lifeTime = Math.max(800, 2000 - (score * 5));
+            target.querySelector('.timer-ring').style.animationDuration = lifeTime + 'ms';
+            
+            // Event tactile rapide
+            target.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                handleHit(type, target);
+            }, {passive: false});
+
+            target.addEventListener('mousedown', () => handleHit(type, target));
+
+            area.appendChild(target);
+            
+            setTimeout(() => {
+                if(target.parentElement) {
+                    target.remove();
+                    if(type === 'leaf' || type === 'bff') handleMiss();
+                }
+            }, lifeTime);
+        }
+
+        function handleHit(type, el) {
+            if(!gameActive || !el.parentElement) return;
+            
+            if(type === 'leaf') score += 10;
+            else if(type === 'bff') score += 100;
+            else if(type === 'mushroom') { score = Math.max(0, score - 50); handleMiss(); }
+            else if(type === 'water') score += 20;
+
+            scoreSpan.innerText = score;
+            el.remove();
+            
+            if(navigator.vibrate) navigator.vibrate(20);
+        }
+
+        function handleMiss() {
+            lives--;
+            livesDisplay.innerText = "♥".repeat(Math.max(0, lives));
+            if(lives <= 0) gameOver();
+            if(navigator.vibrate) navigator.vibrate(100);
+        }
+
+        function gameOver() {
+            gameActive = false;
+            clearTimeout(spawnTimeout);
+            const best = localStorage.getItem('bff_rush_best') || 0;
+            if(score > best) localStorage.setItem('bff_rush_best', score);
+            
+            document.getElementById('final-score').innerText = score;
+            document.getElementById('best').innerText = localStorage.getItem('bff_rush_best');
+            document.getElementById('go-screen').style.display = 'flex';
+        }
+
+        window.initGame = initGame;
+        window.startGame = startGame;
+        
+        document.getElementById('best').innerText = localStorage.getItem('bff_rush_best') || '0';
+    })();
+</script>
+</body>
+</html>

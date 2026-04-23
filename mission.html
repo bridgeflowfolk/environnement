@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Botanical Rush Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a120b;
+            --leaf: #4ade80;
+            --mushroom: #fb7185;
+            --water: #38bdf8;
+            --gold: #fbbf24;
+        }
+
+        * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            margin: 0; padding: 0;
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg);
+            color: #fff;
+            overflow: hidden;
+            touch-action: manipulation;
+            height: 100vh; width: 100vw;
+        }
+
+        /* --- UI Elements --- */
+        .overlay {
+            position: absolute; inset: 0;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 100; backdrop-filter: blur(15px);
+            background: rgba(0,0,0,0.7);
+            transition: all 0.5s ease;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 30px; padding: 2.5rem;
+            text-align: center; width: 90%; max-width: 400px;
+        }
+
+        h1 { font-weight: 900; font-size: 2.5rem; margin: 0; color: var(--leaf); text-shadow: 0 0 20px rgba(74, 222, 128, 0.3); }
+
+        button {
+            width: 100%; padding: 1.2rem; margin-top: 1rem;
+            border: none; border-radius: 15px;
+            background: var(--leaf); color: #000;
+            font-size: 1.2rem; font-weight: 900;
+            cursor: pointer; transition: 0.2s;
+        }
+        button:active { transform: scale(0.95); }
+
+        .hud {
+            position: absolute; top: 20px; left: 20px; right: 20px;
+            display: flex; justify-content: space-between;
+            font-size: 1.3rem; font-weight: 900; z-index: 10; pointer-events: none;
+        }
+
+        /* --- Game Objects --- */
+        #game-area { position: absolute; inset: 0; z-index: 1; }
+
+        .target {
+            position: absolute; width: 70px; height: 70px;
+            font-size: 45px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; z-index: 5;
+            animation: emerge 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes emerge {
+            0% { transform: scale(0) rotate(-30deg); opacity: 0; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+
+        /* Timer de l'objet (cercle qui se vide) */
+        .timer-ring {
+            position: absolute; inset: -5px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            animation: timer-drain linear forwards;
+        }
+        @keyframes timer-drain {
+            from { clip-path: inset(0 0 0 0); border-color: var(--leaf); }
+            to { clip-path: inset(100% 0 0 0); border-color: var(--mushroom); }
+        }
+
+        /* Ralenti (Slow Motion) Visuals */
+        #slow-mo-bar {
+            position: absolute; bottom: 0; left: 0; height: 6px;
+            background: var(--water); width: 0%; transition: width 0.1s linear;
+        }
+
+        .shake { animation: shake 0.4s ease-in-out; }
+        @keyframes shake {
+            0%, 100% { transform: translate(0,0); }
+            20% { transform: translate(-10px, 5px); }
+            40% { transform: translate(10px, -5px); }
+            60% { transform: translate(-10px, -5px); }
+            80% { transform: translate(10px, 5px); }
+        }
+
+        .floating-score {
+            position: absolute; font-weight: 900; pointer-events: none;
+            animation: floatUp 0.8s ease-out forwards;
+        }
+        @keyframes floatUp {
+            0% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(-80px); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="hud">
+        <div style="color: var(--leaf)">SCORE: <span id="score">0</span></div>
+        <div style="color: var(--mushroom)" id="lives-display">♥♥♥</div>
+    </div>
+    <div id="slow-mo-bar"></div>
+
+    <div id="start-screen" class="overlay">
+        <div class="card">
+            <h1>BOTANICAL<br>RUSH</h1>
+            <p style="color: #aaa; margin: 1.5rem 0;">Attrapez les feuilles, évitez les champignons.</p>
+            <div id="tuto-mini" style="text-align: left; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 15px; margin-bottom: 20px; font-size: 0.9rem;">
+                🌿 +10 pts (Ne ratez pas !)<br>
+                🍄 -50 pts (Ne touchez pas !)<br>
+                💧 Temps ralenti (Bonus !)
+            </div>
+            <button onclick="initAudioAndStart()">COMMENCER</button>
+            <p style="font-size: 0.8rem; color: #666; margin-top: 15px;">Record: <span id="best">0</span></p>
+        </div>
+    </div>
+
+    <div id="go-screen" class="overlay" style="display: none; opacity: 0;">
+        <div class="card">
+            <h2 id="go-title" style="font-size: 2rem;">FIN DE PARTIE</h2>
+            <p id="final-score" style="font-size: 1.5rem; margin: 1rem 0;">Score: 0</p>
+            <button onclick="startGame()">REESSAYER</button>
+        </div>
+    </div>
+
+    <div id="game-area"></div>
+
+    <script>
+        // --- MOTEUR AUDIO (WEB AUDIO API) ---
+        const AudioEngine = {
+            ctx: null,
+            init() { if(!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); },
+            play(freq, type, duration, vol=0.1) {
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + duration);
+            },
+            success() { this.play(880, 'sine', 0.2); this.play(1320, 'sine', 0.1); },
+            error() { this.play(150, 'sawtooth', 0.4, 0.05); },
+            bonus() { this.play(440, 'triangle', 0.5); this.play(660, 'triangle', 0.7); },
+            lose() { this.play(200, 'sine', 0.5); this.play(100, 'sine', 0.8); }
+        };
+
+        // --- VARIABLES DE JEU ---
+        let score = 0, lives = 3, gameActive = false;
+        let isSlowMo = false, slowMoTimer = 0;
+        let spawnTimeout;
+        let currentBaseSpeed = 2500; // Vitesse de départ (très lent pour enfant)
+        const area = document.getElementById('game-area');
+
+        // --- LOGIQUE CORE ---
+        function initAudioAndStart() {
+            AudioEngine.init();
+            startGame();
+        }
+
+        function startGame() {
+            score = 0; lives = 3; gameActive = true;
+            currentBaseSpeed = 2500;
+            isSlowMo = false;
+            document.getElementById('score').innerText = "0";
+            document.getElementById('lives-display').innerText = "♥♥♥";
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('go-screen').style.display = 'none';
+            document.getElementById('go-screen').style.opacity = '0';
+            area.innerHTML = '';
+            
+            spawnLoop();
+        }
+
+        function spawnLoop() {
+            if(!gameActive) return;
+            
+            createTarget();
+
+            // Difficulté : On réduit le temps entre les spawns très légèrement à chaque fois
+            // Le jeu devient difficile vers 1000 points.
+            currentBaseSpeed = Math.max(600, 2500 - (score * 1.5));
+            
+            let delay = isSlowMo ? currentBaseSpeed * 2 : currentBaseSpeed;
+            spawnTimeout = setTimeout(spawnLoop, delay);
+        }
+
+        function createTarget() {
+            const target = document.createElement('div');
+            target.className = 'target';
+            
+            // Randomisation du type
+            const rand = Math.random();
+            let type = 'leaf'; let icon = '🌿';
+            if(rand > 0.92) { type = 'water'; icon = '💧'; }
+            else if(rand > 0.75) { type = 'mushroom'; icon = '🍄'; }
+
+            target.innerHTML = `${icon}<div class="timer-ring"></div>`;
+            
+            // Positionnement intelligent (évite les bords extrêmes)
+            const x = Math.random() * (window.innerWidth - 80) + 10;
+            const y = Math.random() * (window.innerHeight - 150) + 70;
+            target.style.left = `${x}px`;
+            target.style.top = `${y}px`;
+
+            // Temps pour cliquer (plus long si slowmo)
+            let lifeTime = isSlowMo ? 4000 : Math.max(1200, currentBaseSpeed * 1.5);
+            target.querySelector('.timer-ring').style.animationDuration = `${lifeTime}ms`;
+
+            target.onclick = (e) => {
+                e.stopPropagation();
+                handleHit(type, x, y);
+                target.remove();
+            };
+
+            area.appendChild(target);
+
+            // Auto-destruction si non cliqué
+            setTimeout(() => {
+                if(target.parentElement) {
+                    target.remove();
+                    if(type === 'leaf') handleMiss();
+                }
+            }, lifeTime);
+        }
+
+        function handleHit(type, x, y) {
+            if(!gameActive) return;
+
+            if(type === 'leaf') {
+                score += 10;
+                AudioEngine.success();
+                vibrate(40);
+                showFloatingText("+10", x, y, 'var(--leaf)');
+            } else if(type === 'mushroom') {
+                score = Math.max(0, score - 50);
+                AudioEngine.error();
+                vibrate([100, 50, 100]);
+                document.body.classList.add('shake');
+                setTimeout(() => document.body.classList.remove('shake'), 400);
+                showFloatingText("-50", x, y, 'var(--mushroom)');
+            } else if(type === 'water') {
+                AudioEngine.bonus();
+                vibrate(100);
+                activateSlowMo();
+                showFloatingText("RALENTI", x, y, 'var(--water)');
+            }
+            document.getElementById('score').innerText = score;
+        }
+
+        function handleMiss() {
+            lives--;
+            AudioEngine.lose();
+            vibrate(200);
+            document.getElementById('lives-display').innerText = "♥".repeat(lives);
+            document.body.classList.add('shake');
+            setTimeout(() => document.body.classList.remove('shake'), 400);
+            if(lives <= 0) gameOver();
+        }
+
+        function activateSlowMo() {
+            isSlowMo = true;
+            slowMoTimer = 100;
+            const bar = document.getElementById('slow-mo-bar');
+            
+            const interval = setInterval(() => {
+                slowMoTimer -= 0.5;
+                bar.style.width = slowMoTimer + "%";
+                if(slowMoTimer <= 0) {
+                    clearInterval(interval);
+                    isSlowMo = false;
+                }
+            }, 25);
+        }
+
+        function showFloatingText(txt, x, y, color) {
+            const el = document.createElement('div');
+            el.className = 'floating-score';
+            el.innerText = txt;
+            el.style.left = x + "px";
+            el.style.top = y + "px";
+            el.style.color = color;
+            area.appendChild(el);
+            setTimeout(() => el.remove(), 800);
+        }
+
+        function vibrate(pattern) {
+            if(navigator.vibrate) navigator.vibrate(pattern);
+        }
+
+        function gameOver() {
+            gameActive = false;
+            clearTimeout(spawnTimeout);
+            
+            const best = localStorage.getItem('botanical_best') || 0;
+            if(score > best) {
+                localStorage.setItem('botanical_best', score);
+                document.getElementById('go-title').innerText = "NOUVEAU RECORD !";
+            } else {
+                document.getElementById('go-title').innerText = "GAME OVER";
+            }
+            
+            document.getElementById('final-score').innerText = "Score: " + score;
+            document.getElementById('best').innerText = localStorage.getItem('botanical_best');
+            
+            const go = document.getElementById('go-screen');
+            go.style.display = 'flex';
+            setTimeout(() => go.style.opacity = '1', 50);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>🌿 BOTANICAL RUSH · Bridge and Flow Folk</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4ade80;
+            --secondary: #fde047;
+            --danger: #fb7185;
+            --fb-blue: #1877F2;
+            --wa-green: #25D366;
+            --info: #60a5fa;
+            --glass: rgba(10, 35, 20, 0.95);
+        }
+
+        * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            margin: 0; padding: 0;
+            font-family: 'Outfit', sans-serif;
+            overflow: hidden; touch-action: none;
+            height: 100vh; width: 100vw;
+            background: #1a1a1a; color: white;
+        }
+
+        /* --- DÉCOR VIVANT & ÉVOLUTIF --- */
+        #world { position: absolute; inset: 0; z-index: 0; transition: background 2s ease; background: #4a4a4a; }
+        
+        #celestial { 
+            position: absolute; top: 12%; right: 10%; width: 70px; height: 70px; 
+            border-radius: 50%; background: #ffd700; filter: blur(15px);
+            opacity: 0.1; transition: all 3s ease; 
+        }
+
+        #forest-layer { position: absolute; bottom: 85px; width: 100%; height: 200px; display: flex; justify-content: space-around; align-items: flex-end; z-index: 2; }
+        .tree { font-size: 5rem; filter: grayscale(1) brightness(0.4); transition: all 2s; transform: translateY(30px); }
+
+        #ground { 
+            position: absolute; bottom: 0; width: 100%; height: 100px; 
+            background: linear-gradient(to bottom, #3d2b1f, #1a110a); z-index: 5;
+            border-top: 4px solid #2a1d15;
+        }
+        #trash-container, #flower-container { position: absolute; inset: 0; display: flex; justify-content: space-around; align-items: center; padding: 0 15px; }
+        .trash { font-size: 1.6rem; transition: all 0.8s; opacity: 0.7; }
+        .flower { font-size: 1.6rem; opacity: 0; transform: scale(0); transition: all 1s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+
+        /* --- UI OVERLAYS --- */
+        .overlay {
+            position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+            z-index: 100; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            background: rgba(0, 0, 0, 0.8); transition: opacity 0.4s ease;
+        }
+
+        .card {
+            background: var(--glass);
+            border: 1px solid rgba(74, 222, 128, 0.2);
+            border-radius: 40px; padding: 2rem 1.5rem;
+            text-align: center; width: 92%; max-width: 380px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.8);
+            animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes pop { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        h1 { font-size: 2.2rem; font-weight: 900; margin: 0; color: var(--primary); line-height: 1; }
+        .asso-tag { font-size: 0.75rem; letter-spacing: 2px; color: var(--secondary); font-weight: 700; margin: 10px 0 20px 0; }
+
+        /* --- RÈGLES --- */
+        .rules-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 25px; }
+        .rule-card {
+            background: rgba(255,255,255,0.05); padding: 12px 8px; border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; align-items: center; gap: 5px;
+        }
+        .rule-card span { font-size: 0.8rem; font-weight: 600; }
+        .rule-card b { font-size: 0.7rem; color: var(--primary); opacity: 0.8; }
+
+        /* --- BOUTONS --- */
+        .btn {
+            width: 100%; padding: 1.1rem; border-radius: 50px; border: none;
+            font-size: 1.1rem; font-weight: 900; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 12px;
+            transition: all 0.2s; text-decoration: none; margin-bottom: 12px;
+        }
+        .btn-play { background: var(--primary); color: #022c16; box-shadow: 0 6px 0 #059669; }
+        .btn-fb { background: var(--fb-blue); color: white; font-size: 0.9rem; }
+        .btn-wa { background: var(--wa-green); color: white; font-size: 0.9rem; }
+        .btn:active { transform: translateY(3px); box-shadow: none; }
+
+        /* --- HUD --- */
+        .hud {
+            position: absolute; top: 40px; left: 20px; right: 20px;
+            display: flex; justify-content: space-between; z-index: 50;
+        }
+        .badge { background: rgba(0,0,0,0.6); padding: 8px 18px; border-radius: 25px; font-weight: 900; border: 1px solid rgba(255,255,255,0.1); }
+
+        #game-area { position: absolute; inset: 0; z-index: 20; }
+        .target { position: absolute; width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; }
+        .timer-ring { position: absolute; inset: -5px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.1); border-top: 3px solid var(--primary); animation: spin linear forwards; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        #rank-banner { font-size: 1.3rem; font-weight: 900; color: var(--secondary); margin: 10px 0; text-shadow: 0 0 15px rgba(253, 224, 71, 0.4); }
+    </style>
+</head>
+<body>
+
+<div id="world">
+    <div id="celestial"></div>
+    <div id="forest-layer">
+        <span class="tree">🌲</span><span class="tree">🌳</span><span class="tree">🌲</span><span class="tree">🌳</span>
+    </div>
+    <div id="ground">
+        <div id="trash-container"></div>
+        <div id="flower-container"></div>
+    </div>
+</div>
+
+<div class="hud">
+    <div class="badge">🍃 <span id="score">0</span></div>
+    <div class="badge" style="color: var(--danger)" id="lives">♥♥♥</div>
+</div>
+
+<div id="start-screen" class="overlay">
+    <div class="card">
+        <h1>BOTANICAL RUSH</h1>
+        <div class="asso-tag">BRIDGE AND FLOW FOLK</div>
+        <p style="font-size: 0.85rem; margin-bottom: 20px; line-height: 1.4;">La forêt étouffe ! Récolte l'énergie vitale pour purifier l'air et faire fleurir la nature.</p>
+        
+        <div class="rules-grid">
+            <div class="rule-card"><span>🌿</span><b>+10 PTS</b><span>FEUILLE</span></div>
+            <div class="rule-card"><span>🍄</span><b>DANGER</b><span>CHAMPIGNON</span></div>
+            <div class="rule-card"><span>💧</span><b>RALENTI</b><span>EAU</span></div>
+            <div class="rule-card"><span>⭐</span><b>+100 PTS</b><span>LOGO BFF</span></div>
+        </div>
+
+        <button class="btn btn-play" onclick="startGame()" style="margin-bottom: 15px;">JOUER</button>
+        <a href="https://www.facebook.com/share/14YBdZ5HDyj/" target="_blank" class="btn btn-fb">NOTRE PAGE FACEBOOK</a>
+    </div>
+</div>
+
+<div id="edu-screen" class="overlay" style="display: none;">
+    <div class="card" style="border: 2px solid var(--info);">
+        <div style="font-size: 2.5rem;">💡</div>
+        <h3 style="color: var(--secondary); margin: 10px 0;">LE SAVIEZ-VOUS ?</h3>
+        <p id="fact-text" style="font-size: 0.95rem; line-height: 1.6; min-height: 80px;"></p>
+        <button class="btn btn-play" style="background: var(--info); color: white; box-shadow: 0 6px 0 #2563eb;" onclick="resumeGame()">CONTINUER</button>
+    </div>
+</div>
+
+<div id="gameover-screen" class="overlay" style="display: none;">
+    <div class="card">
+        <h2 style="color: var(--danger); margin: 0; font-size: 0.9rem;">MISSION TERMINÉE</h2>
+        <div id="rank-banner">GRADE : NOVICE</div>
+        <div style="font-size: 3.5rem; font-weight: 900; margin: 10px 0;" id="final-score">0</div>
+        
+        <button class="btn btn-play" onclick="restartGame()">REESSAYER</button>
+        
+        <div style="margin-top: 25px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
+            <p style="font-size: 0.85rem; margin-bottom: 15px; color: var(--primary); font-weight: 700;">PARTAGEZ VOTRE IMPACT !</p>
+            <button class="btn btn-wa" onclick="shareWhatsApp()">WHATSAPP</button>
+            <button class="btn btn-fb" onclick="shareFacebook()">FACEBOOK</button>
+        </div>
+    </div>
+</div>
+
+<div id="game-area"></div>
+
+<script>
+    const FB_LINK = "https://www.facebook.com/share/14YBdZ5HDyj/";
+    
+    const ECO_FACTS = [
+        "Un vieux chêne peut abriter jusqu'à 2 000 espèces. C'est un véritable immeuble de luxe pour la biodiversité !",
+        "Le mycélium est un réseau souterrain qui permet aux arbres de s'échanger du sucre et de s'alerter. C'est l'Internet de la forêt !",
+        "Une seule canette jetée dans la nature mettra entre 200 et 500 ans à disparaître. Chaque déchet ramassé compte !",
+        "Les arbres 'mères' reconnaissent leurs propres pousses et leur envoient des nutriments via leurs racines pour les aider.",
+        "Le Bridge and Flow Folk prône une écologie de la joie : bouger en forêt réduit le stress de 15% en seulement 20 minutes.",
+        "Un seul mégot de cigarette contient plus de 4 000 substances chimiques et peut polluer jusqu'à 1 000 litres d'eau.",
+        "La litière forestière (feuilles mortes) est une éponge géante qui empêche les inondations en absorbant la pluie.",
+        "Les forêts gérées durablement capturent 40% de CO2 en plus que les plantations industrielles.",
+        "Éteindre les lumières la nuit permet aux insectes pollinisateurs nocturnes de ne pas s'épuiser inutilement.",
+        "Les abeilles sont responsables de la pollinisation de 80% des espèces végétales et de 3/4 de nos cultures mondiales.",
+        "Une forêt en bonne santé agit comme un climatiseur naturel : elle peut faire baisser la température locale de 2 à 8°C.",
+        "Le concept de 'Flow' dans la nature, c'est accepter le cycle de la vie : rien ne se perd, tout se transforme en énergie.",
+        "La permaculture s'inspire du fonctionnement de la forêt : chaque élément (plante, animal) a une fonction utile au groupe.",
+        "Le compostage réduit vos ordures ménagères de 30% et crée un engrais naturel gratuit pour nourrir la terre.",
+        "Boire l'eau du robinet plutôt qu'en bouteille permet d'économiser environ 10kg de plastique par personne et par an.",
+        "Les haies entre les champs sont des corridors écologiques : elles permettent aux hérissons et oiseaux de circuler en sécurité.",
+        "La photosynthèse ne crée pas seulement de l'oxygène, elle transforme l'énergie solaire en énergie chimique vitale.",
+        "Réparer un objet au lieu de le racheter réduit votre empreinte carbone de façon spectaculaire. Longue vie aux objets !",
+        "L'agroforesterie (planter des arbres dans les cultures) permet de protéger les sols contre l'érosion et le vent.",
+        "Les vers de terre sont les premiers agriculteurs : ils labourent et aèrent le sol gratuitement pour nous."
+    ];
+
+    const RANKS = [
+        { min: 0, title: "Graine d'Espoir 🌱" },
+        { min: 150, title: "Jeune Pousse 🌿" },
+        { min: 400, title: "Ami des Bois 🌲" },
+        { min: 800, title: "Gardien du Flow 🛡️" },
+        { min: 1500, title: "Protecteur Sylvestre 🌳" },
+        { min: 3000, title: "Maître de la Canopée 👑" }
+    ];
+
+    let score = 0, lives = 3, gameActive = false, itemsCaptured = 0, spawnTimer;
+    let baseSpeed = 1600;
+
+    const AudioEngine = {
+        ctx: null,
+        init() { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); },
+        play(freq, type, duration, vol) {
+            if(!this.ctx || this.ctx.state === 'suspended') return;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = type; osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+            gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
+            osc.connect(gain); gain.connect(this.ctx.destination);
+            osc.start(); osc.stop(this.ctx.currentTime + duration);
+        }
+    };
+
+    function setupWorld() {
+        const trashCont = document.getElementById('trash-container');
+        const flowerCont = document.getElementById('flower-container');
+        trashCont.innerHTML = flowerCont.innerHTML = '';
+        const tIcons = ['🥫', '🚬', '🥤', '🥡'];
+        const fIcons = ['🌸', '🌼', '🌻', '🌺'];
+        for(let i=0; i<12; i++) {
+            const t = document.createElement('span'); t.className = 'trash'; t.innerText = tIcons[i%4]; trashCont.appendChild(t);
+            const f = document.createElement('span'); f.className = 'flower'; f.innerText = fIcons[i%4]; flowerCont.appendChild(f);
+        }
+    }
+
+    function updateVisuals(s) {
+        const progress = Math.min(s / 1000, 1);
+        
+        // Ciel Gris -> Bleu
+        const skyHue = 200; const skySat = Math.floor(progress * 60); const skyLum = 25 + Math.floor(progress * 35);
+        document.getElementById('world').style.background = `hsl(${skyHue}, ${skySat}%, ${skyLum}%)`;
+        
+        // Soleil et Arbres
+        document.getElementById('celestial').style.opacity = 0.1 + (progress * 0.9);
+        document.querySelectorAll('.tree').forEach(t => {
+            t.style.filter = `grayscale(${1 - progress}) brightness(${0.4 + (progress * 0.8)})`;
+            t.style.transform = `translateY(${30 - (progress * 30)}px)`;
+        });
+
+        // Déchets vs Fleurs
+        const trashes = document.querySelectorAll('.trash');
+        const flowers = document.querySelectorAll('.flower');
+        const count = Math.floor(progress * trashes.length);
+        
+        trashes.forEach((t, i) => { 
+            t.style.opacity = i < count ? '0' : '0.6'; 
+            t.style.transform = i < count ? 'scale(0) rotate(180deg)' : 'none'; 
+        });
+        flowers.forEach((f, i) => { 
+            f.style.opacity = i < count ? '1' : '0'; 
+            f.style.transform = i < count ? 'scale(1)' : 'scale(0)'; 
+        });
+    }
+
+    function startGame() {
+        AudioEngine.init();
+        if(AudioEngine.ctx.state === 'suspended') AudioEngine.ctx.resume();
+        document.getElementById('start-screen').style.display = 'none';
+        setupWorld();
+        resetGame();
+    }
+
+    function restartGame() {
+        document.getElementById('gameover-screen').style.display = 'none';
+        resetGame();
+    }
+
+    function resetGame() {
+        score = 0; lives = 3; itemsCaptured = 0; gameActive = true; baseSpeed = 1600;
+        updateVisuals(0);
+        document.getElementById('score').innerText = '0';
+        document.getElementById('lives').innerText = '♥♥♥';
+        document.getElementById('game-area').innerHTML = '';
+        gameLoop();
+    }
+
+    function gameLoop() {
+        if(!gameActive) return;
+        createItem();
+        let interval = Math.max(380, baseSpeed - (score * 2.3));
+        spawnTimer = setTimeout(gameLoop, interval);
+    }
+
+    function createItem() {
+        const item = document.createElement('div');
+        item.className = 'target';
+        const rand = Math.random();
+        let type = 'leaf', content = '🌿';
+        if(rand > 0.92) { 
+            type = 'bff'; 
+            content = `<img src="logo-bff.png" style="width:100%; height:100%; object-fit:contain; filter:drop-shadow(0 0 10px rgba(253,224,71,0.5))">`; 
+        }
+        else if(rand > 0.84) { type = 'mushroom'; content = '🍄'; }
+        else if(rand > 0.76) { type = 'water'; content = '💧'; }
+
+        item.innerHTML = `<span style="font-size:2.8rem">${content}</span><div class="timer-ring"></div>`;
+        const x = Math.random() * (window.innerWidth - 80) + 10;
+        const y = Math.random() * (window.innerHeight - 300) + 120;
+        item.style.left = x + 'px'; item.style.top = y + 'px';
+
+        let dur = Math.max(550, 2000 - (score * 2.5));
+        item.querySelector('.timer-ring').style.animationDuration = dur + 'ms';
+
+        const hit = (e) => { e.preventDefault(); handleHit(type); item.remove(); };
+        item.addEventListener('touchstart', hit); item.addEventListener('mousedown', hit);
+        document.getElementById('game-area').appendChild(item);
+
+        setTimeout(() => { 
+            if(item.parentElement) { 
+                item.remove(); 
+                if(type === 'leaf' || type === 'bff') handleMiss(); 
+            } 
+        }, dur);
+    }
+
+    function handleHit(type) {
+        if(!gameActive) return;
+        let valid = false;
+        if(type === 'leaf') { score += 10; valid = true; AudioEngine.play(800, 'sine', 0.1, 0.1); }
+        else if(type === 'bff') { score += 100; valid = true; AudioEngine.play(1200, 'triangle', 0.3, 0.1); }
+        else if(type === 'mushroom') { score = Math.max(0, score - 50); handleMiss(); }
+        else if(type === 'water') { score += 20; baseSpeed += 250; valid = true; AudioEngine.play(400, 'sine', 0.2, 0.1); }
+
+        document.getElementById('score').innerText = score;
+        updateVisuals(score);
+        if(navigator.vibrate) navigator.vibrate(30);
+
+        if(valid) {
+            itemsCaptured++;
+            if(itemsCaptured % 4 === 0) triggerEducation();
+        }
+    }
+
+    function triggerEducation() {
+        gameActive = false;
+        clearTimeout(spawnTimer);
+        document.getElementById('game-area').innerHTML = ''; // Clear pour éviter bug de mort
+        
+        const fact = ECO_FACTS[Math.floor(Math.random() * ECO_FACTS.length)];
+        document.getElementById('fact-text').innerText = fact;
+        document.getElementById('edu-screen').style.display = 'flex';
+    }
+
+    function resumeGame() {
+        document.getElementById('edu-screen').style.display = 'none';
+        gameActive = true;
+        gameLoop();
+    }
+
+    function handleMiss() {
+        lives--;
+        AudioEngine.play(150, 'sawtooth', 0.3, 0.1);
+        document.getElementById('lives').innerText = '♥'.repeat(Math.max(0, lives));
+        if(lives <= 0) gameOver();
+    }
+
+    function getRank(s) { return RANKS.slice().reverse().find(r => s >= r.min).title; }
+
+    function gameOver() {
+        gameActive = false;
+        clearTimeout(spawnTimer);
+        document.getElementById('rank-banner').innerText = `GRADE : ${getRank(score)}`;
+        document.getElementById('final-score').innerText = score;
+        document.getElementById('gameover-screen').style.display = 'flex';
+    }
+
+    function shareWhatsApp() {
+        const text = `🌿 J'ai atteint le grade "${getRank(score)}" sur Botanical Rush ! Sauve la forêt avec moi : ${FB_LINK}`;
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`);
+    }
+
+    function shareFacebook() {
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(FB_LINK)}`);
+    }
+</script>
+</body>
+</html>

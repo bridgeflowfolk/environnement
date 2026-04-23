@@ -3,205 +3,378 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Catch The Shape - Pro Version</title>
+    <title>Botanical Rush - Prototype Addictif</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #6366f1;
-            --bg: #0f172a;
-            --text: #f8fafc;
+            --bg-forest: #1b261c;
+            --text-light: #e2f0e5;
+            --primary-green: #4ade80;
+            --danger-red: #ef4444;
+            --water-blue: #38bdf8;
+            --glass: rgba(255, 255, 255, 0.1);
         }
+
+        * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
 
         body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            background: var(--bg);
-            color: var(--text);
+            margin: 0; padding: 0;
+            font-family: 'Nunito', sans-serif;
+            background: radial-gradient(circle at center, #2d452f 0%, var(--bg-forest) 100%);
+            color: var(--text-light);
             overflow: hidden;
-            touch-action: manipulation; /* Optimise le tactile */
+            touch-action: manipulation;
+            height: 100vh; width: 100vw;
         }
 
-        /* --- Interface --- */
-        #game-ui {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 10;
-            background: rgba(15, 23, 42, 0.9);
-            text-align: center;
+        /* --- Interface & Menus --- */
+        .overlay {
+            position: absolute; inset: 0;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 20; backdrop-filter: blur(5px);
+            background: rgba(27, 38, 28, 0.8);
+            transition: opacity 0.3s;
         }
 
-        .menu-card {
-            background: #1e293b;
-            padding: 2rem;
-            border-radius: 1rem;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            width: 80%;
-            max-width: 400px;
+        .card {
+            background: var(--glass);
+            border: 2px solid rgba(74, 222, 128, 0.3);
+            border-radius: 20px; padding: 2rem;
+            text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            width: 90%; max-width: 400px;
         }
+
+        h1 { margin-top: 0; color: var(--primary-green); font-size: 2.2rem; text-transform: uppercase; letter-spacing: 1px; }
 
         button {
-            display: block;
-            width: 100%;
-            padding: 1rem;
-            margin: 0.5rem 0;
-            border: none;
-            border-radius: 0.5rem;
-            background: var(--primary);
-            color: white;
-            font-size: 1.1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: transform 0.1s;
+            width: 100%; padding: 1rem; margin-top: 1rem;
+            border: none; border-radius: 12px;
+            background: var(--primary-green); color: var(--bg-forest);
+            font-size: 1.2rem; font-weight: 900;
+            cursor: pointer; transition: transform 0.1s;
         }
-
         button:active { transform: scale(0.95); }
+        .btn-secondary { background: transparent; border: 2px solid var(--primary-green); color: var(--primary-green); }
 
-        .difficulty-btns { display: flex; gap: 5px; }
-        .diff-btn { background: #475569; font-size: 0.9rem; }
-        .diff-btn.active { background: #10b981; }
-
-        /* --- Zone de Jeu --- */
-        #game-container {
-            width: 100vw;
-            height: 100vh;
-            position: relative;
+        /* --- Tutoriel --- */
+        .tuto-item {
+            display: flex; align-items: center; text-align: left;
+            margin: 1rem 0; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 10px;
         }
+        .tuto-icon { font-size: 2rem; margin-right: 15px; }
+        .tuto-text p { margin: 0; font-size: 0.9rem; }
+        .tuto-text strong { font-size: 1.1rem; }
+
+        /* --- HUD (Infos en jeu) --- */
+        .hud {
+            position: absolute; top: 15px; left: 15px; right: 15px;
+            display: flex; justify-content: space-between;
+            font-size: 1.2rem; font-weight: 900; z-index: 10; pointer-events: none;
+        }
+        .hud-score { color: var(--primary-green); }
+        .hud-lives { color: var(--danger-red); }
+        
+        #combo-display {
+            position: absolute; top: 60px; left: 50%; transform: translateX(-50%);
+            font-size: 1.5rem; color: #fbbf24; text-shadow: 0 0 10px #fbbf24;
+            opacity: 0; transition: opacity 0.2s; pointer-events: none;
+        }
+
+        /* --- Cibles (Le Jeu) --- */
+        #game-area { position: absolute; inset: 0; z-index: 1; }
 
         .target {
-            position: absolute;
-            width: 60px;
-            height: 60px;
-            background: #f43f5e;
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 0 20px rgba(244, 63, 94, 0.5);
-            animation: spawn 0.3s ease-out;
+            position: absolute; width: 60px; height: 60px;
+            font-size: 40px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
         }
 
-        @keyframes spawn {
-            from { transform: scale(0); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
+        @keyframes popIn {
+            0% { transform: scale(0) rotate(-20deg); opacity: 0; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
         }
 
-        #stats {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            font-size: 1.2rem;
-            pointer-events: none;
+        .target.shrinking { animation: shrinkOut linear forwards; }
+        @keyframes shrinkOut {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(0); opacity: 0.5; }
+        }
+
+        /* --- Effets visuels --- */
+        .floating-text {
+            position: absolute; font-weight: 900; font-size: 1.5rem;
+            pointer-events: none; animation: floatUp 0.6s ease-out forwards; z-index: 5;
+        }
+        @keyframes floatUp {
+            0% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(-40px); opacity: 0; }
+        }
+        .shake { animation: shake 0.3s ease-in-out; }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+        
+        /* Effet de ralentissement du temps */
+        body.slow-motion::after {
+            content: ''; position: absolute; inset: 0;
+            background: rgba(56, 189, 248, 0.15); pointer-events: none; z-index: 2;
+            box-shadow: inset 0 0 50px rgba(56, 189, 248, 0.5);
         }
     </style>
 </head>
 <body>
 
-    <div id="stats">Score: 0 | Vies: 3</div>
+    <div class="hud">
+        <div class="hud-score">SCORE: <span id="score">0</span></div>
+        <div class="hud-lives">VIES: <span id="lives">3</span></div>
+    </div>
+    <div id="combo-display">x1 COMBO</div>
 
-    <div id="game-ui">
-        <div class="menu-card" id="menu">
-            <h1>CATCH PRO</h1>
-            <p>Choisissez votre difficulté :</p>
-            <div class="difficulty-btns">
-                <button class="diff-btn" onclick="setDiff('easy', this)">Facile</button>
-                <button class="diff-btn active" onclick="setDiff('medium', this)">Moyen</button>
-                <button class="diff-btn" onclick="setDiff('hard', this)">Expert</button>
+    <div id="menu-layer" class="overlay">
+        <div class="card">
+            <h1>Botanical Rush</h1>
+            <p>La nature reprend ses droits.</p>
+            <div style="margin: 1.5rem 0; font-size: 1.1rem;">
+                🏆 Record: <span id="high-score" style="color: var(--primary-green);">0</span>
             </div>
-            <button onclick="startGame()" style="margin-top: 20px; background: #10b981;">LANCER LE JEU</button>
+            <button onclick="startGame()">JOUER</button>
+            <button class="btn-secondary" onclick="showTutorial()">COMMENT JOUER ?</button>
         </div>
     </div>
 
-    <div id="game-container"></div>
+    <div id="tuto-layer" class="overlay" style="display: none;">
+        <div class="card">
+            <h2 style="margin-top:0; color: var(--text-light);">Règles du jeu</h2>
+            
+            <div class="tuto-item">
+                <div class="tuto-icon">🌿</div>
+                <div class="tuto-text">
+                    <strong style="color: var(--primary-green);">La Feuille</strong>
+                    <p>Cliquez vite ! +Points. Si elle disparaît, vous perdez une vie.</p>
+                </div>
+            </div>
+            <div class="tuto-item">
+                <div class="tuto-icon">🍄</div>
+                <div class="tuto-text">
+                    <strong style="color: var(--danger-red);">Le Champignon Toxique</strong>
+                    <p>Ne touchez surtout pas ! Fait perdre des points et brise le combo.</p>
+                </div>
+            </div>
+            <div class="tuto-item">
+                <div class="tuto-icon">💧</div>
+                <div class="tuto-text">
+                    <strong style="color: var(--water-blue);">La Rosée Magique</strong>
+                    <p>Bonus : Ralentit le temps pendant quelques secondes.</p>
+                </div>
+            </div>
+
+            <button onclick="hideTutorial()">J'AI COMPRIS</button>
+        </div>
+    </div>
+
+    <div id="gameover-layer" class="overlay" style="display: none;">
+        <div class="card">
+            <h1 id="go-title" style="color: var(--danger-red);">GAME OVER</h1>
+            <p id="go-score">Score final : 0</p>
+            <button onclick="startGame()">REJOUER</button>
+            <button class="btn-secondary" onclick="showMenu()">MENU PRINCIPAL</button>
+        </div>
+    </div>
+
+    <div id="game-area"></div>
 
     <script>
-        const container = document.getElementById('game-container');
-        const ui = document.getElementById('game-ui');
-        const statsEl = document.getElementById('stats');
+        // DOM Elements
+        const uiMenu = document.getElementById('menu-layer');
+        const uiTuto = document.getElementById('tuto-layer');
+        const uiGameOver = document.getElementById('gameover-layer');
+        const gameArea = document.getElementById('game-area');
+        const scoreEl = document.getElementById('score');
+        const livesEl = document.getElementById('lives');
+        const comboEl = document.getElementById('combo-display');
+        const highScoreEl = document.getElementById('high-score');
         
-        let score = 0;
-        let lives = 3;
-        let gameActive = false;
-        let config = { speed: 1500, duration: 1200 }; // Défaut : Moyen
+        // Game Variables
+        let score = 0, lives = 3, combo = 1;
+        let gameActive = false, isSlowMotion = false;
+        let spawnTimeout;
+        let baseSpeed = 1200; // Vitesse d'apparition (ms)
+        let highScore = localStorage.getItem('botanicalHS') || 0;
+        highScoreEl.innerText = highScore;
 
-        function setDiff(level, btn) {
-            document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            
-            if(level === 'easy') config = { speed: 2000, duration: 1800 };
-            if(level === 'medium') config = { speed: 1200, duration: 1000 };
-            if(level === 'hard') config = { speed: 800, duration: 600 };
-        }
+        // Navigation Menus
+        function showTutorial() { uiMenu.style.display = 'none'; uiTuto.style.display = 'flex'; }
+        function hideTutorial() { uiTuto.style.display = 'none'; uiMenu.style.display = 'flex'; }
+        function showMenu() { uiGameOver.style.display = 'none'; uiMenu.style.display = 'flex'; }
 
+        // Core Game Loop
         function startGame() {
-            score = 0;
-            lives = 3;
-            gameActive = true;
-            ui.style.display = 'none';
-            updateStats();
-            spawnLoop();
+            score = 0; lives = 3; combo = 1; baseSpeed = 1200;
+            gameActive = true; isSlowMotion = false;
+            document.body.classList.remove('slow-motion');
+            
+            updateUI();
+            uiMenu.style.display = 'none';
+            uiGameOver.style.display = 'none';
+            gameArea.innerHTML = ''; 
+            
+            scheduleNextSpawn();
         }
 
-        function updateStats() {
-            statsEl.innerText = `Score: ${score} | Vies: ${lives}`;
+        function updateUI() {
+            scoreEl.innerText = score;
+            livesEl.innerText = '♥'.repeat(Math.max(0, lives));
+            
+            if(combo > 1) {
+                comboEl.innerText = `x${combo} COMBO!`;
+                comboEl.style.opacity = '1';
+                setTimeout(() => { if(combo > 1) comboEl.style.opacity = '0.7'; }, 300);
+            } else {
+                comboEl.style.opacity = '0';
+            }
         }
 
-        function spawnLoop() {
+        function scheduleNextSpawn() {
             if(!gameActive) return;
-
-            createTarget();
-            setTimeout(spawnLoop, config.speed);
+            spawnTarget();
+            
+            // Accélération du jeu (sauf si mode ralenti)
+            if(!isSlowMotion) baseSpeed = Math.max(500, baseSpeed - 15);
+            
+            // Le délai d'apparition est plus long si le temps est ralenti
+            let nextSpawnDelay = isSlowMotion ? baseSpeed * 2 : baseSpeed;
+            spawnTimeout = setTimeout(scheduleNextSpawn, nextSpawnDelay);
         }
 
-        function createTarget() {
+        function spawnTarget() {
             const target = document.createElement('div');
             target.className = 'target';
             
-            // Calcul des positions pour éviter les bords du mobile
+            // Déterminer le type de cible (70% normal, 20% piège, 10% bonus)
+            const rand = Math.random();
+            let type = 'normal';
+            let icon = '🌿';
+            if (rand > 0.90) { type = 'bonus'; icon = '💧'; }
+            else if (rand > 0.70) { type = 'trap'; icon = '🍄'; }
+            
+            target.innerText = icon;
+            target.dataset.type = type;
+
+            // Positionnement
             const size = 60;
             const x = Math.random() * (window.innerWidth - size);
-            const y = Math.random() * (window.innerHeight - size - 50) + 40;
-
+            const y = Math.random() * (window.innerHeight - size - 120) + 60;
             target.style.left = `${x}px`;
             target.style.top = `${y}px`;
 
-            // Gestion du clic/toucher
+            // Durée de vie de la cible à l'écran
+            let lifeTime = isSlowMotion ? baseSpeed * 2.5 : Math.max(800, baseSpeed * 1.2);
+            target.style.animationDuration = `${lifeTime}ms`;
+            target.classList.add('shrinking');
+
+            let clicked = false;
+
             target.addEventListener('pointerdown', (e) => {
                 e.stopPropagation();
-                score += 10;
-                updateStats();
+                if(clicked) return;
+                clicked = true;
+                
+                handleTargetClick(type, x, y);
+                
+                target.style.display = 'none';
                 target.remove();
             });
 
-            container.appendChild(target);
+            gameArea.appendChild(target);
 
-            // Disparition si non cliqué
+            // Gérer la disparition automatique (si non cliqué)
             setTimeout(() => {
-                if(target.parentElement) {
+                if(target.parentElement && !clicked) {
                     target.remove();
-                    loseLife();
+                    if(type === 'normal') {
+                        loseLife(); // Rater une feuille fait perdre une vie
+                    }
+                    // Rater un piège ou un bonus n'a pas de pénalité
                 }
-            }, config.duration);
+            }, lifeTime);
+        }
+
+        function handleTargetClick(type, x, y) {
+            if (type === 'normal') {
+                const pointsEarned = 10 * combo;
+                score += pointsEarned;
+                combo++;
+                showText(`+${pointsEarned}`, x, y, '#4ade80');
+            } 
+            else if (type === 'trap') {
+                score = Math.max(0, score - 50);
+                combo = 1;
+                showText('-50', x, y, '#ef4444');
+                document.body.classList.add('shake');
+                setTimeout(() => document.body.classList.remove('shake'), 300);
+            }
+            else if (type === 'bonus') {
+                showText('RALENTI !', x, y, '#38bdf8');
+                activateSlowMotion();
+            }
+            updateUI();
+        }
+
+        function activateSlowMotion() {
+            if(isSlowMotion) return; // Déjà actif
+            isSlowMotion = true;
+            document.body.classList.add('slow-motion');
+            
+            // Désactiver le ralenti après 4 secondes
+            setTimeout(() => {
+                isSlowMotion = false;
+                document.body.classList.remove('slow-motion');
+            }, 4000);
+        }
+
+        function showText(msg, x, y, color) {
+            const text = document.createElement('div');
+            text.className = 'floating-text';
+            text.innerText = msg;
+            text.style.color = color;
+            text.style.left = `${x + 10}px`;
+            text.style.top = `${y - 20}px`;
+            gameArea.appendChild(text);
+            setTimeout(() => text.remove(), 600);
         }
 
         function loseLife() {
             lives--;
-            updateStats();
-            if(lives <= 0) {
-                gameOver();
-            }
+            combo = 1;
+            updateUI();
+            document.body.classList.add('shake');
+            setTimeout(() => document.body.classList.remove('shake'), 300);
+
+            if(lives <= 0) gameOver();
         }
 
         function gameOver() {
             gameActive = false;
-            container.innerHTML = '';
-            ui.style.display = 'flex';
-            document.querySelector('#menu h1').innerText = "GAME OVER";
-            document.querySelector('#menu p').innerText = `Score final : ${score}`;
+            clearTimeout(spawnTimeout);
+            
+            document.getElementById('go-score').innerText = `Score final : ${score}`;
+            const title = document.getElementById('go-title');
+
+            if(score > highScore) {
+                highScore = score;
+                localStorage.setItem('botanicalHS', highScore);
+                highScoreEl.innerText = highScore;
+                title.innerText = "NOUVEAU RECORD !";
+                title.style.color = "var(--primary-green)";
+            } else {
+                title.innerText = "GAME OVER";
+                title.style.color = "var(--danger-red)";
+            }
+
+            uiGameOver.style.display = 'flex';
         }
     </script>
 </body>

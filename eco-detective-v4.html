@@ -2490,20 +2490,57 @@ function wamBuildGrid(){
 function wamStart(){
   unlockAudio();
   wamStop();
-  Object.assign(wamState, { running:true, score:0, combo:0, hits:0, misses:0, timeLeft:WAM_DURATION, items:[] });
+  
+  // Initialisation de l'état
+  Object.assign(wamState, { 
+    running:true, 
+    score:0, 
+    combo:0, 
+    hits:0, 
+    misses:0, 
+    timeLeft:WAM_DURATION, 
+    items:[] 
+  });
+
+  // Gestion de l'interface
   document.getElementById('wam-start-screen').style.display = 'none';
   const es = document.getElementById('wam-end-screen');
-  es.style.display = 'none'; es.innerHTML = '';
+  es.style.display = 'none'; 
+  es.innerHTML = '';
+  
   document.getElementById('wam-score').textContent = '0';
-  document.getElementById('wam-timer').textContent = WAM_DURATION;
-  document.getElementById('wam-timer-pill').classList.remove('urgent');
+  const timerDisplay = document.getElementById('wam-timer');
+  const timerPill = document.getElementById('wam-timer-pill');
+  
+  timerDisplay.textContent = WAM_DURATION;
 
+  // 🔧 FIX CLIC : désactive complètement toute interaction + force derrière
+  timerPill.classList.remove('urgent');
+  timerPill.style.pointerEvents = 'none';
+  timerPill.style.zIndex = '0';
+
+  // Boucle du chrono
   wamState.interval = setInterval(()=>{
     wamState.timeLeft--;
-    document.getElementById('wam-timer').textContent = wamState.timeLeft;
-    if(wamState.timeLeft <= 5){ document.getElementById('wam-timer-pill').classList.add('urgent'); if('vibrate' in navigator) navigator.vibrate(30); }
-    if(wamState.timeLeft <= 0){ clearInterval(wamState.interval); wamEnd(); }
+    timerDisplay.textContent = wamState.timeLeft;
+
+    // Gestion des 5 dernières secondes
+    if(wamState.timeLeft <= 5 && wamState.timeLeft > 0){ 
+      timerPill.classList.add('urgent'); 
+
+      // 🔧 FIX CLIC : réapplique à chaque tick (évite override CSS)
+      timerPill.style.pointerEvents = 'none';
+      timerPill.style.zIndex = '0';
+
+      if('vibrate' in navigator) navigator.vibrate(30);
+    }
+
+    if(wamState.timeLeft <= 0){ 
+      clearInterval(wamState.interval); 
+      wamEnd();
+    }
   }, 1000);
+
   wamScheduleSpawn();
 }
 function wamStop(){
